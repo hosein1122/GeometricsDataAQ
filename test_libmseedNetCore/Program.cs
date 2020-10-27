@@ -33,10 +33,16 @@ namespace test_libmseedNetCore
             //genutils.test_ms_hptime2btime();
             // genutils.test_ms_time2hptime_int();
             //packdata.Test_Steim2();
-            StationAnalysisTools.test_GetPhaseSpectrum();
 
 
-
+            //StationAnalysisTools.test_GetPhaseSpectrum();
+            StationAnalysisTools.test_HammingTaper();
+            //StationAnalysisTools.test_HannTaper();
+            // StationAnalysisTools.test_ComplexAmplitude();
+            // StationAnalysisTools.test_ComplexExp();
+            //StationAnalysisTools.test_RemoveTrend();
+            //StationAnalysisTools.test_RemoveMean();
+            //StationAnalysisTools.test_CcosTaper();
 
         }
 

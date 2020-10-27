@@ -862,43 +862,43 @@ namespace StationAnalysisToolsNetCore
         //       //END
 
         //       //phase_shift  
-        //       private void phase_shift(double t_shift, double dt, int np, fftw_complex[] spect_in)
-        //       {
-        //           double tpi = 2 * PI;
-        //           double t;
-        //           double w;
-        //           double phi;
-        //           int i;
-        //           int j;
-        //           int nspec;
-        //           COMPLEX_RP ca = new COMPLEX_RP();
-        //           COMPLEX_RP cx = new COMPLEX_RP();
-        //           COMPLEX_RP temp_complex = new COMPLEX_RP();
-        //           COMPLEX_RP cb = new COMPLEX_RP();
+        private void phase_shift(double t_shift, double dt, int np, fftw_complex[] spect_in)
+        {
+            double tpi = 2 * PI;
+            double t;
+            double w;
+            double phi;
+            int i;
+            int j;
+            int nspec;
+            COMPLEX_RP ca = new COMPLEX_RP();
+            COMPLEX_RP cx = new COMPLEX_RP();
+            COMPLEX_RP temp_complex = new COMPLEX_RP();
+            COMPLEX_RP cb = new COMPLEX_RP();
 
-        //           nspec = (int)Math.Floor(np / 2 + 1.5);
-        //           t = (double)np * dt;
+            nspec = (int)Math.Floor(np / 2 + 1.5);
+            t = (double)np * dt;
 
-        //           //	for (i=1; i < np / 2+1; i++) {
-        //           for (i = 0; i < nspec; i++)
-        //           {
-        //               temp_complex.real = spect_in[i][0];
-        //               temp_complex.imag = spect_in[i][1];
-        //               //		printf("i: %d\n",i);
-        //               //		j = i - 1;
-        //               j = i;
-        //               w = tpi * (double)j / t;
-        //               phi = w * t_shift;
-        //               ca.real = 0.0;
-        //               ca.imag = -1.0 * phi;
-        //               cb = complex_exp(ca);
-        //               cx = complex_multiply(temp_complex, cb);
-        //               spect_in[i][0] = cx.real;
-        //               spect_in[i][1] = cx.imag;
-        //           }
-        //           return;
-        //       }
-        //       //END
+            //	for (i=1; i < np / 2+1; i++) {
+            for (i = 0; i < nspec; i++)
+            {
+                temp_complex.real = spect_in[i][0];
+                temp_complex.imag = spect_in[i][1];
+                //		printf("i: %d\n",i);
+                //		j = i - 1;
+                j = i;
+                w = tpi * (double)j / t;
+                phi = w * t_shift;
+                ca.real = 0.0;
+                ca.imag = -1.0 * phi;
+                cb = complex_exp(ca);
+                cx = complex_multiply(temp_complex, cb);
+                spect_in[i][0] = cx.real;
+                spect_in[i][1] = cx.imag;
+            }
+            return;
+        }
+        //END
 
 
         //       ///FIND_TIME_SHIFT
@@ -1206,51 +1206,51 @@ namespace StationAnalysisToolsNetCore
         //       ///END
 
 
-        //average ratio between two spectrums
-        //private COMPLEX_RP AverageSpectralRatio(FftwArrayComplex[] signal_spectrum, FftwArrayComplex[] untapered_spectrum, int nspec)
-        //{
-        //    int i;
-        //    double sum_re = 0.0;
-        //    double sum_im = 0.0;
-        //    double temp;
-        //    COMPLEX_RP ratio = new COMPLEX_RP();
+        //////average ratio between two spectrums
+        ////private COMPLEX_RP AverageSpectralRatio(FftwArrayComplex[] signal_spectrum, FftwArrayComplex[] untapered_spectrum, int nspec)
+        ////{
+        ////    int i;
+        ////    double sum_re = 0.0;
+        ////    double sum_im = 0.0;
+        ////    double temp;
+        ////    COMPLEX_RP ratio = new COMPLEX_RP();
 
-        //    ratio.real = 0.0;
-        //    ratio.imag = 0.0;
+        ////    ratio.real = 0.0;
+        ////    ratio.imag = 0.0;
 
-        //    for (i = 0; i < nspec; i++)
-        //    {
-        //        if (signal_spectrum[i][0] < 0.001 || untapered_spectrum[i][0] < 0.001)
-        //        {
-        //            temp = 1.0;
-        //        }
-        //        else
-        //        {
-        //            temp = Math.Abs(signal_spectrum[i][0] / untapered_spectrum[i][0]);
-        //        }
-        //        sum_re = sum_re + temp;
-        //        if (signal_spectrum[i][1] < 0.001 || untapered_spectrum[i][1] < 0.001)
-        //        {
-        //            temp = 1.0;
-        //        }
-        //        else
-        //        {
-        //            temp = Math.Abs(signal_spectrum[i][1] / untapered_spectrum[i][1]);
-        //        }
-        //        sum_im = sum_im + temp;
+        ////    for (i = 0; i < nspec; i++)
+        ////    {
+        ////        if (signal_spectrum[i][0] < 0.001 || untapered_spectrum[i][0] < 0.001)
+        ////        {
+        ////            temp = 1.0;
+        ////        }
+        ////        else
+        ////        {
+        ////            temp = Math.Abs(signal_spectrum[i][0] / untapered_spectrum[i][0]);
+        ////        }
+        ////        sum_re = sum_re + temp;
+        ////        if (signal_spectrum[i][1] < 0.001 || untapered_spectrum[i][1] < 0.001)
+        ////        {
+        ////            temp = 1.0;
+        ////        }
+        ////        else
+        ////        {
+        ////            temp = Math.Abs(signal_spectrum[i][1] / untapered_spectrum[i][1]);
+        ////        }
+        ////        sum_im = sum_im + temp;
 
-        //    }
+        ////    }
 
-        //    ratio.real = sum_re / (double)nspec;
-        //    ratio.imag = sum_im / (double)nspec;
+        ////    ratio.real = sum_re / (double)nspec;
+        ////    ratio.imag = sum_im / (double)nspec;
 
-        //    return ratio;
-        //}
-        ////END
+        ////    return ratio;
+        ////}
+        //////END
 
 
         //calculate a 10% cosine taper
-        private void CcosTaper(double[] arr_in, ref double[] arr_out, int npts)
+        private static void CcosTaper(double[] arr_in, ref double[] arr_out, int npts)
         {
             int i;
             int M;
@@ -1276,8 +1276,20 @@ namespace StationAnalysisToolsNetCore
         }
         /////END
 
+        public static void test_CcosTaper()
+        {
+            double[] arr_in = new double[] { 1, 21, 3, 4, 5 };
+            double[] arr_out = new double[] { 1, 2, 3, 4, 5 };
+            CcosTaper(arr_in, ref arr_out, 5);
+            foreach (double d in arr_out)
+            {
+                Console.WriteLine(d);
+            }
+        }
+
+
         //remove_mean
-        private void RemoveMean(double[] arr_in, ref double[] arr_out, int npts)
+        private static void RemoveMean(double[] arr_in, ref double[] arr_out, int npts)
         {
             int i;
             double sum = 0.0;
@@ -1294,7 +1306,19 @@ namespace StationAnalysisToolsNetCore
         }
         ///END
 
-        private void RemoveTrend(double[] arr_in, ref double[] arr_out, int npts)
+        public static void test_RemoveMean()
+        {
+            double[] arr_in = new double[] { 1, 21, 3, 4, 5 };
+            double[] arr_out = new double[] { 1, 2, 3, 4, 5 };
+            RemoveMean(arr_in, ref arr_out, 5);
+            foreach (double d in arr_out)
+            {
+                Console.WriteLine(d);
+            }
+        }
+
+
+        private static void RemoveTrend(double[] arr_in, ref double[] arr_out, int npts)
         {
             int i;
             double ata11;
@@ -1354,6 +1378,16 @@ namespace StationAnalysisToolsNetCore
         } // end linear detrend
           ////END
 
+        public static void test_RemoveTrend()
+        {
+            double[] arr_in = new double[] { 1, 21, 3, 4, 5 };
+            double[] arr_out = new double[] { 1, 2, 3, 4, 5 };
+            RemoveTrend(arr_in, ref arr_out, 5);
+            foreach (double d in arr_out)
+            {
+                Console.WriteLine(d);
+            }
+        }
 
         //complex math
         private COMPLEX_RP Conjugate(COMPLEX_RP comp)
@@ -1401,7 +1435,7 @@ namespace StationAnalysisToolsNetCore
             return comp_out;
         }
 
-        private COMPLEX_RP ComplexExp(COMPLEX_RP comp)
+        private static COMPLEX_RP ComplexExp(COMPLEX_RP comp)
         {
             COMPLEX_RP comp_out = new COMPLEX_RP();
             comp_out.real = Math.Exp(comp.real) * Math.Cos(comp.imag);
@@ -1409,9 +1443,33 @@ namespace StationAnalysisToolsNetCore
             return comp_out;
         }
 
-        private double ComplexAmplitude(COMPLEX_RP comp)
+        public static void test_ComplexExp()
+        {
+            COMPLEX_RP cOMPLEX_RP = new COMPLEX_RP();
+            cOMPLEX_RP.real = 1;
+            cOMPLEX_RP.imag = 2;
+
+            COMPLEX_RP r = ComplexExp(cOMPLEX_RP);
+
+            Console.WriteLine("real = " + r.real + " img = " + r.imag);
+
+        }
+
+        private static double ComplexAmplitude(COMPLEX_RP comp)
         {
             return Math.Sqrt(comp.real * comp.real + comp.imag * comp.imag);
+        }
+
+        public static void test_ComplexAmplitude()
+        {
+            COMPLEX_RP cOMPLEX_RP = new COMPLEX_RP();
+            cOMPLEX_RP.real = 1;
+            cOMPLEX_RP.imag = 2;
+
+            double r = ComplexAmplitude(cOMPLEX_RP);
+            
+                Console.WriteLine(r);
+            
         }
 
 
@@ -1445,7 +1503,7 @@ namespace StationAnalysisToolsNetCore
 
 
         ///hann taper
-        private void HannTaper(double[] arr_in, ref double[] arr_out, int npts)
+        private static void HannTaper(double[] arr_in, ref double[] arr_out, int npts)
         {
             int i;
             for (i = 0; i < npts; i++)
@@ -1457,9 +1515,21 @@ namespace StationAnalysisToolsNetCore
         }
         ///END
 
+        public static void test_HannTaper()
+        {
+            double[] arr_in = new double[] { 1, 2, 3, 4, 5 };
+            double[] arr_out = new double[] { 1, 2, 3, 4, 5 };
+            HannTaper(arr_in, ref arr_out, 5);
+            foreach (double d in arr_out)
+            {
+                Console.WriteLine(d);
+            }
+        }
+
+
 
         //hamming_taper
-        private void HammingTaper(double[] arr_in, ref double[] arr_out, int npts)
+        private static void HammingTaper(double[] arr_in, ref double[] arr_out, int npts)
         {
             int i;
             for (i = 0; i < npts; i++)
@@ -1469,6 +1539,17 @@ namespace StationAnalysisToolsNetCore
             return;
         }
         ///END
+
+        public static void test_HammingTaper()
+        {
+            double[] arr_in = new double[] { 1, 2, 3, 4, 5 };
+            double[] arr_out = new double[] { 1, 2, 3, 4, 5 };
+            HammingTaper(arr_in, ref arr_out,5);
+            foreach (double d in arr_out)
+            {
+                Console.WriteLine(d);
+            }
+        }
 
 
         ///get_phase_spectrum
