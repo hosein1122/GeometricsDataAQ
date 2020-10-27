@@ -5,7 +5,7 @@ using static StationAnalysisToolsNetCore.Definitions;
 using FFTW.NET;
 namespace StationAnalysisToolsNetCore
 {
-    public class Class1
+    public class StationAnalysisTools
     {
 
         //       //once we have the 9component cross and auto spectra computed, we can finish the sleeman noise
@@ -1207,46 +1207,46 @@ namespace StationAnalysisToolsNetCore
 
 
         //average ratio between two spectrums
-        private COMPLEX_RP AverageSpectralRatio(FftwArrayComplex[] signal_spectrum, FftwArrayComplex[] untapered_spectrum, int nspec)
-        {
-            int i;
-            double sum_re = 0.0;
-            double sum_im = 0.0;
-            double temp;
-            COMPLEX_RP ratio = new COMPLEX_RP();
+        //private COMPLEX_RP AverageSpectralRatio(FftwArrayComplex[] signal_spectrum, FftwArrayComplex[] untapered_spectrum, int nspec)
+        //{
+        //    int i;
+        //    double sum_re = 0.0;
+        //    double sum_im = 0.0;
+        //    double temp;
+        //    COMPLEX_RP ratio = new COMPLEX_RP();
 
-            ratio.real = 0.0;
-            ratio.imag = 0.0;
+        //    ratio.real = 0.0;
+        //    ratio.imag = 0.0;
 
-            for (i = 0; i < nspec; i++)
-            {
-                if (signal_spectrum[i][0] < 0.001 || untapered_spectrum[i][0] < 0.001)
-                {
-                    temp = 1.0;
-                }
-                else
-                {
-                    temp = Math.Abs(signal_spectrum[i][0] / untapered_spectrum[i][0]);
-                }
-                sum_re = sum_re + temp;
-                if (signal_spectrum[i][1] < 0.001 || untapered_spectrum[i][1] < 0.001)
-                {
-                    temp = 1.0;
-                }
-                else
-                {
-                    temp = Math.Abs(signal_spectrum[i][1] / untapered_spectrum[i][1]);
-                }
-                sum_im = sum_im + temp;
+        //    for (i = 0; i < nspec; i++)
+        //    {
+        //        if (signal_spectrum[i][0] < 0.001 || untapered_spectrum[i][0] < 0.001)
+        //        {
+        //            temp = 1.0;
+        //        }
+        //        else
+        //        {
+        //            temp = Math.Abs(signal_spectrum[i][0] / untapered_spectrum[i][0]);
+        //        }
+        //        sum_re = sum_re + temp;
+        //        if (signal_spectrum[i][1] < 0.001 || untapered_spectrum[i][1] < 0.001)
+        //        {
+        //            temp = 1.0;
+        //        }
+        //        else
+        //        {
+        //            temp = Math.Abs(signal_spectrum[i][1] / untapered_spectrum[i][1]);
+        //        }
+        //        sum_im = sum_im + temp;
 
-            }
+        //    }
 
-            ratio.real = sum_re / (double)nspec;
-            ratio.imag = sum_im / (double)nspec;
+        //    ratio.real = sum_re / (double)nspec;
+        //    ratio.imag = sum_im / (double)nspec;
 
-            return ratio;
-        }
-        //END
+        //    return ratio;
+        //}
+        ////END
 
 
         //calculate a 10% cosine taper
@@ -1472,7 +1472,7 @@ namespace StationAnalysisToolsNetCore
 
 
         ///get_phase_spectrum
-        private void GetPhaseSpectrum(SPECTRUM spect_in, ref double[] arr_out)
+        public static void GetPhaseSpectrum(SPECTRUM spect_in, ref double[] arr_out)
         {
             int i;
 
@@ -1484,6 +1484,20 @@ namespace StationAnalysisToolsNetCore
             return;
         }
         //END   
+
+        public static void test_GetPhaseSpectrum()
+        {
+            Definitions.SPECTRUM sPECTRUM = new Definitions.SPECTRUM();
+            sPECTRUM.N = 4;
+            sPECTRUM.re = new double[] { 1, 2, 3, 4 };
+            sPECTRUM.im = new double[] { 1, 2, 3, 4 };
+            double[] result = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            StationAnalysisTools.GetPhaseSpectrum(sPECTRUM, ref result);
+            foreach (double d in result)
+            {
+                Console.WriteLine(d);
+            }
+        }
 
     }
 }

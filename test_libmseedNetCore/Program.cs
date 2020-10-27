@@ -1,4 +1,7 @@
 ﻿using libmseedNetCore;
+using StationAnalysisToolsNetCore;
+using System;
+
 namespace test_libmseedNetCore
 {
     class Program
@@ -28,8 +31,13 @@ namespace test_libmseedNetCore
             //genutils.test_btime2isotimestr();
             //genutils.test_ms_hptime2tomsusecoffset();
             //genutils.test_ms_hptime2btime();
-           // genutils.test_ms_time2hptime_int();
-           packdata.Test_Steim2();
+            // genutils.test_ms_time2hptime_int();
+            //packdata.Test_Steim2();
+            StationAnalysisTools.test_GetPhaseSpectrum();
+
+
+
+
         }
 
 
