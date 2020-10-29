@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace StationAnalysisToolsNetCore
+﻿namespace StationAnalysisToolsNetCore
 {
- public class Definitions
+    public class Definitions
     {
 		public const double PI = 3.14159265358979311600;
 		public const int NPTS_SAC_FILE_MAX = 17280000;

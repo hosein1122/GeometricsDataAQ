@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using FFTW.NET;
 using StationAnalysisToolsNetCore;
 using static StationAnalysisToolsNetCore.Definitions;
-using FFTW.NET;
+using static StationAnalysisToolsNetCore.MySAC;
+
 namespace StationAnalysisToolsNetCore
 {
     public class StationAnalysisTools
@@ -862,43 +864,43 @@ namespace StationAnalysisToolsNetCore
         //       //END
 
         //       //phase_shift  
-        private void phase_shift(double t_shift, double dt, int np, fftw_complex[] spect_in)
-        {
-            double tpi = 2 * PI;
-            double t;
-            double w;
-            double phi;
-            int i;
-            int j;
-            int nspec;
-            COMPLEX_RP ca = new COMPLEX_RP();
-            COMPLEX_RP cx = new COMPLEX_RP();
-            COMPLEX_RP temp_complex = new COMPLEX_RP();
-            COMPLEX_RP cb = new COMPLEX_RP();
+        //private void phase_shift(double t_shift, double dt, int np, fftw_complex *spect_in)
+        //{
+        //    double tpi = 2 * PI;
+        //    double t;
+        //    double w;
+        //    double phi;
+        //    int i;
+        //    int j;
+        //    int nspec;
+        //    COMPLEX_RP ca = new COMPLEX_RP();
+        //    COMPLEX_RP cx = new COMPLEX_RP();
+        //    COMPLEX_RP temp_complex = new COMPLEX_RP();
+        //    COMPLEX_RP cb = new COMPLEX_RP();
 
-            nspec = (int)Math.Floor(np / 2 + 1.5);
-            t = (double)np * dt;
+        //    nspec = (int)Math.Floor(np / 2 + 1.5);
+        //    t = (double)np * dt;
 
-            //	for (i=1; i < np / 2+1; i++) {
-            for (i = 0; i < nspec; i++)
-            {
-                temp_complex.real = spect_in[i][0];
-                temp_complex.imag = spect_in[i][1];
-                //		printf("i: %d\n",i);
-                //		j = i - 1;
-                j = i;
-                w = tpi * (double)j / t;
-                phi = w * t_shift;
-                ca.real = 0.0;
-                ca.imag = -1.0 * phi;
-                cb = complex_exp(ca);
-                cx = complex_multiply(temp_complex, cb);
-                spect_in[i][0] = cx.real;
-                spect_in[i][1] = cx.imag;
-            }
-            return;
-        }
-        //END
+        //    //	for (i=1; i < np / 2+1; i++) {
+        //    for (i = 0; i < nspec; i++)
+        //    {
+        //        temp_complex.real = spect_in[i][0];
+        //        temp_complex.imag = spect_in[i][1];
+        //        //		printf("i: %d\n",i);
+        //        //		j = i - 1;
+        //        j = i;
+        //        w = tpi * (double)j / t;
+        //        phi = w * t_shift;
+        //        ca.real = 0.0;
+        //        ca.imag = -1.0 * phi;
+        //        cb = complex_exp(ca);
+        //        cx = complex_multiply(temp_complex, cb);
+        //        spect_in[i][0] = cx.real;
+        //        spect_in[i][1] = cx.imag;
+        //    }
+        //    return;
+        //}
+        ////END
 
 
         //       ///FIND_TIME_SHIFT
@@ -1181,30 +1183,40 @@ namespace StationAnalysisToolsNetCore
 
 
 
-        //       //decon_response_function
-        //       private void decon_response_function(fftw_complex[] data_spect, fftw_complex[] response_spect, fftw_complex[] spect_out, int nspec)
-        //       {
-        //           int i;
-        //           COMPLEX_RP temp_data = new COMPLEX_RP();
-        //           COMPLEX_RP temp_response = new COMPLEX_RP();
-        //           COMPLEX_RP temp_out = new COMPLEX_RP();
+        //decon_response_function
+        private void decon_response_function(FftwArrayComplex data_spect, FftwArrayComplex response_spect ,ref FftwArrayComplex spect_out, int nspec)
+        {
+            
+            int i;
+            COMPLEX_RP temp_data = new COMPLEX_RP();
+            COMPLEX_RP temp_response = new COMPLEX_RP();
+            COMPLEX_RP temp_out = new COMPLEX_RP();
 
-        //           for (i = 1; i < nspec; i++)
-        //           {
-        //               temp_data.real = data_spect[i][0];
-        //               temp_data.imag = data_spect[i][1];
-        //               temp_response.real = response_spect[i][0];
-        //               temp_response.imag = response_spect[i][1];
-        //               temp_out = complex_divide(temp_data, temp_response);
-        //               spect_out[i][0] = temp_out.real;
-        //               spect_out[i][1] = temp_out.imag;
-        //           }
+            for (i = 1; i < nspec; i++)
+            {
+                temp_data.real = data_spect[i].Real; //data_spect[i][0];
+                temp_data.imag = data_spect[i].Imaginary;
+                temp_response.real = response_spect[i].Real;
+                temp_response.imag = response_spect[i].Imaginary;
+                temp_out = ComplexDivide(temp_data, temp_response);
+                spect_out[i] = new System.Numerics.Complex(temp_out.real, temp_out.imag);
+                //spect_out[i].Real = temp_out.real;
+                //spect_out[i].Imaginary = temp_out.imag;
+            }
+            
+            return;
 
-        //           return;
-
-        //       }
-        //       ///END
-
+        }
+        ///END
+        public void test_decon_response_function()
+        {
+            FftwArrayComplex data_spect = new FftwArrayComplex(5);
+            
+            data_spect[0] = new System.Numerics.Complex(1, 1);
+            data_spect[0] = new System.Numerics.Complex(1, 1);
+            FftwArrayComplex response_spect=new FftwArrayComplex(5);
+            FftwArrayComplex spect_out = new FftwArrayComplex(5);
+        }
 
         //////average ratio between two spectrums
         ////private COMPLEX_RP AverageSpectralRatio(FftwArrayComplex[] signal_spectrum, FftwArrayComplex[] untapered_spectrum, int nspec)
@@ -1579,6 +1591,63 @@ namespace StationAnalysisToolsNetCore
                 Console.WriteLine(d);
             }
         }
+
+
+
+        //read a sac file
+        private int read_sac(string fname, ref float sig, SAC SHD, int nmax)
+        {
+            FILE fsac;
+            errno_t err = new errno_t();
+            err = fopen_s(fsac, fname, "rb", "a");
+            if (err != null)
+            {
+                //fclose (fsac);
+                return 0;
+            }
+
+            if (SHD == null)
+            {
+                SHD = new SAC();
+            }
+
+            fread(SHD, sizeof(SAC_HD), 1, fsac);
+
+            if (SHD.npts > nmax)
+            {
+                Console.Error.Write("ATTENTION !!! in the file {0} the number of points is limited to {1:D}\n", fname, nmax);
+
+                SHD.npts = nmax;
+            }
+
+            fread(sig, sizeof(float), (int)(SHD.npts), fsac);
+
+            fclose(fsac);
+
+            /*-------------  calculate the initial time  ----------------*/
+            {
+                int eh;
+                int em;
+                int i;
+                float fes;
+                string koo = new string(new char[9]);
+
+                for (i = 0; i < 8; i++)
+                {
+                    koo = StringFunctions.ChangeCharacter(koo, i, SHD.ko[i]);
+                }
+                koo = StringFunctions.ChangeCharacter(koo, 8, '\0');
+
+                SHD.o = SHD.b + SHD.nzhour * 3600.0 + SHD.nzmin * 60 + SHD.nzsec + SHD.nzmsec * .001;
+
+                sscanf_s(koo, "%d%*[^0123456789]%d%*[^.0123456789]%g", eh, em, fes);
+
+                SHD.o -= (eh * 3600.0 + em * 60.0 + fes);
+                /*-------------------------------------------*/
+            }
+            return 1;
+        }
+        //END
 
     }
 }
