@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace SAC
 {
@@ -52,19 +54,18 @@ namespace SAC
 
         public override string ToString()
         {
-            DecimalFormat formatter = new DecimalFormat(" 0.0000;-0.0000", new DecimalFormatSymbols(Locale.US));
-            DecimalFormat constantFormatter = new DecimalFormat("0.0#######E00", new DecimalFormatSymbols(Locale.US));
             string @out = ZEROS + " " + zeros.Length + "\n";
             for (int i = 0; i < zeros.Length; i++)
             {
-                @out += formatter.format(zeros[i].Real) + " " + formatter.format(zeros[i].Imaginary) + "\n";
+                // @out += formatter.format(zeros[i].Real) + " " + formatter.format(zeros[i].Imaginary) + "\n";
+                @out += (zeros[i].Real).ToString(" 0.0000;-0.0000") + " " + (zeros[i].Imaginary).ToString(" 0.0000; -0.0000") + "\n";
             }
             @out += POLES + " " + poles.Length + "\n";
             for (int i = 0; i < poles.Length; i++)
             {
-                @out += formatter.format(poles[i].Real) + " " + formatter.format(poles[i].Imaginary) + "\n";
+                @out += (poles[i].Real).ToString(" 0.0000;-0.0000") + " " + (poles[i].Imaginary).ToString(" 0.0000;-0.0000") + "\n";
             }
-            @out += CONSTANT + " " + constantFormatter.format(constant) + "\n";
+            @out += CONSTANT + " " + (constant).ToString("0.0#######E00") + "\n";
             return @out;
         }
 
@@ -72,7 +73,8 @@ namespace SAC
         {
             List<string> lines = new List<string>();
             string s;
-            while (!string.ReferenceEquals((s = @in.ReadLine()), null))
+            var reg = new Regex("^-?\\d+\\.\\d+\\s+-?\\d+\\.\\d+");
+            while ((s = @in.ReadLine()) is object)
             {
                 lines.Add(s.Trim());
             }
@@ -89,13 +91,12 @@ namespace SAC
                     int numPoles = int.Parse(num);
                     poles = initCmplx(numPoles);
                     line = nextLine(it);
-                    //JAVA TO C# CONVERTER TODO TASK: Java iterators are only converted within the context of 'while' and 'for' loops:
-                    for (int i = 0; i < poles.Length && it.hasNext(); i++)
+                    for (int i = 0; i < poles.Length && it.MoveNext(); i++)
                     {
-                        if (line.matches("^-?\\d+\\.\\d+\\s+-?\\d+\\.\\d+"))
+                        if (reg.IsMatch(line))
                         {
                             poles[i] = parseCmplx(line);
-                            line = nextLine(it);
+                            line = it.Current;
                         }
                         else
                         {
@@ -109,13 +110,12 @@ namespace SAC
                     int numZeros = int.Parse(num);
                     zeros = initCmplx(numZeros);
                     line = nextLine(it);
-                    //JAVA TO C# CONVERTER TODO TASK: Java iterators are only converted within the context of 'while' and 'for' loops:
-                    for (int i = 0; i < zeros.Length && it.hasNext(); i++)
+                    for (int i = 0; i < zeros.Length && it.MoveNext(); i++)
                     {
-                        if (line.matches("^-?\\d+\\.\\d+\\s+-?\\d+\\.\\d+"))
+                        if (reg.IsMatch(line))
                         {
                             zeros[i] = parseCmplx(line);
-                            line = nextLine(it);
+                            line = it.Current;
                         }
                         else
                         {
@@ -125,8 +125,8 @@ namespace SAC
                 }
                 else if (line.StartsWith(CONSTANT, StringComparison.Ordinal))
                 {
-                    line = line.replaceAll("\\s+", " ");
-                    string[] sline = line.Split(" ", true);
+                    line = line.Replace("\\s+", " ");
+                    string[] sline = line.Split(' ');
                     constant = float.Parse(sline[1]);
                     line = nextLine(it);
                 }
@@ -142,16 +142,15 @@ namespace SAC
 
         private static string nextLine(System.Collections.IEnumerator it)
         {
-            //JAVA TO C# CONVERTER TODO TASK: Java iterators are only converted within the context of 'while' and 'for' loops:
-            if (it.hasNext())
+            if (it.MoveNext())
             {
-                //JAVA TO C# CONVERTER TODO TASK: Java iterators are only converted within the context of 'while' and 'for' loops:
-                return (string)it.next();
+                return (string)it.Current;
             }
             else
             {
                 return "";
             }
+
         }
 
         public static Complex[] initCmplx(int length)
@@ -166,19 +165,16 @@ namespace SAC
 
         internal static Complex parseCmplx(string line)
         {
-            line = line.Trim().replaceAll("\\s+", " ");
-            string[] sline = line.Split(" ", true);
-            return new Complex(float.Parse(sline[0]), float.Parse(sline[1]));
+            line = line.Trim().Replace("\\s+", " ");
+            string[] sline = line.Split(' ');
+            var d1 = Convert.ToDouble(sline[0], System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            var d2 = Convert.ToDouble(sline[2], System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            return new Complex(d1, d2);
         }
 
-        internal static Complex parseCmplx(string line)
-        {
-            line = line.Trim().replaceAll("\\s+", " ");
-            string[] sline = line.Split(" ", true);
-            return new Complex(float.Parse(sline[0]), float.Parse(sline[1]));
-        }
 
-        public virtual bool close(object obj)
+
+        public virtual bool Close(object obj)
         {
             if (base.Equals(obj))
             {
@@ -187,14 +183,14 @@ namespace SAC
             if (obj is SacPoleZero)
             {
                 SacPoleZero spz = (SacPoleZero)obj;
-                if (!close(spz.constant, constant))
+                if (!Close(spz.constant, constant))
                 {
                     Console.WriteLine("const not close");
                     return false;
                 }
                 else
                 {
-                    return closeButConstant(obj);
+                    return CloseButConstant(obj);
                 }
             }
             else
@@ -203,7 +199,7 @@ namespace SAC
             }
         }
 
-        public virtual bool closeButConstant(object obj)
+        public virtual bool CloseButConstant(object obj)
         {
             if (base.Equals(obj))
             {
@@ -220,7 +216,7 @@ namespace SAC
                 {
                     for (int i = 0; i < poles.Length; i++)
                     {
-                        if (!closeFourDigit(spz.poles[i], poles[i]))
+                        if (!CloseFourDigit(spz.poles[i], poles[i]))
                         {
                             Console.WriteLine("pole " + i + " not equal" + spz.poles[i].Imaginary + " " + poles[i].Imaginary + " " + spz.poles[i].Real + " " + poles[i].Real);
                             return false;
@@ -228,7 +224,7 @@ namespace SAC
                     }
                     for (int i = 0; i < zeros.Length; i++)
                     {
-                        if (!closeFourDigit(spz.zeros[i], zeros[i]))
+                        if (!CloseFourDigit(spz.zeros[i], zeros[i]))
                         {
                             Console.WriteLine("zero " + i + " not equal");
                             return false;
@@ -243,7 +239,7 @@ namespace SAC
             }
         }
 
-        private static bool close(double a, double b)
+        private static bool Close(double a, double b)
         {
             if (Math.Abs(a - b) / a > 0.0001)
             {
@@ -253,12 +249,12 @@ namespace SAC
             return true;
         }
 
-        private static bool closeFourDigit(Complex a, Complex b)
+        private static bool CloseFourDigit(Complex a, Complex b)
         {
-            return closeFourDigit(a.Real, b.Real) && closeFourDigit(a.Imaginary, b.Imaginary);
+            return CloseFourDigit(a.Real, b.Real) && CloseFourDigit(a.Imaginary, b.Imaginary);
         }
 
-        private static bool closeFourDigit(double a, double b)
+        private static bool CloseFourDigit(double a, double b)
         {
             if (Math.Abs(a - b) > 0.0001)
             {

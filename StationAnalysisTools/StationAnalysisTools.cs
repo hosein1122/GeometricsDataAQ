@@ -1595,58 +1595,58 @@ namespace StationAnalysisToolsNetCore
 
 
         //read a sac file
-        private int read_sac(string fname, ref float sig, SAC SHD, int nmax)
-        {
-            FILE fsac;
-            errno_t err = new errno_t();
-            err = fopen_s(fsac, fname, "rb", "a");
-            if (err != null)
-            {
-                //fclose (fsac);
-                return 0;
-            }
+        //private int read_sac(string fname, ref float sig, SAC SHD, int nmax)
+        //{
+        //    FILE fsac;
+        //    errno_t err = new errno_t();
+        //    err = fopen_s(fsac, fname, "rb", "a");
+        //    if (err != null)
+        //    {
+        //        //fclose (fsac);
+        //        return 0;
+        //    }
 
-            if (SHD == null)
-            {
-                SHD = new SAC();
-            }
+        //    if (SHD == null)
+        //    {
+        //        SHD = new SAC();
+        //    }
 
-            fread(SHD, sizeof(SAC_HD), 1, fsac);
+        //    fread(SHD, sizeof(SAC_HD), 1, fsac);
 
-            if (SHD.npts > nmax)
-            {
-                Console.Error.Write("ATTENTION !!! in the file {0} the number of points is limited to {1:D}\n", fname, nmax);
+        //    if (SHD.npts > nmax)
+        //    {
+        //        Console.Error.Write("ATTENTION !!! in the file {0} the number of points is limited to {1:D}\n", fname, nmax);
 
-                SHD.npts = nmax;
-            }
+        //        SHD.npts = nmax;
+        //    }
 
-            fread(sig, sizeof(float), (int)(SHD.npts), fsac);
+        //    fread(sig, sizeof(float), (int)(SHD.npts), fsac);
 
-            fclose(fsac);
+        //    fclose(fsac);
 
-            /*-------------  calculate the initial time  ----------------*/
-            {
-                int eh;
-                int em;
-                int i;
-                float fes;
-                string koo = new string(new char[9]);
+        //    /*-------------  calculate the initial time  ----------------*/
+        //    {
+        //        int eh;
+        //        int em;
+        //        int i;
+        //        float fes;
+        //        string koo = new string(new char[9]);
 
-                for (i = 0; i < 8; i++)
-                {
-                    koo = StringFunctions.ChangeCharacter(koo, i, SHD.ko[i]);
-                }
-                koo = StringFunctions.ChangeCharacter(koo, 8, '\0');
+        //        for (i = 0; i < 8; i++)
+        //        {
+        //            koo = StringFunctions.ChangeCharacter(koo, i, SHD.ko[i]);
+        //        }
+        //        koo = StringFunctions.ChangeCharacter(koo, 8, '\0');
 
-                SHD.o = SHD.b + SHD.nzhour * 3600.0 + SHD.nzmin * 60 + SHD.nzsec + SHD.nzmsec * .001;
+        //        SHD.o = SHD.b + SHD.nzhour * 3600.0 + SHD.nzmin * 60 + SHD.nzsec + SHD.nzmsec * .001;
 
-                sscanf_s(koo, "%d%*[^0123456789]%d%*[^.0123456789]%g", eh, em, fes);
+        //        sscanf_s(koo, "%d%*[^0123456789]%d%*[^.0123456789]%g", eh, em, fes);
 
-                SHD.o -= (eh * 3600.0 + em * 60.0 + fes);
-                /*-------------------------------------------*/
-            }
-            return 1;
-        }
+        //        SHD.o -= (eh * 3600.0 + em * 60.0 + fes);
+        //        /*-------------------------------------------*/
+        //    }
+        //    return 1;
+        //}
         //END
 
     }
