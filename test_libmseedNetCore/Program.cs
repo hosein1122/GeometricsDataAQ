@@ -50,6 +50,7 @@ namespace test_libmseedNetCore
             SAC.SacHeader sacHeader = new SAC.SacHeader("d:\\tmp\\pnina.LHZ.SAC");
             sacHeader.writeHeader(new System.IO.FileInfo("d:\\tmp\\pnina.LHZ.HEAD"));
             sacHeader.printHeader("d:\\tmp\\pnina.LHZ.txt");
+            SAC.SacTimeSeries sacTimeSeries = new SAC.SacTimeSeries("d:\\tmp\\pnina.LHZ.SAC");
 
         }
 

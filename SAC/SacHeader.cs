@@ -17,6 +17,7 @@ namespace SAC
         {
             BinaryReader sacFile = new BinaryReader(new FileStream(filename, FileMode.Open));
             readHeader(sacFile);
+            sacFile.Close();
         }
 
         //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
@@ -80,7 +81,7 @@ namespace SAC
             headerBuf = indis.ReadBytes(headerBuf.Length);
             if (headerBuf[SacConstants.NVHDR_OFFSET] == 0 && headerBuf[SacConstants.NVHDR_OFFSET + 1] == 0 && headerBuf[SacConstants.NVHDR_OFFSET + 2] == 0 && headerBuf[SacConstants.NVHDR_OFFSET + 3] == 6)
             {
-                byteOrder = SacConstants.IntelByteOrder;
+                byteOrder = SacConstants.SunByteOrder;
                 // little endian byte order, swap bytes on first 110 4-byte values
                 // in header, rest are text
                 for (int i = 0; i < 110 * 4; i += 4)
@@ -588,7 +589,7 @@ namespace SAC
         }
 
 
-        internal bool byteOrder = SacConstants.SunByteOrder;
+        internal bool byteOrder = SacConstants.IntelByteOrder;
 
 
         public virtual bool ByteOrder
