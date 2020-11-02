@@ -3,7 +3,6 @@ using System.IO;
 using FFTW.NET;
 using StationAnalysisToolsNetCore;
 using static StationAnalysisToolsNetCore.Definitions;
-using static StationAnalysisToolsNetCore.MySAC;
 
 namespace StationAnalysisToolsNetCore
 {
@@ -699,169 +698,178 @@ namespace StationAnalysisToolsNetCore
         //       }
         //       //END
 
-        //       //compute a mean value recursively
-        //       private double recursive_mean(double new_value, double old_mean, int n)
-        //       {
-        //           if (n >= 1)
-        //           {
-        //               return (1 / (double)n) * (((double)n - 1) * old_mean + new_value);
-        //           }
-        //           else
-        //           {
-        //               return new_value;
-        //           }
-        //       }
-        //       //END
+        //compute a mean value recursively
+        public static double recursive_mean(double new_value, double old_mean, int n)
+        {
+            if (n >= 1)
+            {
+                return (1 / (double)n) * (((double)n - 1) * old_mean + new_value);
+            }
+            else
+            {
+                return new_value;
+            }
+        }
+        //END
 
-        //       //compute a standard deviation recursively
-        //       private double recursive_standard_deviation(double new_value, double current_mean, double prev_value, int n)
-        //       {
-        //           double temp = 0.0;
-        //           double new_sd = 0.0;
-        //           if (n > 1)
-        //           {
-        //               temp = (prev_value * prev_value * ((double)n - 2)) + ((double)n / ((double)n - 1)) * (current_mean - new_value) * (current_mean - new_value);
-        //               new_sd = Math.Sqrt(temp / ((double)n - 1));
-        //           }
-        //           else
-        //           {
-        //               //fprintf(stderr,"Recursive_standard_deviation error: n must be greater than 1! n: %d\n",n);
-        //               new_sd = 0.0;
-        //           }
-        //           return new_sd;
-        //       }
-        //       //END
-
-
-        //       //////running_mean
-        //       private void running_mean_psd(double[] arr_in, double[] arr_out, int npts)
-        //       {
-        //           int i;
-        //           int k;
-        //           int j;
-        //           double sum = 0.0;
-
-        //           for (i = 1; i < npts; i++)
-        //           {
-        //               k = Math.Floor(2 * (Math.Log10(i)) * (Math.Log10(i)) + 0.5);
-        //               if (i < 3)
-        //               {
-        //                   arr_out[i] = arr_in[i];
-        //               }
-        //               else if (i + k < npts)
-        //               {
-        //                   sum = 0.0;
-        //                   for (j = -k; j <= k; j++)
-        //                   {
-        //                       if (i + j < npts)
-        //                       {
-        //                           sum = sum + arr_in[i + j];
-        //                       }
-        //                   }
-        //                   arr_out[i] = sum / (2 * k + 1);
-        //               }
-        //               else
-        //               {
-        //                   arr_out[i] = arr_in[i];
-        //               }
-        //           }
-        //           return;
-        //       }
-        //       ///END
+        //compute a standard deviation recursively
+        public static double recursive_standard_deviation(double new_value, double current_mean, double prev_value, int n)
+        {
+            double temp = 0.0;
+            double new_sd = 0.0;
+            if (n > 1)
+            {
+                temp = (prev_value * prev_value * ((double)n - 2)) + ((double)n / ((double)n - 1)) * (current_mean - new_value) * (current_mean - new_value);
+                new_sd = Math.Sqrt(temp / ((double)n - 1));
+            }
+            else
+            {
+                //fprintf(stderr,"Recursive_standard_deviation error: n must be greater than 1! n: %d\n",n);
+                new_sd = 0.0;
+            }
+            return new_sd;
+        }
+        //END
 
 
-        //       //calculate the power spectrum
-        //       private void calculate_psd(fftw_complex[] spect, double[] psd_out, double dt, int npts)
-        //       {
-        //           int i;
-        //           int nspec = (int)Math.Floor(npts / 2 + 1.5);
-        //           for (i = 0; i < nspec; i++)
-        //           {
-        //               psd_out[i] = 10.0 * Math.Log10((spect[i][0] * spect[i][0] + spect[i][1] * spect[i][1]) * 2 * dt / (double)npts);
-        //           }
-        //           running_mean_psd(psd_out, psd_out, nspec);
-        //           return;
-        //       }
-        //       //END
+        //////running_mean
+        private static void Running_mean_psd(double[] arr_in, double[] arr_out, int npts)
+        {
+            int i;
+            int k;
+            int j;
+            double sum = 0.0;
+
+            for (i = 1; i < npts; i++)
+            {
+                k = (int)(Math.Floor(2 * (Math.Log10(i)) * (Math.Log10(i)) + 0.5));
+                if (i < 3)
+                {
+                    arr_out[i] = arr_in[i];
+                }
+                else if (i + k < npts)
+                {
+                    sum = 0.0;
+                    for (j = -k; j <= k; j++)
+                    {
+                        if (i + j < npts)
+                        {
+                            sum = sum + arr_in[i + j];
+                        }
+                    }
+                    arr_out[i] = sum / (2 * k + 1);
+                }
+                else
+                {
+                    arr_out[i] = arr_in[i];
+                }
+            }
+            return;
+        }
+        ///END
 
 
-        //       //do everything in prep_sac_file....
-        //       private void signal_to_ground_acceleration(ref double @in, double[] @out, int npts, double delta, POLE_ZERO pz, int acc_flag, double[] signal, fftw_complex[] signal_spectrum, fftw_complex[] response_spectrum, double[] fftw_dbl, fftw_complex[] fftw_cmplx, fftw_plan plan_forward, fftw_plan plan_backward)
-        //       {
-        //           int i;
-        //           int nspec;
-        //           double freq;
-        //           COMPLEX_RP temp_crp = new COMPLEX_RP();
-        //           nspec = (int)Math.Floor(npts / 2 + 1.5);
+        //calculate the power spectrum
+        public static void Calculate_psd(FftwArrayComplex spect, double[] psd_out, double dt, int npts)
+        {
+            int i;
+            int nspec = (int)Math.Floor(npts / 2 + 1.5);
+            for (i = 0; i < nspec; i++)
+            {
+                psd_out[i] = 10.0 * Math.Log10((spect[i].Real * spect[i].Real + spect[i].Imaginary * spect[i].Imaginary) * 2 * dt / (double)npts);
+            }
+            Running_mean_psd(psd_out, psd_out, nspec);
+            return;
+        }
+        //END
 
-        //           /* some simple preprocessing removing a mean and linear trend to remove dc offsets after fft */
-        //           //remove_mean(in,signal,npts);
-        //           remove_trend(@in, signal, npts);
+
+        //do everything in prep_sac_file....
+        public static void Signal_to_ground_acceleration(double[] @in, double[] @out, int npts, double delta, POLE_ZERO pz, int acc_flag, double[] signal, FftwArrayComplex signal_spectrum, FftwArrayComplex response_spectrum, PinnedArray<double> fftw_dbl, FftwArrayComplex fftw_cmplx, FftwPlanRC plan_forward, FftwPlanRC plan_backward)
+        {
+            int i;
+            int nspec;
+            double freq;
+            COMPLEX_RP temp_crp = new COMPLEX_RP();
+            nspec = (int)Math.Floor(npts / 2 + 1.5);
+
+            /* some simple preprocessing removing a mean and linear trend to remove dc offsets after fft */
+            //remove_mean(in,signal,npts);
+            RemoveTrend(@in, ref signal, npts);
 
 
-        //           /* apply a hann taper */
-        //           //cos_taper(signal,signal,npts);
-        //           hann_taper(signal, signal, npts);
+            /* apply a hann taper */
+            //cos_taper(signal,signal,npts);
+            HannTaper(signal, ref signal, npts);
 
-        //           /* fft forward. and correct for energy loss in hann taper*/
-        //           for (i = 0; i < npts; i++)
-        //           {
-        //               fftw_dbl[i] = signal[i] * Math.Sqrt(8.0 / 3.0);
-        //           }
-        //           fftw_execute(plan_forward);
-        //           /* put the complex spectra into a safe format */
-        //           for (i = 0; i < nspec; i++)
-        //           {
-        //               signal_spectrum[i][0] = fftw_cmplx[i][0];
-        //               signal_spectrum[i][1] = fftw_cmplx[i][1];
-        //           }
+            /* fft forward. and correct for energy loss in hann taper*/
+            for (i = 0; i < npts; i++)
+            {
+                fftw_dbl[i] = signal[i] * Math.Sqrt(8.0 / 3.0);
+            }
 
-        //           /* Sequence to compute the frequency domain response of a given pole-zero structure */
-        //           for (i = 0; i < nspec; i++)
-        //           {
-        //               freq = (double)i / (delta * (double)npts);
-        //               temp_crp = generate_response(pz, freq);
-        //               response_spectrum[i][0] = temp_crp.real;
-        //               response_spectrum[i][1] = temp_crp.imag;
-        //           }
+            //fftw_execute(plan_forward);
+            plan_forward.Execute();
 
-        //           /* doing a deconvolution (complex division) of the response spectrum from the signal spectrum */
-        //           decon_response_function(signal_spectrum, response_spectrum, signal_spectrum, nspec);
+            /* put the complex spectra into a safe format */
+            for (i = 0; i < nspec; i++)
+            {
+                //signal_spectrum[i][0] = fftw_cmplx[i][0];
+                //signal_spectrum[i][1] = fftw_cmplx[i][1];
 
-        //           /* return to the time domain for the differentiation */
-        //           for (i = 0; i < nspec; i++)
-        //           {
-        //               fftw_cmplx[i][0] = signal_spectrum[i][0];
-        //               fftw_cmplx[i][1] = signal_spectrum[i][1];
-        //           }
-        //           fftw_execute(plan_backward);
-        //           for (i = 0; i < npts; i++)
-        //           {
-        //               signal[i] = fftw_dbl[i] / npts;
-        //           }
+                signal_spectrum[i] = new System.Numerics.Complex(fftw_cmplx[i].Real, fftw_cmplx[i].Imaginary);
+            }
 
-        //           /* the response returns displacement. Therefore we differentiate twice to get acceleration */
-        //           //	a single derivative seems to return acceleration when comparing with the noise model. Thus give the option for 0, 1, or 2 derivatives
-        //           if (acc_flag == 0)
-        //           {
-        //               for (i = 0; i < npts; i++)
-        //               {
-        //                   @out[i] = signal[i];
-        //               }
-        //           }
-        //           else if (acc_flag == 1)
-        //           {
-        //               time_derivative(signal, @out, delta, npts);
-        //           }
-        //           else
-        //           {
-        //               time_derivative(signal, signal, delta, npts);
-        //               time_derivative(signal, @out, delta, npts);
-        //           }
+            /* Sequence to compute the frequency domain response of a given pole-zero structure */
+            for (i = 0; i < nspec; i++)
+            {
+                freq = (double)i / (delta * (double)npts);
+                temp_crp = generate_response(pz, freq);
+                //response_spectrum[i][0] = temp_crp.real;
+                //response_spectrum[i][1] = temp_crp.imag;
+                response_spectrum[i] = new System.Numerics.Complex(temp_crp.real, temp_crp.imag);
+            }
 
-        //           return;
-        //       }
-        //       //END
+            /* doing a deconvolution (complex division) of the response spectrum from the signal spectrum */
+            decon_response_function(signal_spectrum, response_spectrum, ref signal_spectrum, nspec);
+
+            /* return to the time domain for the differentiation */
+            for (i = 0; i < nspec; i++)
+            {
+                //fftw_cmplx[i][0] = signal_spectrum[i][0];
+                //fftw_cmplx[i][1] = signal_spectrum[i][1];
+                fftw_cmplx[i] = new System.Numerics.Complex(signal_spectrum[i].Real, signal_spectrum[i].Imaginary);
+            }
+            // fftw_execute(plan_backward);
+            plan_backward.Execute();
+
+            for (i = 0; i < npts; i++)
+            {
+                signal[i] = fftw_dbl[i] / npts;
+            }
+
+            /* the response returns displacement. Therefore we differentiate twice to get acceleration */
+            //	a single derivative seems to return acceleration when comparing with the noise model. Thus give the option for 0, 1, or 2 derivatives
+            if (acc_flag == 0)
+            {
+                for (i = 0; i < npts; i++)
+                {
+                    @out[i] = signal[i];
+                }
+            }
+            else if (acc_flag == 1)
+            {
+                time_derivative(signal, @out, delta, npts);
+            }
+            else
+            {
+                time_derivative(signal, signal, delta, npts);
+                time_derivative(signal, @out, delta, npts);
+            }
+
+            return;
+        }
+        //END
 
         //       //phase_shift  
         //private void phase_shift(double t_shift, double dt, int np, fftw_complex *spect_in)
@@ -1082,20 +1090,20 @@ namespace StationAnalysisToolsNetCore
         //       ///END
 
 
-        //       //time derivative (as sac 2 point algorithm)
-        //       private void time_derivative(double[] @in, double[] @out, double delta, int npts)
-        //       {
-        //           int i;
-        //           for (i = 0; i < npts - 1; i++)
-        //           {
-        //               @out[i] = (@in[i + 1] - @in[i]) / delta;
-        //           }
-        //           //last value is not filled by sac. Here I fill it with the same as the previous value to have a minimal effect on future usage
-        //           @out[npts - 1] = @out[npts - 2];
+        //time derivative (as sac 2 point algorithm)
+        private static void time_derivative(double[] @in, double[] @out, double delta, int npts)
+        {
+            int i;
+            for (i = 0; i < npts - 1; i++)
+            {
+                @out[i] = (@in[i + 1] - @in[i]) / delta;
+            }
+            //last value is not filled by sac. Here I fill it with the same as the previous value to have a minimal effect on future usage
+            @out[npts - 1] = @out[npts - 2];
 
-        //           return;
-        //       }
-        //       //END
+            return;
+        }
+        //END
 
         //       //get_amplitude_spectrum
         //       private void get_amplitude_spectrum(SPECTRUM spect_in, double[] arr_out)
@@ -1134,59 +1142,59 @@ namespace StationAnalysisToolsNetCore
         //       }
         //       //END
 
-        //       //generate response
-        //       //generates the response for a specific frequency given in hertz
-        //       private COMPLEX_RP generate_response(POLE_ZERO pz, double freq)
-        //       {
-        //           /* local variables */
-        //           int i;
-        //           double mod_squared;
-        //           COMPLEX_RP omega = new COMPLEX_RP();
-        //           COMPLEX_RP denom = new COMPLEX_RP();
-        //           COMPLEX_RP num = new COMPLEX_RP();
-        //           COMPLEX_RP temp = new COMPLEX_RP();
-        //           COMPLEX_RP @out = new COMPLEX_RP();
+        //generate response
+        //generates the response for a specific frequency given in hertz
+        private static COMPLEX_RP generate_response(POLE_ZERO pz, double freq)
+        {
+            /* local variables */
+            int i;
+            double mod_squared;
+            COMPLEX_RP omega = new COMPLEX_RP();
+            COMPLEX_RP denom = new COMPLEX_RP();
+            COMPLEX_RP num = new COMPLEX_RP();
+            COMPLEX_RP temp = new COMPLEX_RP();
+            COMPLEX_RP @out = new COMPLEX_RP();
 
-        //           /* initializations */
-        //           freq = freq * 2 * PI;
-        //           omega.real = 0.0;
-        //           omega.imag = freq;
-        //           denom.real = 1.0;
-        //           denom.imag = 1.0;
-        //           num.real = 1.0;
-        //           num.imag = 1.0;
+            /* initializations */
+            freq = freq * 2 * PI;
+            omega.real = 0.0;
+            omega.imag = freq;
+            denom.real = 1.0;
+            denom.imag = 1.0;
+            num.real = 1.0;
+            num.imag = 1.0;
 
-        //           /* compute the complex laplacian */
-        //           for (i = 0; i < pz.n_zeroes; i++)
-        //           {
-        //               temp = complex_subtract(omega, pz.zeroes[i]);
-        //               num = complex_multiply(num, temp);
-        //           }
-        //           for (i = 0; i < pz.n_poles; i++)
-        //           {
-        //               temp = complex_subtract(omega, pz.poles[i]);
-        //               denom = complex_multiply(denom, temp);
-        //           }
+            /* compute the complex laplacian */
+            for (i = 0; i < pz.n_zeroes; i++)
+            {
+                temp = ComplexSubtract(omega, pz.zeroes[i]);
+                num = ComplexMultiply(num, temp);
+            }
+            for (i = 0; i < pz.n_poles; i++)
+            {
+                temp = ComplexSubtract(omega, pz.poles[i]);
+                denom = ComplexMultiply(denom, temp);
+            }
 
-        //           /* compute the final zeros / poles */
-        //           temp = conjugate(denom);
-        //           temp = complex_multiply(temp, num);
-        //           mod_squared = denom.real * denom.real + denom.imag * denom.imag;
-        //           temp.real = temp.real / mod_squared;
-        //           temp.imag = temp.imag / mod_squared;
-        //           @out.real = pz.scale * temp.real;
-        //           @out.imag = pz.scale * temp.imag;
+            /* compute the final zeros / poles */
+            temp = Conjugate(denom);
+            temp = ComplexMultiply(temp, num);
+            mod_squared = denom.real * denom.real + denom.imag * denom.imag;
+            temp.real = temp.real / mod_squared;
+            temp.imag = temp.imag / mod_squared;
+            @out.real = pz.scale * temp.real;
+            @out.imag = pz.scale * temp.imag;
 
-        //           return @out;
-        //       }
-        //       //END
+            return @out;
+        }
+        //END
 
 
 
         //decon_response_function
-        private void decon_response_function(FftwArrayComplex data_spect, FftwArrayComplex response_spect ,ref FftwArrayComplex spect_out, int nspec)
+        private static void decon_response_function(FftwArrayComplex data_spect, FftwArrayComplex response_spect, ref FftwArrayComplex spect_out, int nspec)
         {
-            
+
             int i;
             COMPLEX_RP temp_data = new COMPLEX_RP();
             COMPLEX_RP temp_response = new COMPLEX_RP();
@@ -1203,7 +1211,7 @@ namespace StationAnalysisToolsNetCore
                 //spect_out[i].Real = temp_out.real;
                 //spect_out[i].Imaginary = temp_out.imag;
             }
-            
+
             return;
 
         }
@@ -1211,10 +1219,10 @@ namespace StationAnalysisToolsNetCore
         public void test_decon_response_function()
         {
             FftwArrayComplex data_spect = new FftwArrayComplex(5);
-            
+
             data_spect[0] = new System.Numerics.Complex(1, 1);
             data_spect[0] = new System.Numerics.Complex(1, 1);
-            FftwArrayComplex response_spect=new FftwArrayComplex(5);
+            FftwArrayComplex response_spect = new FftwArrayComplex(5);
             FftwArrayComplex spect_out = new FftwArrayComplex(5);
         }
 
@@ -1402,7 +1410,7 @@ namespace StationAnalysisToolsNetCore
         }
 
         //complex math
-        private COMPLEX_RP Conjugate(COMPLEX_RP comp)
+        private static COMPLEX_RP Conjugate(COMPLEX_RP comp)
         {
             COMPLEX_RP comp_out = new COMPLEX_RP();
             comp_out.real = comp.real;
@@ -1410,7 +1418,7 @@ namespace StationAnalysisToolsNetCore
             return comp_out;
         }
 
-        private COMPLEX_RP ComplexMultiply(COMPLEX_RP comp1, COMPLEX_RP comp2)
+        private static COMPLEX_RP ComplexMultiply(COMPLEX_RP comp1, COMPLEX_RP comp2)
         {
             COMPLEX_RP comp_out = new COMPLEX_RP();
             //(a+bi)(c+di):
@@ -1420,7 +1428,7 @@ namespace StationAnalysisToolsNetCore
             return comp_out;
         }
 
-        private COMPLEX_RP ComplexDivide(COMPLEX_RP comp1, COMPLEX_RP comp2)
+        private static COMPLEX_RP ComplexDivide(COMPLEX_RP comp1, COMPLEX_RP comp2)
         {
             COMPLEX_RP comp_out = new COMPLEX_RP();
             double denom;
@@ -1431,7 +1439,7 @@ namespace StationAnalysisToolsNetCore
         }
 
 
-        private COMPLEX_RP ComplexAdd(COMPLEX_RP comp1, COMPLEX_RP comp2)
+        private static COMPLEX_RP ComplexAdd(COMPLEX_RP comp1, COMPLEX_RP comp2)
         {
             COMPLEX_RP comp_out = new COMPLEX_RP();
             comp_out.real = comp1.real + comp2.real;
@@ -1439,7 +1447,7 @@ namespace StationAnalysisToolsNetCore
             return comp_out;
         }
 
-        private COMPLEX_RP ComplexSubtract(COMPLEX_RP comp1, COMPLEX_RP comp2)
+        private static COMPLEX_RP ComplexSubtract(COMPLEX_RP comp1, COMPLEX_RP comp2)
         {
             COMPLEX_RP comp_out = new COMPLEX_RP();
             comp_out.real = comp1.real - comp2.real;
@@ -1479,9 +1487,9 @@ namespace StationAnalysisToolsNetCore
             cOMPLEX_RP.imag = 2;
 
             double r = ComplexAmplitude(cOMPLEX_RP);
-            
-                Console.WriteLine(r);
-            
+
+            Console.WriteLine(r);
+
         }
 
 
@@ -1556,7 +1564,7 @@ namespace StationAnalysisToolsNetCore
         {
             double[] arr_in = new double[] { 1, 2, 3, 4, 5 };
             double[] arr_out = new double[] { 1, 2, 3, 4, 5 };
-            HammingTaper(arr_in, ref arr_out,5);
+            HammingTaper(arr_in, ref arr_out, 5);
             foreach (double d in arr_out)
             {
                 Console.WriteLine(d);

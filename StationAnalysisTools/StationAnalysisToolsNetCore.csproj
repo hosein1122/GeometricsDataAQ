@@ -8,4 +8,8 @@
     <PackageReference Include="FFTW.NET" Version="1.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SAC\SAC.csproj" />
+  </ItemGroup>
+
 </Project>

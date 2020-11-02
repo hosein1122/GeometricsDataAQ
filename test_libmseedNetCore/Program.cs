@@ -44,13 +44,17 @@ namespace test_libmseedNetCore
             //StationAnalysisTools.test_RemoveMean();
             //StationAnalysisTools.test_CcosTaper();
 
-
+            /*
             //test sac package
             SAC.SacPoleZero sacPoleZero = new SAC.SacPoleZero("d:\\tmp\\YBH.BK.BHZ.pz");
             SAC.SacHeader sacHeader = new SAC.SacHeader("d:\\tmp\\pnina.LHZ.SAC");
             sacHeader.writeHeader(new System.IO.FileInfo("d:\\tmp\\pnina.LHZ.HEAD"));
             sacHeader.printHeader("d:\\tmp\\pnina.LHZ.txt");
             SAC.SacTimeSeries sacTimeSeries = new SAC.SacTimeSeries("d:\\tmp\\pnina.LHZ.SAC");
+            */
+
+            ComputePsd computePsd = new ComputePsd();
+
 
         }
 

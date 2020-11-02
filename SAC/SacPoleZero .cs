@@ -91,12 +91,12 @@ namespace SAC
                     int numPoles = int.Parse(num);
                     poles = initCmplx(numPoles);
                     line = nextLine(it);
-                    for (int i = 0; i < poles.Length && it.MoveNext(); i++)
+                    for (int i = 0; i < poles.Length; i++)
                     {
                         if (reg.IsMatch(line))
                         {
                             poles[i] = parseCmplx(line);
-                            line = it.Current;
+                            line =nextLine(it);
                         }
                         else
                         {
@@ -110,12 +110,12 @@ namespace SAC
                     int numZeros = int.Parse(num);
                     zeros = initCmplx(numZeros);
                     line = nextLine(it);
-                    for (int i = 0; i < zeros.Length && it.MoveNext(); i++)
+                    for (int i = 0; i < zeros.Length; i++)
                     {
                         if (reg.IsMatch(line))
                         {
                             zeros[i] = parseCmplx(line);
-                            line = it.Current;
+                            line = nextLine(it);
                         }
                         else
                         {
