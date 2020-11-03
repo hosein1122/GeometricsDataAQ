@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 using FFTW.NET;
 using StationAnalysisToolsNetCore;
 using static StationAnalysisToolsNetCore.Definitions;
@@ -9,507 +10,505 @@ namespace StationAnalysisToolsNetCore
     public class StationAnalysisTools
     {
 
-        //       //once we have the 9component cross and auto spectra computed, we can finish the sleeman noise
-        //       private void finish_tri_noise( fftw_complex[] P11, fftw_complex[] P12, fftw_complex[] P13, fftw_complex[] P21, fftw_complex[] P22, fftw_complex[] P23, fftw_complex[] P31, fftw_complex[] P32, fftw_complex[] P33, int npts, float dt, fftw_complex[] N11, fftw_complex[] N22, fftw_complex[] N33)
-        //       {
-
-        //           //hij = Pik / Pjk
-        //           //nii = Pii - Pji*hij
-        //           //where nii is the noise for the ith sensor
-        //           //Pik, Pjk are cross powers and Pii is auto-power
-
-        //           int i;
-        //           int nfreq;
-        //           //C++ TO C# CONVERTER TODO TASK: C# does not have an equivalent to pointers to value types:
-        //           //ORIGINAL LINE: double *tmp;
-        //           double tmp;
-        //           nfreq = (int)Math.Floor(npts / 2 + 1.5);
-        //           COMPLEX_RP tmp1 = new COMPLEX_RP();
-        //           COMPLEX_RP tmp2 = new COMPLEX_RP();
-        //           COMPLEX_RP tmp3 = new COMPLEX_RP();
-        //           COMPLEX_RP tmp4 = new COMPLEX_RP();
-
-        //           //C++ TO C# CONVERTER TODO TASK: The memory management function 'malloc' has no equivalent in C#:
-        //           tmp = malloc(sizeof(double) * nfreq);
-
-        //           for (i = 0; i < nfreq; i++)
-        //           {
-        //               //initialize output
-        //               N11[i][0] = 0.0;
-        //               N11[i][1] = 0.0;
-        //               N22[i][0] = 0.0;
-        //               N22[i][1] = 0.0;
-        //               N33[i][0] = 0.0;
-        //               N33[i][1] = 0.0;
-        //               //start with N11: i=1, j=2, k=3
-        //               tmp1.real = P13[i][0];
-        //               tmp1.imag = P13[i][1];
-        //               tmp2.real = P23[i][0];
-        //               tmp2.imag = P23[i][1];
-        //               tmp3 = complex_divide(tmp1, tmp2);
-        //               tmp1.real = P11[i][0];
-        //               tmp1.imag = 0.0;
-        //               tmp2.real = P21[i][0];
-        //               tmp2.imag = P21[i][1];
-        //               tmp4 = complex_multiply(tmp2, tmp3);
-        //               tmp3 = complex_subtract(tmp1, tmp4);
-        //               if (10 * Math.Log10(complex_amplitude(tmp3) * 2 * dt / npts) > -999.9)
-        //               {
-        //                   N11[i][0] = 10 * Math.Log10(complex_amplitude(tmp3) * 2 * dt / npts);
-        //               }
-        //               else if (i != 0)
-        //               {
-        //                   N11[i][0] = N11[i - 1][0];
-        //               }
-        //               else
-        //               {
-        //                   N11[i][0] = -999.0;
-        //               }
-
-
-        //               //now N22: i=2, j=3, k=1
-        //               tmp1.real = P21[i][0];
-        //               tmp1.imag = P21[i][1];
-        //               tmp2.real = P31[i][0];
-        //               tmp2.imag = P31[i][1];
-        //               tmp3 = complex_divide(tmp1, tmp2);
-        //               tmp1.real = P22[i][0];
-        //               tmp1.imag = 0.0;
-        //               tmp2.real = P32[i][0];
-        //               tmp2.imag = P32[i][1];
-        //               tmp4 = complex_multiply(tmp2, tmp3);
-        //               tmp3 = complex_subtract(tmp1, tmp4);
-        //               if (10 * Math.Log10(complex_amplitude(tmp3) * 2 * dt / npts) > -999.9)
-        //               {
-        //                   N22[i][0] = 10 * Math.Log10(complex_amplitude(tmp3) * 2 * dt / npts);
-        //               }
-        //               else if (i != 0)
-        //               {
-        //                   N22[i][0] = N22[i - 1][0];
-        //               }
-        //               else
-        //               {
-        //                   N22[i][0] = -999.0;
-        //               }
-
-        //               //finish with N33: i=3, j=1, k=2
-        //               //hij = Pik / Pjk
-        //               //nii = Pii - Pji*hij
-        //               tmp1.real = P32[i][0];
-        //               tmp1.imag = P32[i][1];
-        //               tmp2.real = P12[i][0];
-        //               tmp2.imag = P12[i][1];
-        //               tmp3 = complex_divide(tmp1, tmp2);
-        //               tmp1.real = P33[i][0];
-        //               tmp1.imag = 0.0;
-        //               tmp2.real = P13[i][0];
-        //               tmp2.imag = P13[i][1];
-        //               tmp4 = complex_multiply(tmp2, tmp3);
-        //               tmp3 = complex_subtract(tmp1, tmp4);
-        //               if (10 * Math.Log10(complex_amplitude(tmp3) * 2 * dt / npts) > -999.9)
-        //               {
-        //                   N33[i][0] = 10 * Math.Log10(complex_amplitude(tmp3) * 2 * dt / npts);
-        //               }
-        //               else if (i != 0)
-        //               {
-        //                   N33[i][0] = N33[i - 1][0];
-        //               }
-        //               else
-        //               {
-        //                   N33[i][0] = -999.0;
-        //               }
-        //           }
-
-
-
-        //           return;
-        //       }
-
-
-        //       //using the relation of Sleeman, 2006, we can compute a relative transfer function to look at noise in 3 co-located sensors
-        //       private void compute_tri_noise(fftw_complex[] spect1, fftw_complex[] spect2, fftw_complex[] spect3, int npts, int j, fftw_complex[] P11, fftw_complex[] P12, fftw_complex[] P13, fftw_complex[] P21, fftw_complex[] P22, fftw_complex[] P23, fftw_complex[] P31, fftw_complex[] P32, fftw_complex[] P33)
-        //       {
-
-        //           //hij = Pik / Pjk
-        //           //nii = Pii - Pji*hij
-        //           //where nii is the noise for the ith sensor
-        //           //Pik, Pjk are cross powers and Pii is auto-power
-        //           //in here, we compute the average and standard deviation of all three auto-powers and cross-powers
-        //           //after we have the mean and standard deviation, we finish the analysis after the loop by computing the transfer functions and applying the nii relation three times
-        //           int i;
-        //           int nfreq;
-        //           double tmpR;
-        //           double tmpI;
-        //           nfreq = (int)Math.Floor(npts / 2 + 1.5);
-        //           for (i = 0; i < nfreq; i++)
-        //           {
-        //               //easiest to start with the straight powers: P11, P22, P33
-        //               tmpR = spect1[i][0] * spect1[i][0] + spect1[i][1] * spect1[i][1];
-        //               P11[i][0] = recursive_mean(tmpR, P11[i][0], j);
-        //               tmpR = spect2[i][0] * spect2[i][0] + spect2[i][1] * spect2[i][1];
-        //               P22[i][0] = recursive_mean(tmpR, P22[i][0], j);
-        //               tmpR = spect3[i][0] * spect3[i][0] + spect3[i][1] * spect3[i][1];
-        //               P33[i][0] = recursive_mean(tmpR, P33[i][0], j);
-
-        //               //ok, now the cross powers
-        //               //1-2
-        //               tmpR = spect1[i][0] * spect2[i][0] + spect1[i][1] * spect2[i][1];
-        //               tmpI = spect1[i][1] * spect2[i][0] - spect2[i][1] * spect1[i][0];
-
-        //               //means of 1-2
-        //               P12[i][0] = recursive_mean(tmpR, P12[i][0], j);
-        //               P12[i][1] = recursive_mean(tmpI, P12[i][1], j);
-
-        //               //1-3
-        //               tmpR = spect1[i][0] * spect3[i][0] + spect1[i][1] * spect3[i][1];
-        //               tmpI = spect1[i][1] * spect3[i][0] - spect3[i][1] * spect1[i][0];
-
-        //               //means of 1-3
-        //               P13[i][0] = recursive_mean(tmpR, P13[i][0], j);
-        //               P13[i][1] = recursive_mean(tmpI, P13[i][1], j);
-
-        //               //2-1
-        //               tmpR = spect2[i][0] * spect1[i][0] + spect2[i][1] * spect1[i][1];
-        //               tmpI = spect2[i][1] * spect1[i][0] - spect1[i][1] * spect2[i][0];
-
-        //               //means of 2-1
-        //               P21[i][0] = recursive_mean(tmpR, P21[i][0], j);
-        //               P21[i][1] = recursive_mean(tmpI, P21[i][1], j);
-
-        //               //2-3
-        //               tmpR = spect2[i][0] * spect3[i][0] + spect2[i][1] * spect3[i][1];
-        //               tmpI = spect2[i][1] * spect3[i][0] - spect3[i][1] * spect2[i][0];
-
-        //               //means of 2-3
-        //               P23[i][0] = recursive_mean(tmpR, P23[i][0], j);
-        //               P23[i][1] = recursive_mean(tmpI, P23[i][1], j);
-
-        //               //3-1
-        //               tmpR = spect3[i][0] * spect1[i][0] + spect3[i][1] * spect1[i][1];
-        //               tmpI = spect3[i][1] * spect1[i][0] - spect1[i][1] * spect3[i][0];
-
-        //               //means of 3-1
-        //               P31[i][0] = recursive_mean(tmpR, P31[i][0], j);
-        //               P31[i][1] = recursive_mean(tmpI, P31[i][1], j);
-
-        //               //3-2
-        //               tmpR = spect3[i][0] * spect2[i][0] + spect3[i][1] * spect2[i][1];
-        //               tmpI = spect3[i][1] * spect2[i][0] - spect2[i][1] * spect3[i][0];
-
-        //               //means of 2-3
-        //               P32[i][0] = recursive_mean(tmpR, P32[i][0], j);
-        //               P32[i][1] = recursive_mean(tmpI, P32[i][1], j);
-        //           }
-
-        //           return;
-        //       }
-
-
-
-        //       //does two psds for debugging output of coherence based measurements
-        //       private void finish_two_psds(fftw_complex[] amps, int npts, float dt, double[] out1, double[] out2)
-        //       {
-        //           int i;
-        //           int nfreq;
-        //           nfreq = (int)Math.Floor(npts / 2 + 1.5);
-
-        //           for (i = 0; i < nfreq; i++)
-        //           {
-        //               out1[i] = 10.0 * Math.Log10(Math.Sqrt(amps[i][0]) * 2 * dt / npts);
-        //               out2[i] = 10.0 * Math.Log10(Math.Sqrt(amps[i][1]) * 2 * dt / npts);
-        //           }
-        //           running_mean_psd(out1, out1, nfreq);
-        //           running_mean_psd(out2, out2, nfreq);
-
-        //           return;
-        //       }
-
-
-        //       //similar idea as finish_coherence - using a coherence and substeps to get the incoherent component of the spectrum
-        //       private void finish_incoherence(fftw_complex[] numerMean, fftw_complex[] numerSD, fftw_complex[] denom, int npts, float dt, double[] meanOut1, double[] sdOut1, double[] meanOut2, double[] sdOut2)
-        //       {
-        //           int i;
-        //           int nfreq;
-        //           double coh;
-        //           nfreq = (int)Math.Floor(npts / 2 + 1.5);
-
-        //           for (i = 0; i < nfreq; i++)
-        //           {
-        //               coh = (numerMean[i][0] * numerMean[i][0] + numerMean[i][1] * numerMean[i][1]) / (denom[i][0] * denom[i][1]);
-        //               if (coh != 1.0)
-        //               {
-        //                   meanOut1[i] = 10 * Math.Log10((1.0 - coh) * (Math.Sqrt(denom[i][0]) * 2 * dt / npts));
-        //                   meanOut2[i] = 10 * Math.Log10((1.0 - coh) * (Math.Sqrt(denom[i][1]) * 2 * dt / npts));
-        //               }
-        //               else
-        //               {
-        //                   meanOut1[i] = -999.0;
-        //                   meanOut2[i] = -999.0;
-        //               }
-        //               sdOut1[i] = (numerSD[i][0] * numerSD[i][0] + numerSD[i][1] * numerSD[i][1]) / (denom[i][0] * denom[i][1]) * meanOut1[i];
-        //               sdOut2[i] = (numerSD[i][0] * numerSD[i][0] + numerSD[i][1] * numerSD[i][1]) / (denom[i][0] * denom[i][1]) * meanOut2[i];
-        //           }
-
-        //           running_mean_psd(meanOut1, meanOut1, nfreq);
-        //           running_mean_psd(sdOut1, sdOut1, nfreq);
-
-        //           running_mean_psd(meanOut2, meanOut2, nfreq);
-        //           running_mean_psd(sdOut2, sdOut2, nfreq);
-
-        //           return;
-        //       }
-
-        //       //simply display the contents of a pole zero structure to standard out
-        //       private void print_sac_pole_zero_file(POLE_ZERO pz)
-        //       {
-        //           int i;
-        //           Console.Out.Write("Scalar Constant: {0:g}\n", pz.scale);
-        //           Console.Out.Write("Poles:\n");
-        //           for (i = 0; i < pz.n_poles; i++)
-        //           {
-        //               Console.Out.Write("{0:g} {1:g}\n", pz.poles[i].real, pz.poles[i].imag);
-        //           }
-        //           Console.Out.Write("Zeroes:\n");
-        //           for (i = 0; i < pz.n_zeroes; i++)
-        //           {
-        //               Console.Out.Write("{0:g} {1:g}\n", pz.zeroes[i].real, pz.zeroes[i].imag);
-        //           }
-        //           return;
-        //       }
-
-        //       //compute the amplitude and divides by the total spectra
-        //       private void finish_coherence(fftw_complex[] numerMean, fftw_complex[] numerSD, fftw_complex[] denom, int npts, double[] meanOut, double[] sdOut)
-        //       {
-        //           int i;
-        //           int nfreq;
-        //           nfreq = (int)Math.Floor(npts / 2 + 1.5);
-
-        //           for (i = 0; i < nfreq; i++)
-        //           {
-        //               meanOut[i] = (numerMean[i][0] * numerMean[i][0] + numerMean[i][1] * numerMean[i][1]) / (denom[i][0] * denom[i][1]);
-        //               sdOut[i] = (numerSD[i][0] * numerSD[i][0] + numerSD[i][1] * numerSD[i][1]) / (denom[i][0] * denom[i][1]);
-        //           }
-
-        //           running_mean_psd(meanOut, meanOut, nfreq);
-        //           running_mean_psd(sdOut, sdOut, nfreq);
-
-        //           return;
-        //       }
-
-        //       //before calling this the first time, zero out the outputs (numer, denom1, denom2) as this appends to them
-        //       //how about instead, I recursively compute the mean and standard deviation in here
-        //       private void compute_coherence(fftw_complex[] spect1, fftw_complex[] spect2, int npts, int j, fftw_complex[] numerMean, fftw_complex[] numerSD, fftw_complex[] denom)
-        //       {
-        //           int i;
-        //           int nfreq;
-        //           double tmpNumerR;
-        //           double tmpNumerI;
-        //           double tmpDenomX;
-        //           double tmpDenomY;
-        //           nfreq = (int)Math.Floor(npts / 2 + 1.5);
-        //           for (i = 0; i < nfreq; i++)
-        //           {
-        //               //cross power
-        //               tmpNumerR = spect1[i][0] * spect2[i][0] + spect1[i][1] * spect2[i][1];
-        //               tmpNumerI = spect1[i][1] * spect2[i][0] - spect2[i][1] * spect1[i][0];
-
-        //               //straight powers
-        //               tmpDenomX = spect1[i][0] * spect1[i][0] + spect1[i][1] * spect1[i][1];
-        //               tmpDenomY = spect2[i][0] * spect2[i][0] + spect2[i][1] * spect2[i][1];
-
-        //               //means of numerator
-        //               numerMean[i][0] = recursive_mean(tmpNumerR, numerMean[i][0], j);
-        //               numerMean[i][1] = recursive_mean(tmpNumerI, numerMean[i][1], j);
-
-        //               //standard deviation of numerator
-        //               numerSD[i][0] = recursive_standard_deviation(tmpNumerR, numerMean[i][0], numerSD[i][0], j);
-        //               numerSD[i][1] = recursive_standard_deviation(tmpNumerI, numerMean[i][1], numerSD[i][1], j);
-
-        //               //mean denominator
-        //               denom[i][0] = recursive_mean(tmpDenomX, denom[i][0], j);
-        //               denom[i][1] = recursive_mean(tmpDenomY, denom[i][1], j);
-        //           }
-
-        //           return;
-        //       }
-
-
-        //       //simply display the contents of a pole zero structure to standard out
-        //       private void print_sac_pole_zero_file(POLE_ZERO pz)
-        //       {
-        //           int i;
-        //           Console.Out.Write("Scalar Constant: {0:g}\n", pz.scale);
-        //           Console.Out.Write("Poles:\n");
-        //           for (i = 0; i < pz.n_poles; i++)
-        //           {
-        //               Console.Out.Write("{0:g} {1:g}\n", pz.poles[i].real, pz.poles[i].imag);
-        //           }
-        //           Console.Out.Write("Zeroes:\n");
-        //           for (i = 0; i < pz.n_zeroes; i++)
-        //           {
-        //               Console.Out.Write("{0:g} {1:g}\n", pz.zeroes[i].real, pz.zeroes[i].imag);
-        //           }
-        //           return;
-        //       }
-
-
-
-        //       //linear interpolation onto log10 space
-        //       private void log10_linear_interpolate(double[] freqs, int nfreqs, double[] input, double[] freqsOut, double[] @out, ref int nFreqsOut, double minPer, double maxPer)
-        //       {
-        //           int i;
-        //           int j;
-        //           int k;
-        //           int l;
-        //           int nspline;
-        //           int khi;
-        //           int klo;
-        //           int splineMin;
-        //           int splineMax;
-        //           double slope;
-        //           double df;
-        //           double prev;
-        //           //C++ TO C# CONVERTER TODO TASK: C# does not have an equivalent to pointers to value types:
-        //           //ORIGINAL LINE: double *splineFreqs, splineFreq;
-        //           double splineFreqs;
-        //           double splineFreq;
-        //           double minval;
-        //           double maxval;
-        //           double minFreqIn;
-        //           double maxFreqIn;
-
-        //           //initialize output
-        //           //	for (i=0; i<nfreqs; i++) {
-        //           //		out[i] = 0.0;
-        //           //		freqsOut[i] = 0.0;
-        //           //	}
-
-        //           //compute nodes
-        //           nspline = compute_log10_nodes(maxPer, minPer);
-        //           nFreqsOut = nspline;
-
-        //           splineMin = Math.Floor(Math.Log10(minPer) + 0.5);
-        //           splineMax = Math.Floor(Math.Log10(maxPer) + 0.5);
-
-        //           /*
-        //            if (freqs[0] < freqs[1]) {
-        //            minFreqIn = freqs[0];
-        //            maxFreqIn = freqs[nfreqs-1];
-        //            minval = input[0];
-        //            maxval = input[nfreqs-1];
-        //            } else {
-        //            maxFreqIn = freqs[0];
-        //            minFreqIn = freqs[nfreqs-1];
-        //            maxval = input[0];
-        //            minval = input[nfreqs-1];
-        //            }
-        //            */
-        //           prev = input[0];
-
-        //           //loop out
-        //           k = 0;
-        //           klo = 0;
-        //           khi = 1;
-        //           slope = (input[khi] - input[klo]) / (freqs[khi] - freqs[klo]);
-        //           for (i = splineMin; i <= splineMax; i++)
-        //           {
-        //               for (j = 1; j < 10; j++)
-        //               {
-        //                   for (l = 0; l < 10; l++)
-        //                   {
-        //                       freqsOut[k] = (double)j * Math.Pow(10.0, (double)i) + (double)l * Math.Pow(10.0, (double)i - 1);
-        //                       //				if (freqsOut[k] >= minPer && freqsOut[k] <= maxPer) {
-        //                       if (freqsOut[k] >= freqs[0] && freqsOut[k] <= freqs[nfreqs - 1])
-        //                       {
-        //                           while (freqsOut[k] > freqs[khi])
-        //                           {
-        //                               khi++;
-        //                               if (khi == nfreqs - 1)
-        //                               {
-        //                                   break;
-        //                               }
-        //                           }
-        //                           klo = khi - 1;
-        //                           while (freqsOut[k] < freqs[klo])
-        //                           {
-        //                               klo--;
-        //                               if (klo == 0)
-        //                               {
-        //                                   break;
-        //                               }
-        //                           }
-        //                           df = freqsOut[k] - freqs[klo];
-        //                           slope = (input[khi] - input[klo]) / (freqs[khi] - freqs[klo]);
-        //                           @out[k] = input[klo] + df * slope;
-        //                           prev = @out[k];
-        //                           //				} else if (freqsOut[k] < minPer) {
-        //                           //					out[k] = prev;
-        //                           //				} else {
-        //                           //					out[k] = prev;
-        //                           //				}
-        //                           k++;
-        //                       }
-        //                   }
-        //               }
-        //           }
-        //           return;
-        //       }
-
-
-        //       //simple node computer
-        //       private int compute_nodes(float max, float min, float inc)
-        //       {
-        //           return (int)Math.Floor((max - min) / inc + 1.5);
-        //       }
-        //       //END
-
-        //       //primary interpolation routine (consider adjusting to use an output frequency array which is given as an argument)
-        //       private void linear_interpolate_psd(float[] freqs, int nfreqs, float[] input, float[] @out, float minPer, float maxPer, float incPer)
-        //       {
-
-        //           int i;
-        //           int klo;
-        //           int khi;
-        //           int nfreq;
-        //           float slope;
-        //           float F;
-        //           float incr;
-        //           float df;
-
-        //           nfreq = compute_nodes(maxPer, minPer, incPer);
-        //           F = minPer;
-        //           incr = incPer;
-        //           klo = 0;
-        //           khi = 1;
-        //           slope = (input[khi] - input[klo]) / (freqs[khi] - freqs[klo]);
-        //           for (i = 0; i < nfreq; i++)
-        //           {
-        //               while (F > freqs[khi])
-        //               {
-        //                   khi++;
-        //                   if (khi == nfreqs - 1)
-        //                   {
-        //                       break;
-        //                   }
-        //               }
-        //               klo = khi - 1;
-        //               while (F < freqs[klo])
-        //               {
-        //                   klo--;
-        //                   if (klo == 0)
-        //                   {
-        //                       break;
-        //                   }
-        //               }
-        //               df = F - freqs[klo];
-        //               slope = (input[khi] - input[klo]) / (freqs[khi] - freqs[klo]);
-        //               @out[i] = input[klo] + df * slope;
-        //               F = F + incr;
-        //           }
-
-        //           return;
-        //       }
-        //       //END
+        //once we have the 9component cross and auto spectra computed, we can finish the sleeman noise
+        private void finish_tri_noise(FftwArrayComplex P11, FftwArrayComplex P12, FftwArrayComplex P13, FftwArrayComplex P21, FftwArrayComplex P22, FftwArrayComplex P23, FftwArrayComplex P31, FftwArrayComplex P32, FftwArrayComplex P33, int npts, float dt, FftwArrayComplex N11, FftwArrayComplex N22, FftwArrayComplex N33)
+        {
+
+            //hij = Pik / Pjk
+            //nii = Pii - Pji*hij
+            //where nii is the noise for the ith sensor
+            //Pik, Pjk are cross powers and Pii is auto-power
+
+            int i;
+            int nfreq;
+            //C++ TO C# CONVERTER TODO TASK: C# does not have an equivalent to pointers to value types:
+            //ORIGINAL LINE: double *tmp;
+            double[] tmp;
+            nfreq = (int)Math.Floor(npts / 2 + 1.5);
+            COMPLEX_RP tmp1 = new COMPLEX_RP();
+            COMPLEX_RP tmp2 = new COMPLEX_RP();
+            COMPLEX_RP tmp3 = new COMPLEX_RP();
+            COMPLEX_RP tmp4 = new COMPLEX_RP();
+
+            //C++ TO C# CONVERTER TODO TASK: The memory management function 'malloc' has no equivalent in C#:
+            tmp = new double[nfreq];//malloc(sizeof(double) * nfreq);
+
+            for (i = 0; i < nfreq; i++)
+            {
+                //initialize output
+                //N11[i].Real = 0.0;
+                //N11[i][1] = 0.0;
+                N11[i] = new System.Numerics.Complex(0.0, 0.0);
+                //N22[i][0] = 0.0;
+                //N22[i][1] = 0.0;
+                N22[i] = new System.Numerics.Complex(0.0, 0.0);
+                //N33[i][0] = 0.0;
+                //N33[i][1] = 0.0;
+                N33[i] = new System.Numerics.Complex(0.0, 0.0);
+                //start with N11: i=1, j=2, k=3
+                tmp1.real = P13[i].Real;
+                tmp1.imag = P13[i].Imaginary;
+
+                tmp2.real = P23[i].Real;
+                tmp2.imag = P23[i].Imaginary;
+                tmp3 = ComplexDivide(tmp1, tmp2);
+                tmp1.real = P11[i].Real;
+                tmp1.imag = 0.0;
+                tmp2.real = P21[i].Real;
+                tmp2.imag = P21[i].Imaginary;
+                tmp4 = ComplexMultiply(tmp2, tmp3);
+                tmp3 = ComplexSubtract(tmp1, tmp4);
+                if (10 * Math.Log10(ComplexAmplitude(tmp3) * 2 * dt / npts) > -999.9)
+                {
+                    N11[i] = new System.Numerics.Complex(10 * Math.Log10(ComplexAmplitude(tmp3) * 2 * dt / npts), N11[i].Imaginary);
+                }
+                else if (i != 0)
+                {
+                    N11[i] = new System.Numerics.Complex(N11[i - 1].Real, N11[i].Imaginary);
+                }
+                else
+                {
+                    N11[i] = new System.Numerics.Complex(-999.0, N11[i].Imaginary);
+                }
+
+
+                //now N22: i=2, j=3, k=1
+                tmp1.real = P21[i].Real;
+                tmp1.imag = P21[i].Imaginary;
+                tmp2.real = P31[i].Real;
+                tmp2.imag = P31[i].Imaginary;
+                tmp3 = ComplexDivide(tmp1, tmp2);
+                tmp1.real = P22[i].Real;
+                tmp1.imag = 0.0;
+                tmp2.real = P32[i].Real;
+                tmp2.imag = P32[i].Imaginary;
+                tmp4 = ComplexMultiply(tmp2, tmp3);
+                tmp3 = ComplexSubtract(tmp1, tmp4);
+                if (10 * Math.Log10(ComplexAmplitude(tmp3) * 2 * dt / npts) > -999.9)
+                {
+                    N22[i] = new System.Numerics.Complex(10 * Math.Log10(ComplexAmplitude(tmp3) * 2 * dt / npts), N22[i].Imaginary);
+                }
+                else if (i != 0)
+                {
+                    N22[i] = new System.Numerics.Complex(N22[i - 1].Real, N22[i].Imaginary);
+                }
+                else
+                {
+                    N22[i] = new System.Numerics.Complex(-999.0, N22[i].Imaginary);
+                }
+
+                //finish with N33: i=3, j=1, k=2
+                //hij = Pik / Pjk
+                //nii = Pii - Pji*hij
+                tmp1.real = P32[i].Real;
+                tmp1.imag = P32[i].Imaginary;
+                tmp2.real = P12[i].Real;
+                tmp2.imag = P12[i].Imaginary;
+                tmp3 = ComplexDivide(tmp1, tmp2);
+                tmp1.real = P33[i].Real;
+                tmp1.imag = 0.0;
+                tmp2.real = P13[i].Real;
+                tmp2.imag = P13[i].Imaginary;
+                tmp4 = ComplexMultiply(tmp2, tmp3);
+                tmp3 = ComplexSubtract(tmp1, tmp4);
+                if (10 * Math.Log10(ComplexAmplitude(tmp3) * 2 * dt / npts) > -999.9)
+                {
+                    N33[i] = new System.Numerics.Complex(10 * Math.Log10(ComplexAmplitude(tmp3) * 2 * dt / npts), N33[i].Imaginary);
+                }
+                else if (i != 0)
+                {
+                    N33[i] = new System.Numerics.Complex(N33[i - 1].Real, N33[i].Imaginary);
+                }
+                else
+                {
+                    N33[i] = new System.Numerics.Complex(-999.0, N33[i].Imaginary);
+                }
+            }
+
+
+
+            return;
+        }
+
+
+        //using the relation of Sleeman, 2006, we can compute a relative transfer function to look at noise in 3 co-located sensors
+        private void compute_tri_noise(FftwArrayComplex spect1, FftwArrayComplex spect2, FftwArrayComplex spect3, int npts, int j, FftwArrayComplex P11, FftwArrayComplex P12, FftwArrayComplex P13, FftwArrayComplex P21, FftwArrayComplex P22, FftwArrayComplex P23, FftwArrayComplex P31, FftwArrayComplex P32, FftwArrayComplex P33)
+        {
+
+            //hij = Pik / Pjk
+            //nii = Pii - Pji*hij
+            //where nii is the noise for the ith sensor
+            //Pik, Pjk are cross powers and Pii is auto-power
+            //in here, we compute the average and standard deviation of all three auto-powers and cross-powers
+            //after we have the mean and standard deviation, we finish the analysis after the loop by computing the transfer functions and applying the nii relation three times
+            int i;
+            int nfreq;
+            double tmpR;
+            double tmpI;
+            nfreq = (int)Math.Floor(npts / 2 + 1.5);
+            for (i = 0; i < nfreq; i++)
+            {
+                //easiest to start with the straight powers: P11, P22, P33
+                tmpR = spect1[i].Real * spect1[i].Real + spect1[i].Imaginary * spect1[i].Imaginary;
+                P11[i] = new System.Numerics.Complex(recursive_mean(tmpR, P11[i].Real, j), P11[i].Imaginary);
+                tmpR = spect2[i].Real * spect2[i].Real + spect2[i].Imaginary * spect2[i].Imaginary;
+                P22[i] = new System.Numerics.Complex(recursive_mean(tmpR, P22[i].Real, j), P22[i].Imaginary);
+                tmpR = spect3[i].Real * spect3[i].Real + spect3[i].Imaginary * spect3[i].Imaginary;
+                P33[i] = new System.Numerics.Complex(recursive_mean(tmpR, P33[i].Real, j), P33[i].Imaginary);
+
+                //ok, now the cross powers
+                //1-2
+                tmpR = spect1[i].Real * spect2[i].Real + spect1[i].Imaginary * spect2[i].Imaginary;
+                tmpI = spect1[i].Imaginary * spect2[i].Real - spect2[i].Imaginary * spect1[i].Real;
+
+                //means of 1-2
+                //P12[i].Real = recursive_mean(tmpR, P12[i].Real, j);
+                //P12[i].Imaginary = recursive_mean(tmpI, P12[i].Imaginary, j);
+                P12[i] = new Complex(recursive_mean(tmpR, P12[i].Real, j), recursive_mean(tmpI, P12[i].Imaginary, j));
+
+                //1-3
+                tmpR = spect1[i].Real * spect3[i].Real + spect1[i].Imaginary * spect3[i].Imaginary;
+                tmpI = spect1[i].Imaginary * spect3[i].Real - spect3[i].Imaginary * spect1[i].Real;
+
+                //means of 1-3
+                //P13[i].Real = recursive_mean(tmpR, P13[i].Real, j);
+                //P13[i].Imaginary = recursive_mean(tmpI, P13[i].Imaginary, j);
+                P13[i] = new Complex(recursive_mean(tmpR, P13[i].Real, j), recursive_mean(tmpI, P13[i].Imaginary, j));
+
+                //2-1
+                tmpR = spect2[i].Real * spect1[i].Real + spect2[i].Imaginary * spect1[i].Imaginary;
+                tmpI = spect2[i].Imaginary * spect1[i].Real - spect1[i].Imaginary * spect2[i].Real;
+
+                //means of 2-1
+                //P21[i].Real = recursive_mean(tmpR, P21[i].Real, j);
+                //P21[i].Imaginary = recursive_mean(tmpI, P21[i].Imaginary, j);
+                P21[i] = new Complex(recursive_mean(tmpR, P21[i].Real, j), recursive_mean(tmpI, P21[i].Imaginary, j));
+
+                //2-3
+                tmpR = spect2[i].Real * spect3[i].Real + spect2[i].Imaginary * spect3[i].Imaginary;
+                tmpI = spect2[i].Imaginary * spect3[i].Real - spect3[i].Imaginary * spect2[i].Real;
+
+                //means of 2-3
+                //P23[i].Real = recursive_mean(tmpR, P23[i].Real, j);
+                //P23[i].Imaginary = recursive_mean(tmpI, P23[i].Imaginary, j);
+                P23[i] = new Complex(recursive_mean(tmpR, P23[i].Real, j), recursive_mean(tmpI, P23[i].Imaginary, j));
+
+                //3-1
+                tmpR = spect3[i].Real * spect1[i].Real + spect3[i].Imaginary * spect1[i].Imaginary;
+                tmpI = spect3[i].Imaginary * spect1[i].Real - spect1[i].Imaginary * spect3[i].Real;
+
+                //means of 3-1
+                //P31[i].Real = recursive_mean(tmpR, P31[i].Real, j);
+                //P31[i].Imaginary = recursive_mean(tmpI, P31[i].Imaginary, j);
+                P31[i] = new Complex(recursive_mean(tmpR, P31[i].Real, j), recursive_mean(tmpI, P31[i].Imaginary, j));
+
+                //3-2
+                tmpR = spect3[i].Real * spect2[i].Real + spect3[i].Imaginary * spect2[i].Imaginary;
+                tmpI = spect3[i].Imaginary * spect2[i].Real - spect2[i].Imaginary * spect3[i].Real;
+
+                //means of 2-3
+                //P32[i].Real = recursive_mean(tmpR, P32[i].Real, j);
+                //P32[i].Imaginary = recursive_mean(tmpI, P32[i].Imaginary, j);
+                P32[i] = new Complex(recursive_mean(tmpR, P32[i].Real, j), recursive_mean(tmpI, P32[i].Imaginary, j));
+            }
+
+            return;
+        }
+
+
+
+        //does two psds for debugging output of coherence based measurements
+        private void finish_two_psds(FftwArrayComplex amps, int npts, float dt, double[] out1, double[] out2)
+        {
+            int i;
+            int nfreq;
+            nfreq = (int)Math.Floor(npts / 2 + 1.5);
+
+            for (i = 0; i < nfreq; i++)
+            {
+                out1[i] = 10.0 * Math.Log10(Math.Sqrt(amps[i].Real) * 2 * dt / npts);
+                out2[i] = 10.0 * Math.Log10(Math.Sqrt(amps[i].Imaginary) * 2 * dt / npts);
+            }
+            Running_mean_psd(out1, out1, nfreq);
+            Running_mean_psd(out2, out2, nfreq);
+
+            return;
+        }
+
+
+        //similar idea as finish_coherence - using a coherence and substeps to get the incoherent component of the spectrum
+        private void finish_incoherence(FftwArrayComplex numerMean, FftwArrayComplex numerSD, FftwArrayComplex denom, int npts, float dt, double[] meanOut1, double[] sdOut1, double[] meanOut2, double[] sdOut2)
+        {
+            int i;
+            int nfreq;
+            double coh;
+            nfreq = (int)Math.Floor(npts / 2 + 1.5);
+
+            for (i = 0; i < nfreq; i++)
+            {
+                coh = (numerMean[i].Real * numerMean[i].Real + numerMean[i].Imaginary * numerMean[i].Imaginary) / (denom[i].Real * denom[i].Imaginary);
+                if (coh != 1.0)
+                {
+                    meanOut1[i] = 10 * Math.Log10((1.0 - coh) * (Math.Sqrt(denom[i].Real) * 2 * dt / npts));
+                    meanOut2[i] = 10 * Math.Log10((1.0 - coh) * (Math.Sqrt(denom[i].Imaginary) * 2 * dt / npts));
+                }
+                else
+                {
+                    meanOut1[i] = -999.0;
+                    meanOut2[i] = -999.0;
+                }
+                sdOut1[i] = (numerSD[i].Real * numerSD[i].Real + numerSD[i].Imaginary * numerSD[i].Imaginary) / (denom[i].Real * denom[i].Imaginary) * meanOut1[i];
+                sdOut2[i] = (numerSD[i].Real * numerSD[i].Real + numerSD[i].Imaginary * numerSD[i].Imaginary) / (denom[i].Real * denom[i].Imaginary) * meanOut2[i];
+            }
+
+            Running_mean_psd(meanOut1, meanOut1, nfreq);
+            Running_mean_psd(sdOut1, sdOut1, nfreq);
+
+            Running_mean_psd(meanOut2, meanOut2, nfreq);
+            Running_mean_psd(sdOut2, sdOut2, nfreq);
+
+            return;
+        }
+
+        //simply display the contents of a pole zero structure to standard out
+        private void print_sac_pole_zero_file(POLE_ZERO pz)
+        {
+            int i;
+            Console.Out.Write("Scalar Constant: {0:g}\n", pz.scale);
+            Console.Out.Write("Poles:\n");
+            for (i = 0; i < pz.n_poles; i++)
+            {
+                Console.Out.Write("{0:g} {1:g}\n", pz.poles[i].real, pz.poles[i].imag);
+            }
+            Console.Out.Write("Zeroes:\n");
+            for (i = 0; i < pz.n_zeroes; i++)
+            {
+                Console.Out.Write("{0:g} {1:g}\n", pz.zeroes[i].real, pz.zeroes[i].imag);
+            }
+            return;
+        }
+
+        //compute the amplitude and divides by the total spectra
+        private void finish_coherence(FftwArrayComplex numerMean, FftwArrayComplex numerSD, FftwArrayComplex denom, int npts, double[] meanOut, double[] sdOut)
+        {
+            int i;
+            int nfreq;
+            nfreq = (int)Math.Floor(npts / 2 + 1.5);
+
+            for (i = 0; i < nfreq; i++)
+            {
+                meanOut[i] = (numerMean[i].Real * numerMean[i].Real + numerMean[i].Imaginary * numerMean[i].Imaginary) / (denom[i].Real * denom[i].Imaginary);
+                sdOut[i] = (numerSD[i].Real * numerSD[i].Real + numerSD[i].Imaginary * numerSD[i].Imaginary) / (denom[i].Real * denom[i].Imaginary);
+            }
+
+            Running_mean_psd(meanOut, meanOut, nfreq);
+            Running_mean_psd(sdOut, sdOut, nfreq);
+
+            return;
+        }
+
+        //before calling this the first time, zero out the outputs (numer, denom1, denom2) as this appends to them
+        //how about instead, I recursively compute the mean and standard deviation in here
+        private void compute_coherence(FftwArrayComplex spect1, FftwArrayComplex spect2, int npts, int j, FftwArrayComplex numerMean, FftwArrayComplex numerSD, FftwArrayComplex denom)
+        {
+            int i;
+            int nfreq;
+            double tmpNumerR;
+            double tmpNumerI;
+            double tmpDenomX;
+            double tmpDenomY;
+            nfreq = (int)Math.Floor(npts / 2 + 1.5);
+            for (i = 0; i < nfreq; i++)
+            {
+                //cross power
+                tmpNumerR = spect1[i].Real * spect2[i].Real + spect1[i].Imaginary * spect2[i].Imaginary;
+                tmpNumerI = spect1[i].Imaginary * spect2[i].Real - spect2[i].Imaginary * spect1[i].Real;
+
+                //straight powers
+                tmpDenomX = spect1[i].Real * spect1[i].Real + spect1[i].Imaginary * spect1[i].Imaginary;
+                tmpDenomY = spect2[i].Real * spect2[i].Real + spect2[i].Imaginary * spect2[i].Imaginary;
+
+                //means of numerator
+                //numerMean[i].Real  = recursive_mean(tmpNumerR, numerMean[i].Real , j);
+                //numerMean[i].Imaginary = recursive_mean(tmpNumerI, numerMean[i].Imaginary, j);
+                numerMean[i] = new Complex(recursive_mean(tmpNumerR, numerMean[i].Real, j), recursive_mean(tmpNumerI, numerMean[i].Imaginary, j));
+
+
+                //standard deviation of numerator
+                //numerSD[i].Real  = recursive_standard_deviation(tmpNumerR, numerMean[i].Real , numerSD[i].Real , j);
+                //numerSD[i].Imaginary = recursive_standard_deviation(tmpNumerI, numerMean[i].Imaginary, numerSD[i].Imaginary, j);
+                numerSD[i] = new Complex(recursive_standard_deviation(tmpNumerR, numerMean[i].Real, numerSD[i].Real, j), recursive_standard_deviation(tmpNumerI, numerMean[i].Imaginary, numerSD[i].Imaginary, j));
+
+                //mean denominator
+                //denom[i].Real  = recursive_mean(tmpDenomX, denom[i].Real , j);
+                //denom[i].Imaginary = recursive_mean(tmpDenomY, denom[i].Imaginary, j);
+                denom[i] = new Complex(recursive_mean(tmpDenomX, denom[i].Real, j), recursive_mean(tmpDenomY, denom[i].Imaginary, j));
+            }
+
+            return;
+        }
+
+
+
+
+
+
+        //linear interpolation onto log10 space
+        private void log10_linear_interpolate(double[] freqs, int nfreqs, double[] input, double[] freqsOut, double[] @out, ref int nFreqsOut, double minPer, double maxPer)
+        {
+            int i;
+            int j;
+            int k;
+            int l;
+            int nspline;
+            int khi;
+            int klo;
+            int splineMin;
+            int splineMax;
+            double slope;
+            double df;
+            double prev;
+            //C++ TO C# CONVERTER TODO TASK: C# does not have an equivalent to pointers to value types:
+            //ORIGINAL LINE: double *splineFreqs, splineFreq;
+            double splineFreqs;
+            double splineFreq;
+            double minval;
+            double maxval;
+            double minFreqIn;
+            double maxFreqIn;
+
+            //initialize output
+            //	for (i=0; i<nfreqs; i++) {
+            //		out[i] = 0.0;
+            //		freqsOut[i] = 0.0;
+            //	}
+
+            //compute nodes
+            nspline = compute_log10_nodes(maxPer, minPer);
+            nFreqsOut = nspline;
+
+            splineMin = (int)Math.Floor(Math.Log10(minPer) + 0.5);
+            splineMax = (int)Math.Floor(Math.Log10(maxPer) + 0.5);
+
+            /*
+             if (freqs[0] < freqs[1]) {
+             minFreqIn = freqs[0];
+             maxFreqIn = freqs[nfreqs-1];
+             minval = input[0];
+             maxval = input[nfreqs-1];
+             } else {
+             maxFreqIn = freqs[0];
+             minFreqIn = freqs[nfreqs-1];
+             maxval = input[0];
+             minval = input[nfreqs-1];
+             }
+             */
+            prev = input[0];
+
+            //loop out
+            k = 0;
+            klo = 0;
+            khi = 1;
+            slope = (input[khi] - input[klo]) / (freqs[khi] - freqs[klo]);
+            for (i = splineMin; i <= splineMax; i++)
+            {
+                for (j = 1; j < 10; j++)
+                {
+                    for (l = 0; l < 10; l++)
+                    {
+                        freqsOut[k] = (double)j * Math.Pow(10.0, (double)i) + (double)l * Math.Pow(10.0, (double)i - 1);
+                        //				if (freqsOut[k] >= minPer && freqsOut[k] <= maxPer) {
+                        if (freqsOut[k] >= freqs[0] && freqsOut[k] <= freqs[nfreqs - 1])
+                        {
+                            while (freqsOut[k] > freqs[khi])
+                            {
+                                khi++;
+                                if (khi == nfreqs - 1)
+                                {
+                                    break;
+                                }
+                            }
+                            klo = khi - 1;
+                            while (freqsOut[k] < freqs[klo])
+                            {
+                                klo--;
+                                if (klo == 0)
+                                {
+                                    break;
+                                }
+                            }
+                            df = freqsOut[k] - freqs[klo];
+                            slope = (input[khi] - input[klo]) / (freqs[khi] - freqs[klo]);
+                            @out[k] = input[klo] + df * slope;
+                            prev = @out[k];
+                            //				} else if (freqsOut[k] < minPer) {
+                            //					out[k] = prev;
+                            //				} else {
+                            //					out[k] = prev;
+                            //				}
+                            k++;
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+
+        //simple node computer
+        private int compute_nodes(float max, float min, float inc)
+        {
+            return (int)Math.Floor((max - min) / inc + 1.5);
+        }
+        //END
+
+        //primary interpolation routine (consider adjusting to use an output frequency array which is given as an argument)
+        private void linear_interpolate_psd(float[] freqs, int nfreqs, float[] input, float[] @out, float minPer, float maxPer, float incPer)
+        {
+
+            int i;
+            int klo;
+            int khi;
+            int nfreq;
+            float slope;
+            float F;
+            float incr;
+            float df;
+
+            nfreq = compute_nodes(maxPer, minPer, incPer);
+            F = minPer;
+            incr = incPer;
+            klo = 0;
+            khi = 1;
+            slope = (input[khi] - input[klo]) / (freqs[khi] - freqs[klo]);
+            for (i = 0; i < nfreq; i++)
+            {
+                while (F > freqs[khi])
+                {
+                    khi++;
+                    if (khi == nfreqs - 1)
+                    {
+                        break;
+                    }
+                }
+                klo = khi - 1;
+                while (F < freqs[klo])
+                {
+                    klo--;
+                    if (klo == 0)
+                    {
+                        break;
+                    }
+                }
+                df = F - freqs[klo];
+                slope = (input[khi] - input[klo]) / (freqs[khi] - freqs[klo]);
+                @out[i] = input[klo] + df * slope;
+                F = F + incr;
+            }
+
+            return;
+        }
+        //END
 
 
         //       //C++ TO C# CONVERTER TODO TASK: C# does not have an equivalent to pointers to value types:
@@ -618,85 +617,85 @@ namespace StationAnalysisToolsNetCore
         //       }
 
 
-        //       //running mean (general - previous function uses the "k" argument with a function of log10 to be specific to power spectral densities).
-        //       //also new is the psd version is directly from david dolenc's code while this is more from rob's smoothing code, just simplified from the 2-d case to the 1-d case.
-        //       private void smooth_1d_array(double[] arr_in, double[] arr_out, int npts, int n_smooth)
-        //       {
-        //           int i;
-        //           int j;
-        //           int start;
-        //           int end;
-        //           int count;
-        //           double sum;
-        //           if (n_smooth <= 0 || n_smooth >= npts)
-        //           {
-        //               return;
-        //           }
+        //running mean (general - previous function uses the "k" argument with a function of log10 to be specific to power spectral densities).
+        //also new is the psd version is directly from david dolenc's code while this is more from rob's smoothing code, just simplified from the 2-d case to the 1-d case.
+        private void smooth_1d_array(double[] arr_in, double[] arr_out, int npts, int n_smooth)
+        {
+            int i;
+            int j;
+            int start;
+            int end;
+            int count;
+            double sum;
+            if (n_smooth <= 0 || n_smooth >= npts)
+            {
+                return;
+            }
 
-        //           //odd
-        //           if (n_smooth % 2 == 1)
-        //           {
-        //               for (i = 0; i < npts; i++)
-        //               {
-        //                   sum = 0.0;
-        //                   count = 0;
-        //                   if (i - Math.Floor(n_smooth / 2) < 0)
-        //                   {
-        //                       start = 0;
-        //                   }
-        //                   else
-        //                   {
-        //                       start = i - Math.Floor(n_smooth / 2);
-        //                   }
-        //                   if (i + Math.Floor(n_smooth / 2) > npts - 1)
-        //                   {
-        //                       end = npts - 1;
-        //                   }
-        //                   else
-        //                   {
-        //                       end = i + Math.Floor(n_smooth / 2);
-        //                   }
-        //                   for (j = start; j <= end; j++)
-        //                   {
-        //                       sum = sum + arr_in[j];
-        //                       count = count + 1;
-        //                   }
-        //                   arr_out[i] = sum / (double)count;
-        //               }
-        //           }
-        //           else
-        //           {
-        //               for (i = 0; i < npts; i++)
-        //               {
-        //                   sum = 0.0;
-        //                   count = 0;
-        //                   if (i - Math.Floor(n_smooth / 2) < 0)
-        //                   {
-        //                       start = 0;
-        //                   }
-        //                   else
-        //                   {
-        //                       start = i - Math.Floor(n_smooth / 2);
-        //                   }
-        //                   if (i + Math.Floor(n_smooth / 2) - 1 > npts - 1)
-        //                   {
-        //                       end = npts - 1;
-        //                   }
-        //                   else
-        //                   {
-        //                       end = i + Math.Floor(n_smooth / 2) - 1;
-        //                   }
-        //                   for (j = start; j <= end; j++)
-        //                   {
-        //                       sum = sum + (arr_in[j] + arr_in[j + 1]) / 2.0;
-        //                       count = count + 1;
-        //                   }
-        //                   arr_out[i] = sum / (double)count;
-        //               }
-        //           }
-        //           return;
-        //       }
-        //       //END
+            //odd
+            if (n_smooth % 2 == 1)
+            {
+                for (i = 0; i < npts; i++)
+                {
+                    sum = 0.0;
+                    count = 0;
+                    if (i - Math.Floor(n_smooth * 1.0 / 2) < 0)
+                    {
+                        start = 0;
+                    }
+                    else
+                    {
+                        start = i - (int)Math.Floor(n_smooth * .0 / 2);
+                    }
+                    if (i + Math.Floor(n_smooth * 1.0 / 2) > npts - 1)
+                    {
+                        end = npts - 1;
+                    }
+                    else
+                    {
+                        end = i + (int)Math.Floor(n_smooth * 1.0 / 2);
+                    }
+                    for (j = start; j <= end; j++)
+                    {
+                        sum = sum + arr_in[j];
+                        count = count + 1;
+                    }
+                    arr_out[i] = sum / (double)count;
+                }
+            }
+            else
+            {
+                for (i = 0; i < npts; i++)
+                {
+                    sum = 0.0;
+                    count = 0;
+                    if (i - (int)Math.Floor(n_smooth * 1.0 / 2) < 0)
+                    {
+                        start = 0;
+                    }
+                    else
+                    {
+                        start = i - (int)Math.Floor(n_smooth * 1.0 / 2);
+                    }
+                    if (i + Math.Floor(n_smooth * 1.0 / 2) - 1 > npts - 1)
+                    {
+                        end = npts - 1;
+                    }
+                    else
+                    {
+                        end = i + (int)(Math.Floor(n_smooth * 1.0 / 2)) - 1;
+                    }
+                    for (j = start; j <= end; j++)
+                    {
+                        sum = sum + (arr_in[j] + arr_in[j + 1]) / 2.0;
+                        count = count + 1;
+                    }
+                    arr_out[i] = sum / (double)count;
+                }
+            }
+            return;
+        }
+        //END
 
         //compute a mean value recursively
         public static double recursive_mean(double new_value, double old_mean, int n)
