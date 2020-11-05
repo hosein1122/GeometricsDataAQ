@@ -11,7 +11,7 @@ namespace StationAnalysisToolsNetCore
     {
 
         //once we have the 9component cross and auto spectra computed, we can finish the sleeman noise
-        private void finish_tri_noise(FftwArrayComplex P11, FftwArrayComplex P12, FftwArrayComplex P13, FftwArrayComplex P21, FftwArrayComplex P22, FftwArrayComplex P23, FftwArrayComplex P31, FftwArrayComplex P32, FftwArrayComplex P33, int npts, float dt, FftwArrayComplex N11, FftwArrayComplex N22, FftwArrayComplex N33)
+        private void FinishTriNoise(FftwArrayComplex P11, FftwArrayComplex P12, FftwArrayComplex P13, FftwArrayComplex P21, FftwArrayComplex P22, FftwArrayComplex P23, FftwArrayComplex P31, FftwArrayComplex P32, FftwArrayComplex P33, int npts, float dt, FftwArrayComplex N11, FftwArrayComplex N22, FftwArrayComplex N33)
         {
 
             //hij = Pik / Pjk
@@ -132,7 +132,7 @@ namespace StationAnalysisToolsNetCore
 
 
         //using the relation of Sleeman, 2006, we can compute a relative transfer function to look at noise in 3 co-located sensors
-        private void compute_tri_noise(FftwArrayComplex spect1, FftwArrayComplex spect2, FftwArrayComplex spect3, int npts, int j, FftwArrayComplex P11, FftwArrayComplex P12, FftwArrayComplex P13, FftwArrayComplex P21, FftwArrayComplex P22, FftwArrayComplex P23, FftwArrayComplex P31, FftwArrayComplex P32, FftwArrayComplex P33)
+        private void ComputeTriNoise(FftwArrayComplex spect1, FftwArrayComplex spect2, FftwArrayComplex spect3, int npts, int j, FftwArrayComplex P11, FftwArrayComplex P12, FftwArrayComplex P13, FftwArrayComplex P21, FftwArrayComplex P22, FftwArrayComplex P23, FftwArrayComplex P31, FftwArrayComplex P32, FftwArrayComplex P33)
         {
 
             //hij = Pik / Pjk
@@ -150,11 +150,11 @@ namespace StationAnalysisToolsNetCore
             {
                 //easiest to start with the straight powers: P11, P22, P33
                 tmpR = spect1[i].Real * spect1[i].Real + spect1[i].Imaginary * spect1[i].Imaginary;
-                P11[i] = new System.Numerics.Complex(recursive_mean(tmpR, P11[i].Real, j), P11[i].Imaginary);
+                P11[i] = new System.Numerics.Complex(RecursiveMean(tmpR, P11[i].Real, j), P11[i].Imaginary);
                 tmpR = spect2[i].Real * spect2[i].Real + spect2[i].Imaginary * spect2[i].Imaginary;
-                P22[i] = new System.Numerics.Complex(recursive_mean(tmpR, P22[i].Real, j), P22[i].Imaginary);
+                P22[i] = new System.Numerics.Complex(RecursiveMean(tmpR, P22[i].Real, j), P22[i].Imaginary);
                 tmpR = spect3[i].Real * spect3[i].Real + spect3[i].Imaginary * spect3[i].Imaginary;
-                P33[i] = new System.Numerics.Complex(recursive_mean(tmpR, P33[i].Real, j), P33[i].Imaginary);
+                P33[i] = new System.Numerics.Complex(RecursiveMean(tmpR, P33[i].Real, j), P33[i].Imaginary);
 
                 //ok, now the cross powers
                 //1-2
@@ -164,7 +164,7 @@ namespace StationAnalysisToolsNetCore
                 //means of 1-2
                 //P12[i].Real = recursive_mean(tmpR, P12[i].Real, j);
                 //P12[i].Imaginary = recursive_mean(tmpI, P12[i].Imaginary, j);
-                P12[i] = new Complex(recursive_mean(tmpR, P12[i].Real, j), recursive_mean(tmpI, P12[i].Imaginary, j));
+                P12[i] = new Complex(RecursiveMean(tmpR, P12[i].Real, j), RecursiveMean(tmpI, P12[i].Imaginary, j));
 
                 //1-3
                 tmpR = spect1[i].Real * spect3[i].Real + spect1[i].Imaginary * spect3[i].Imaginary;
@@ -173,7 +173,7 @@ namespace StationAnalysisToolsNetCore
                 //means of 1-3
                 //P13[i].Real = recursive_mean(tmpR, P13[i].Real, j);
                 //P13[i].Imaginary = recursive_mean(tmpI, P13[i].Imaginary, j);
-                P13[i] = new Complex(recursive_mean(tmpR, P13[i].Real, j), recursive_mean(tmpI, P13[i].Imaginary, j));
+                P13[i] = new Complex(RecursiveMean(tmpR, P13[i].Real, j), RecursiveMean(tmpI, P13[i].Imaginary, j));
 
                 //2-1
                 tmpR = spect2[i].Real * spect1[i].Real + spect2[i].Imaginary * spect1[i].Imaginary;
@@ -182,7 +182,7 @@ namespace StationAnalysisToolsNetCore
                 //means of 2-1
                 //P21[i].Real = recursive_mean(tmpR, P21[i].Real, j);
                 //P21[i].Imaginary = recursive_mean(tmpI, P21[i].Imaginary, j);
-                P21[i] = new Complex(recursive_mean(tmpR, P21[i].Real, j), recursive_mean(tmpI, P21[i].Imaginary, j));
+                P21[i] = new Complex(RecursiveMean(tmpR, P21[i].Real, j), RecursiveMean(tmpI, P21[i].Imaginary, j));
 
                 //2-3
                 tmpR = spect2[i].Real * spect3[i].Real + spect2[i].Imaginary * spect3[i].Imaginary;
@@ -191,7 +191,7 @@ namespace StationAnalysisToolsNetCore
                 //means of 2-3
                 //P23[i].Real = recursive_mean(tmpR, P23[i].Real, j);
                 //P23[i].Imaginary = recursive_mean(tmpI, P23[i].Imaginary, j);
-                P23[i] = new Complex(recursive_mean(tmpR, P23[i].Real, j), recursive_mean(tmpI, P23[i].Imaginary, j));
+                P23[i] = new Complex(RecursiveMean(tmpR, P23[i].Real, j), RecursiveMean(tmpI, P23[i].Imaginary, j));
 
                 //3-1
                 tmpR = spect3[i].Real * spect1[i].Real + spect3[i].Imaginary * spect1[i].Imaginary;
@@ -200,7 +200,7 @@ namespace StationAnalysisToolsNetCore
                 //means of 3-1
                 //P31[i].Real = recursive_mean(tmpR, P31[i].Real, j);
                 //P31[i].Imaginary = recursive_mean(tmpI, P31[i].Imaginary, j);
-                P31[i] = new Complex(recursive_mean(tmpR, P31[i].Real, j), recursive_mean(tmpI, P31[i].Imaginary, j));
+                P31[i] = new Complex(RecursiveMean(tmpR, P31[i].Real, j), RecursiveMean(tmpI, P31[i].Imaginary, j));
 
                 //3-2
                 tmpR = spect3[i].Real * spect2[i].Real + spect3[i].Imaginary * spect2[i].Imaginary;
@@ -209,7 +209,7 @@ namespace StationAnalysisToolsNetCore
                 //means of 2-3
                 //P32[i].Real = recursive_mean(tmpR, P32[i].Real, j);
                 //P32[i].Imaginary = recursive_mean(tmpI, P32[i].Imaginary, j);
-                P32[i] = new Complex(recursive_mean(tmpR, P32[i].Real, j), recursive_mean(tmpI, P32[i].Imaginary, j));
+                P32[i] = new Complex(RecursiveMean(tmpR, P32[i].Real, j), RecursiveMean(tmpI, P32[i].Imaginary, j));
             }
 
             return;
@@ -218,7 +218,7 @@ namespace StationAnalysisToolsNetCore
 
 
         //does two psds for debugging output of coherence based measurements
-        private void finish_two_psds(FftwArrayComplex amps, int npts, float dt, double[] out1, double[] out2)
+        private void FinishTwoPsds(FftwArrayComplex amps, int npts, float dt, double[] out1, double[] out2)
         {
             int i;
             int nfreq;
@@ -229,15 +229,15 @@ namespace StationAnalysisToolsNetCore
                 out1[i] = 10.0 * Math.Log10(Math.Sqrt(amps[i].Real) * 2 * dt / npts);
                 out2[i] = 10.0 * Math.Log10(Math.Sqrt(amps[i].Imaginary) * 2 * dt / npts);
             }
-            Running_mean_psd(out1, out1, nfreq);
-            Running_mean_psd(out2, out2, nfreq);
+            RunningMeanPsd(out1, out1, nfreq);
+            RunningMeanPsd(out2, out2, nfreq);
 
             return;
         }
 
 
         //similar idea as finish_coherence - using a coherence and substeps to get the incoherent component of the spectrum
-        private void finish_incoherence(FftwArrayComplex numerMean, FftwArrayComplex numerSD, FftwArrayComplex denom, int npts, float dt, double[] meanOut1, double[] sdOut1, double[] meanOut2, double[] sdOut2)
+        private void FinishIncoherence(FftwArrayComplex numerMean, FftwArrayComplex numerSD, FftwArrayComplex denom, int npts, float dt, double[] meanOut1, double[] sdOut1, double[] meanOut2, double[] sdOut2)
         {
             int i;
             int nfreq;
@@ -261,17 +261,17 @@ namespace StationAnalysisToolsNetCore
                 sdOut2[i] = (numerSD[i].Real * numerSD[i].Real + numerSD[i].Imaginary * numerSD[i].Imaginary) / (denom[i].Real * denom[i].Imaginary) * meanOut2[i];
             }
 
-            Running_mean_psd(meanOut1, meanOut1, nfreq);
-            Running_mean_psd(sdOut1, sdOut1, nfreq);
+            RunningMeanPsd(meanOut1, meanOut1, nfreq);
+            RunningMeanPsd(sdOut1, sdOut1, nfreq);
 
-            Running_mean_psd(meanOut2, meanOut2, nfreq);
-            Running_mean_psd(sdOut2, sdOut2, nfreq);
+            RunningMeanPsd(meanOut2, meanOut2, nfreq);
+            RunningMeanPsd(sdOut2, sdOut2, nfreq);
 
             return;
         }
 
         //simply display the contents of a pole zero structure to standard out
-        private void print_sac_pole_zero_file(POLE_ZERO pz)
+        private void PrintSacPoleZeroFile(POLE_ZERO pz)
         {
             int i;
             Console.Out.Write("Scalar Constant: {0:g}\n", pz.scale);
@@ -289,7 +289,7 @@ namespace StationAnalysisToolsNetCore
         }
 
         //compute the amplitude and divides by the total spectra
-        private void finish_coherence(FftwArrayComplex numerMean, FftwArrayComplex numerSD, FftwArrayComplex denom, int npts, double[] meanOut, double[] sdOut)
+        private void FinishCoherence(FftwArrayComplex numerMean, FftwArrayComplex numerSD, FftwArrayComplex denom, int npts, double[] meanOut, double[] sdOut)
         {
             int i;
             int nfreq;
@@ -301,15 +301,15 @@ namespace StationAnalysisToolsNetCore
                 sdOut[i] = (numerSD[i].Real * numerSD[i].Real + numerSD[i].Imaginary * numerSD[i].Imaginary) / (denom[i].Real * denom[i].Imaginary);
             }
 
-            Running_mean_psd(meanOut, meanOut, nfreq);
-            Running_mean_psd(sdOut, sdOut, nfreq);
+            RunningMeanPsd(meanOut, meanOut, nfreq);
+            RunningMeanPsd(sdOut, sdOut, nfreq);
 
             return;
         }
 
         //before calling this the first time, zero out the outputs (numer, denom1, denom2) as this appends to them
         //how about instead, I recursively compute the mean and standard deviation in here
-        private void compute_coherence(FftwArrayComplex spect1, FftwArrayComplex spect2, int npts, int j, FftwArrayComplex numerMean, FftwArrayComplex numerSD, FftwArrayComplex denom)
+        private void ComputeCoherence(FftwArrayComplex spect1, FftwArrayComplex spect2, int npts, int j, FftwArrayComplex numerMean, FftwArrayComplex numerSD, FftwArrayComplex denom)
         {
             int i;
             int nfreq;
@@ -331,18 +331,18 @@ namespace StationAnalysisToolsNetCore
                 //means of numerator
                 //numerMean[i].Real  = recursive_mean(tmpNumerR, numerMean[i].Real , j);
                 //numerMean[i].Imaginary = recursive_mean(tmpNumerI, numerMean[i].Imaginary, j);
-                numerMean[i] = new Complex(recursive_mean(tmpNumerR, numerMean[i].Real, j), recursive_mean(tmpNumerI, numerMean[i].Imaginary, j));
+                numerMean[i] = new Complex(RecursiveMean(tmpNumerR, numerMean[i].Real, j), RecursiveMean(tmpNumerI, numerMean[i].Imaginary, j));
 
 
                 //standard deviation of numerator
                 //numerSD[i].Real  = recursive_standard_deviation(tmpNumerR, numerMean[i].Real , numerSD[i].Real , j);
                 //numerSD[i].Imaginary = recursive_standard_deviation(tmpNumerI, numerMean[i].Imaginary, numerSD[i].Imaginary, j);
-                numerSD[i] = new Complex(recursive_standard_deviation(tmpNumerR, numerMean[i].Real, numerSD[i].Real, j), recursive_standard_deviation(tmpNumerI, numerMean[i].Imaginary, numerSD[i].Imaginary, j));
+                numerSD[i] = new Complex(RecursiveStandardDeviation(tmpNumerR, numerMean[i].Real, numerSD[i].Real, j), RecursiveStandardDeviation(tmpNumerI, numerMean[i].Imaginary, numerSD[i].Imaginary, j));
 
                 //mean denominator
                 //denom[i].Real  = recursive_mean(tmpDenomX, denom[i].Real , j);
                 //denom[i].Imaginary = recursive_mean(tmpDenomY, denom[i].Imaginary, j);
-                denom[i] = new Complex(recursive_mean(tmpDenomX, denom[i].Real, j), recursive_mean(tmpDenomY, denom[i].Imaginary, j));
+                denom[i] = new Complex(RecursiveMean(tmpDenomX, denom[i].Real, j), RecursiveMean(tmpDenomY, denom[i].Imaginary, j));
             }
 
             return;
@@ -354,7 +354,7 @@ namespace StationAnalysisToolsNetCore
 
 
         //linear interpolation onto log10 space
-        private void log10_linear_interpolate(double[] freqs, int nfreqs, double[] input, double[] freqsOut, double[] @out, ref int nFreqsOut, double minPer, double maxPer)
+        private void Log10LinearInterpolate(double[] freqs, int nfreqs, double[] input, double[] freqsOut, double[] @out, ref int nFreqsOut, double minPer, double maxPer)
         {
             int i;
             int j;
@@ -456,14 +456,14 @@ namespace StationAnalysisToolsNetCore
 
 
         //simple node computer
-        private int compute_nodes(float max, float min, float inc)
+        private int ComputeNodes(float max, float min, float inc)
         {
             return (int)Math.Floor((max - min) / inc + 1.5);
         }
         //END
 
         //primary interpolation routine (consider adjusting to use an output frequency array which is given as an argument)
-        private void linear_interpolate_psd(float[] freqs, int nfreqs, float[] input, float[] @out, float minPer, float maxPer, float incPer)
+        private void LinearInterpolatePsd(float[] freqs, int nfreqs, float[] input, float[] @out, float minPer, float maxPer, float incPer)
         {
 
             int i;
@@ -475,7 +475,7 @@ namespace StationAnalysisToolsNetCore
             float incr;
             float df;
 
-            nfreq = compute_nodes(maxPer, minPer, incPer);
+            nfreq = ComputeNodes(maxPer, minPer, incPer);
             F = minPer;
             incr = incPer;
             klo = 0;
@@ -619,7 +619,7 @@ namespace StationAnalysisToolsNetCore
 
         //running mean (general - previous function uses the "k" argument with a function of log10 to be specific to power spectral densities).
         //also new is the psd version is directly from david dolenc's code while this is more from rob's smoothing code, just simplified from the 2-d case to the 1-d case.
-        private void smooth_1d_array(double[] arr_in, double[] arr_out, int npts, int n_smooth)
+        private void Smooth1dArray(double[] arr_in, double[] arr_out, int npts, int n_smooth)
         {
             int i;
             int j;
@@ -698,7 +698,7 @@ namespace StationAnalysisToolsNetCore
         //END
 
         //compute a mean value recursively
-        public static double recursive_mean(double new_value, double old_mean, int n)
+        public static double RecursiveMean(double new_value, double old_mean, int n)
         {
             if (n >= 1)
             {
@@ -712,7 +712,7 @@ namespace StationAnalysisToolsNetCore
         //END
 
         //compute a standard deviation recursively
-        public static double recursive_standard_deviation(double new_value, double current_mean, double prev_value, int n)
+        public static double RecursiveStandardDeviation(double new_value, double current_mean, double prev_value, int n)
         {
             double temp = 0.0;
             double new_sd = 0.0;
@@ -732,7 +732,7 @@ namespace StationAnalysisToolsNetCore
 
 
         //////running_mean
-        private static void Running_mean_psd(double[] arr_in, double[] arr_out, int npts)
+        private static void RunningMeanPsd(double[] arr_in, double[] arr_out, int npts)
         {
             int i;
             int k;
@@ -769,7 +769,7 @@ namespace StationAnalysisToolsNetCore
 
 
         //calculate the power spectrum
-        public static void Calculate_psd(FftwArrayComplex spect, double[] psd_out, double dt, int npts)
+        public static void CalculatePsd(FftwArrayComplex spect, double[] psd_out, double dt, int npts)
         {
             int i;
             int nspec = (int)Math.Floor(npts / 2 + 1.5);
@@ -777,14 +777,14 @@ namespace StationAnalysisToolsNetCore
             {
                 psd_out[i] = 10.0 * Math.Log10((spect[i].Real * spect[i].Real + spect[i].Imaginary * spect[i].Imaginary) * 2 * dt / (double)npts);
             }
-            Running_mean_psd(psd_out, psd_out, nspec);
+            RunningMeanPsd(psd_out, psd_out, nspec);
             return;
         }
         //END
 
 
         //do everything in prep_sac_file....
-        public static void Signal_to_ground_acceleration(double[] @in, double[] @out, int npts, double delta, POLE_ZERO pz, int acc_flag, double[] signal, FftwArrayComplex signal_spectrum, FftwArrayComplex response_spectrum, PinnedArray<double> fftw_dbl, FftwArrayComplex fftw_cmplx, FftwPlanRC plan_forward, FftwPlanRC plan_backward)
+        public static void SignalToGroundAcceleration(double[] @in, double[] @out, int npts, double delta, POLE_ZERO pz, int acc_flag, double[] signal, FftwArrayComplex signal_spectrum, FftwArrayComplex response_spectrum, PinnedArray<double> fftw_dbl, FftwArrayComplex fftw_cmplx, FftwPlanRC plan_forward, FftwPlanRC plan_backward)
         {
             int i;
             int nspec;
@@ -823,14 +823,14 @@ namespace StationAnalysisToolsNetCore
             for (i = 0; i < nspec; i++)
             {
                 freq = (double)i / (delta * (double)npts);
-                temp_crp = generate_response(pz, freq);
+                temp_crp = GenerateResponse(pz, freq);
                 //response_spectrum[i][0] = temp_crp.real;
                 //response_spectrum[i][1] = temp_crp.imag;
                 response_spectrum[i] = new System.Numerics.Complex(temp_crp.real, temp_crp.imag);
             }
 
             /* doing a deconvolution (complex division) of the response spectrum from the signal spectrum */
-            decon_response_function(signal_spectrum, response_spectrum, ref signal_spectrum, nspec);
+            DeconResponseFunction(signal_spectrum, response_spectrum, ref signal_spectrum, nspec);
 
             /* return to the time domain for the differentiation */
             for (i = 0; i < nspec; i++)
@@ -858,12 +858,12 @@ namespace StationAnalysisToolsNetCore
             }
             else if (acc_flag == 1)
             {
-                time_derivative(signal, @out, delta, npts);
+                TimeDerivative(signal, @out, delta, npts);
             }
             else
             {
-                time_derivative(signal, signal, delta, npts);
-                time_derivative(signal, @out, delta, npts);
+                TimeDerivative(signal, signal, delta, npts);
+                TimeDerivative(signal, @out, delta, npts);
             }
 
             return;
@@ -1090,7 +1090,7 @@ namespace StationAnalysisToolsNetCore
 
 
         //time derivative (as sac 2 point algorithm)
-        private static void time_derivative(double[] @in, double[] @out, double delta, int npts)
+        private static void TimeDerivative(double[] @in, double[] @out, double delta, int npts)
         {
             int i;
             for (i = 0; i < npts - 1; i++)
@@ -1143,7 +1143,7 @@ namespace StationAnalysisToolsNetCore
 
         //generate response
         //generates the response for a specific frequency given in hertz
-        private static COMPLEX_RP generate_response(POLE_ZERO pz, double freq)
+        private static COMPLEX_RP GenerateResponse(POLE_ZERO pz, double freq)
         {
             /* local variables */
             int i;
@@ -1191,7 +1191,7 @@ namespace StationAnalysisToolsNetCore
 
 
         //decon_response_function
-        private static void decon_response_function(FftwArrayComplex data_spect, FftwArrayComplex response_spect, ref FftwArrayComplex spect_out, int nspec)
+        private static void DeconResponseFunction(FftwArrayComplex data_spect, FftwArrayComplex response_spect, ref FftwArrayComplex spect_out, int nspec)
         {
 
             int i;
@@ -1269,7 +1269,7 @@ namespace StationAnalysisToolsNetCore
 
 
         //calculate a 10% cosine taper
-        private static void CcosTaper(double[] arr_in, ref double[] arr_out, int npts)
+        private static void CosTaper(double[] arr_in, ref double[] arr_out, int npts)
         {
             int i;
             int M;
@@ -1299,7 +1299,7 @@ namespace StationAnalysisToolsNetCore
         {
             double[] arr_in = new double[] { 1, 21, 3, 4, 5 };
             double[] arr_out = new double[] { 1, 2, 3, 4, 5 };
-            CcosTaper(arr_in, ref arr_out, 5);
+            CosTaper(arr_in, ref arr_out, 5);
             foreach (double d in arr_out)
             {
                 Console.WriteLine(d);

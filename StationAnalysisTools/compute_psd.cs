@@ -121,7 +121,7 @@ namespace StationAnalysisToolsNetCore
                         temp_signal[ii] = signal[start_sample + ii];
                     }
                     //convert to acceleration in m/s/s
-                    StationAnalysisTools.Signal_to_ground_acceleration(temp_signal, temp_signal, temp_npts, sacTimeSeries.Header.Delta, (pz), acc_flag, stga_signal, stga_signal_spectrum, stga_response_spectrum, stga_fftw_dbl, stga_fftw_cmplx, stga_plan_forward, stga_plan_backward);
+                    StationAnalysisTools.SignalToGroundAcceleration(temp_signal, temp_signal, temp_npts, sacTimeSeries.Header.Delta, (pz), acc_flag, stga_signal, stga_signal_spectrum, stga_response_spectrum, stga_fftw_dbl, stga_fftw_cmplx, stga_plan_forward, stga_plan_backward);
 
                     //fft
                     for (int ii = 0; ii < temp_npts; ii++)
@@ -138,7 +138,7 @@ namespace StationAnalysisToolsNetCore
                         temp_spect[ii] = new Complex(stga_fftw_cmplx[ii].Real, stga_fftw_cmplx[ii].Imaginary);
                     }
                     //compute the power 
-                    StationAnalysisTools.Calculate_psd(temp_spect, temp_psd, sacTimeSeries.Header.Delta, temp_npts);
+                    StationAnalysisTools.CalculatePsd(temp_spect, temp_psd, sacTimeSeries.Header.Delta, temp_npts);
                     //for each period, compute the mean and standard deviation recursively
                     if (j == 0)
                     {
@@ -153,8 +153,8 @@ namespace StationAnalysisToolsNetCore
                     {
                         for (int ii = 0; ii < temp_npts / 2 + 1; ii++)
                         {
-                            mean_psd[ii] = StationAnalysisTools.recursive_mean(temp_psd[ii], mean_psd[ii], j + 1);
-                            sd_psd[ii] = StationAnalysisTools.recursive_standard_deviation(temp_psd[ii], mean_psd[ii], sd_psd[ii], j + 1);
+                            mean_psd[ii] = StationAnalysisTools.RecursiveMean(temp_psd[ii], mean_psd[ii], j + 1);
+                            sd_psd[ii] = StationAnalysisTools.RecursiveStandardDeviation(temp_psd[ii], mean_psd[ii], sd_psd[ii], j + 1);
                         }
                         //				printf("%lf +/- %lf\n",mean_psd[20], sd_psd[20]);
                     }
