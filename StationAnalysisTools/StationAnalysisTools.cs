@@ -384,8 +384,10 @@ namespace StationAnalysisToolsNetCore
             //	}
 
             //compute nodes
-            nspline = compute_log10_nodes(maxPer, minPer);
-            nFreqsOut = nspline;
+
+            //Todo
+           // nspline = compute_log10_nodes(maxPer, minPer);
+           // nFreqsOut = nspline;
 
             splineMin = (int)Math.Floor(Math.Log10(minPer) + 0.5);
             splineMax = (int)Math.Floor(Math.Log10(maxPer) + 0.5);

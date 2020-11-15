@@ -53,8 +53,8 @@ namespace test_libmseedNetCore
             SAC.SacTimeSeries sacTimeSeries = new SAC.SacTimeSeries("d:\\tmp\\pnina.LHZ.SAC");
             */
 
-            ComputePsd computePsd = new ComputePsd();
-
+            // ComputePsd computePsd = new ComputePsd();
+            unpackdata.Test_Steim1_decode();
 
         }
 
