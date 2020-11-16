@@ -65,7 +65,7 @@ namespace libmseedNetCore
          *
          * Return number of samples in output buffer on success, -1 on error.
          ************************************************************************/
-        private int msr_decode_int16(short[] input, int samplecount, int[] output, int outputlength, int swapflag)
+        public static int msr_decode_int16(short[] input, int samplecount, int[] output, int outputlength, int swapflag)
         {
             short sample;
             int idx;
@@ -106,7 +106,7 @@ namespace libmseedNetCore
      *
      * Return number of samples in output buffer on success, -1 on error.
      ************************************************************************/
-        private int msr_decode_int32(int[] input, int samplecount, int[] output, int outputlength, int swapflag)
+        public static int msr_decode_int32(int[] input, int samplecount, int[] output, int outputlength, int swapflag)
         {
             int sample;
             int idx;
@@ -145,7 +145,7 @@ namespace libmseedNetCore
         *
         * Return number of samples in output buffer on success, -1 on error.
         ************************************************************************/
-        private int msr_decode_float32(float[] input, int samplecount, float[] output, int outputlength, int swapflag)
+        public static int msr_decode_float32(float[] input, int samplecount, float[] output, int outputlength, int swapflag)
         {
             float sample;
             int idx;
@@ -185,7 +185,7 @@ namespace libmseedNetCore
          *
          * Return number of samples in output buffer on success, -1 on error.
          ************************************************************************/
-        private int msr_decode_float64(double[] input, int samplecount, double[] output, int outputlength, int swapflag)
+        public static int msr_decode_float64(double[] input, int samplecount, double[] output, int outputlength, int swapflag)
         {
             double sample;
             int idx;
@@ -245,7 +245,7 @@ namespace libmseedNetCore
             Console.WriteLine("len = " + len);
 
         }
-        private static int msr_decode_steim1(ref int[] input, int inputlength, int samplecount, ref int[] output, int outputlength, int swapflag)
+        public static int msr_decode_steim1(ref int[] input, int inputlength, int samplecount, ref int[] output, int outputlength, int swapflag)
         {
             //C++ TO C# CONVERTER TODO TASK: Pointer arithmetic is detected on this variable, so pointers on this variable are left unchanged:
             int outputptr_index = 0; //= output; // Pointer to next output sample location
@@ -474,7 +474,7 @@ namespace libmseedNetCore
         //  sbyte d8[4];
         //  int d32;
         //}
-        private static int msr_decode_steim2(ref int[] input, int inputlength, int samplecount, ref int[] output, int outputlength /*, ref string srcname*/, int swapflag)
+        public static int msr_decode_steim2(ref int[] input, int inputlength, int samplecount, ref int[] output, int outputlength /*, ref string srcname*/, int swapflag)
         {
             //C++ TO C# CONVERTER TODO TASK: C# does not have an equivalent to pointers to value types:
             //ORIGINAL LINE: int *outputptr = output;

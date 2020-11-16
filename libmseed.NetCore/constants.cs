@@ -6,6 +6,36 @@ namespace libmseedNetCore
 {
     public class Constants
     {
+
+       
+        /* SEED data encoding types */
+        public const int MINRECLEN = 128; // Minimum Mini-SEED record length, 2^7 bytes
+        public const int MAXRECLEN = 1048576; // Maximum Mini-SEED record length, 2^20 bytes
+        public const int DE_ASCII = 0;
+        public const int DE_INT16 = 1;
+        public const int DE_INT32 = 3;
+        public const int DE_FLOAT32 = 4;
+        public const int DE_FLOAT64 = 5;
+        public const int DE_STEIM1 = 10;
+        public const int DE_STEIM2 = 11;
+        public const int DE_GEOSCOPE24 = 12;
+        public const int DE_GEOSCOPE163 = 13;
+        public const int DE_GEOSCOPE164 = 14;
+        public const int DE_CDSN = 16;
+        public const int DE_SRO = 30;
+        public const int DE_DWWSSN = 32;
+
+        /* Library return and error code values, error values should always be negative */
+        public const int MS_ENDOFFILE = 1; // End of file reached return value
+        public const int MS_NOERROR = 0; // No error
+        public const int MS_GENERROR = -1; // Generic unspecified error
+        public const int MS_NOTSEED = -2; // Data not SEED
+        public const int MS_WRONGLENGTH = -3; // Length of data read was not correct
+        public const int MS_OUTOFRANGE = -4; // SEED record length out of range
+        public const int MS_UNKNOWNFORMAT = -5; // Unknown data encoding format
+        public const int MS_STBADCOMPFLAG = -6; // Steim, invalid compression flag(s)
+
+
         /* Error code for routines that normally return a high precision time.
          * The time value corresponds to '1902/1/1 00:00:00.000000' with the
          * default HPTMODULUS */
@@ -140,16 +170,7 @@ namespace libmseedNetCore
         }
 
 
-        /* Library return and error code values, error values should always be negative */
-        public const int MS_ENDOFFILE = 1; // End of file reached return value
-        public const int MS_NOERROR = 0; // No error
-        public const int MS_GENERROR = -1; // Generic unspecified error
-        public const int MS_NOTSEED = -2; // Data not SEED
-        public const int MS_WRONGLENGTH = -3; // Length of data read was not correct
-        public const int MS_OUTOFRANGE = -4; // SEED record length out of range
-        public const int MS_UNKNOWNFORMAT = -5; // Unknown data encoding format
-        public const int MS_STBADCOMPFLAG = -6; // Steim, invalid compression flag(s)
-
+        
 
 
         public class MSRecord_s
