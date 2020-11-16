@@ -54,7 +54,8 @@ namespace test_libmseedNetCore
             */
 
             // ComputePsd computePsd = new ComputePsd();
-            unpackdata.Test_Steim1_decode();
+            //unpackdata.Test_Steim1_decode();
+            unpackdata.Test_Steim2_decode();
 
         }
 
