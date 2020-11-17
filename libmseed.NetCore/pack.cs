@@ -109,7 +109,7 @@ namespace libmseedNetCore
             }
 
             /* Generate source name for MSRecord */
-            if (msr_srcname(msr, srcname, 1) == null)
+            if (msrutils.msr_srcname(msr, srcname, 1) == null)
             {
                 Logging.ms_log(2, "msr_unpack_data(): Cannot generate srcname\n");
                 return MS_GENERROR;

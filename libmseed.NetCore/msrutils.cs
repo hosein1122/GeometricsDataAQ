@@ -689,7 +689,7 @@ namespace libmseedNetCore
          *
          * Returns a pointer to the resulting string or NULL on error.
          ***************************************************************************/
-        string msr_srcname(MSRecord msr, char[] srcname, bool? quality=null)
+       public string msr_srcname(MSRecord msr, char[] srcname, bool? quality=null)
         { return ""; }
 
 
