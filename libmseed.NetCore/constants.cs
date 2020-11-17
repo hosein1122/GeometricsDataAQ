@@ -277,6 +277,23 @@ namespace libmseedNetCore
         public class LeapSecond : LeapSecond_s { }
         public static LeapSecond leapsecondlist;
 
+
+
+
+
+        /* Logging parameters */
+        public const int MAX_LOG_MSG_LENGTH = 200; // Maximum length of log messages
+        public class MSLogParam_s
+        {
+            public delegate void log_printDelegate(ref string UnnamedParameter);
+            public log_printDelegate log_print;
+            public readonly string logprefix;
+            public delegate void diag_printDelegate(ref string UnnamedParameter);
+            public diag_printDelegate diag_print;
+            public readonly string errprefix;
+        }
+
+        public class MSLogParam : MSLogParam_s { };
     }
 
 

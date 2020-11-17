@@ -1,8 +1,9 @@
-﻿using System;
+﻿using libmseedNetCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using static libmseedNetCore.Constants;
-
 namespace libmseedNetCore
 {
     /***************************************************************************
@@ -69,8 +70,8 @@ namespace libmseedNetCore
             string envvariable;
             string srcname = new string(new char[50]);
 
-            flag headerswapflag = 0;
-            flag dataswapflag = 0;
+            int headerswapflag = 0;
+            int dataswapflag = 0;
 
             int samplesize;
             int headerlen;
@@ -90,27 +91,27 @@ namespace libmseedNetCore
 
             if (record_handler == null)
             {
-                ms_log(2, "msr_pack(): record_handler() function pointer not set!\n");
+                Logging.ms_log(2, "msr_pack(): record_handler() function pointer not set!\n");
                 return -1;
             }
 
             /* Allocate stream processing state space if needed */
-            if (!msr.ststate)
+            if (msr.ststate == null)
             {
                 msr.ststate = new StreamState();
-                if (!msr.ststate)
+                if (msr.ststate == null)
                 {
-                    ms_log(2, "msr_pack(): Could not allocate memory for StreamState\n");
+                    Logging.ms_log(2, "msr_pack(): Could not allocate memory for StreamState\n");
                     return -1;
                 }
                 //C++ TO C# CONVERTER TODO TASK: The memory management function 'memset' has no equivalent in C#:
-                memset(msr.ststate, 0, sizeof(StreamState));
+                //memset(msr.ststate, 0, sizeof(StreamState));
             }
 
             /* Generate source name for MSRecord */
             if (msr_srcname(msr, srcname, 1) == null)
             {
-                ms_log(2, "msr_unpack_data(): Cannot generate srcname\n");
+                Logging.ms_log(2, "msr_unpack_data(): Cannot generate srcname\n");
                 return MS_GENERROR;
             }
 
@@ -124,7 +125,7 @@ namespace libmseedNetCore
                 {
                     if (envvariable != '0' && envvariable != '1')
                     {
-                        ms_log(2, "Environment variable PACK_HEADER_BYTEORDER must be set to '0' or '1'\n");
+                        Logging.ms_log(2, "Environment variable PACK_HEADER_BYTEORDER must be set to '0' or '1'\n");
                         return -1;
                     }
                     else if (envvariable == '0')
@@ -132,7 +133,7 @@ namespace libmseedNetCore
                         packheaderbyteorder = 0;
                         if (verbose > 2)
                         {
-                            ms_log(1, "PACK_HEADER_BYTEORDER=0, packing little-endian header\n");
+                            Logging.ms_log(1, "PACK_HEADER_BYTEORDER=0, packing little-endian header\n");
                         }
                     }
                     else
@@ -140,7 +141,7 @@ namespace libmseedNetCore
                         packheaderbyteorder = 1;
                         if (verbose > 2)
                         {
-                            ms_log(1, "PACK_HEADER_BYTEORDER=1, packing big-endian header\n");
+                            Logging.ms_log(1, "PACK_HEADER_BYTEORDER=1, packing big-endian header\n");
                         }
                     }
                 }
@@ -155,7 +156,7 @@ namespace libmseedNetCore
                 {
                     if (envvariable != '0' && envvariable != '1')
                     {
-                        ms_log(2, "Environment variable PACK_DATA_BYTEORDER must be set to '0' or '1'\n");
+                        Logging.ms_log(2, "Environment variable PACK_DATA_BYTEORDER must be set to '0' or '1'\n");
                         return -1;
                     }
                     else if (envvariable == '0')
@@ -163,7 +164,7 @@ namespace libmseedNetCore
                         packdatabyteorder = 0;
                         if (verbose > 2)
                         {
-                            ms_log(1, "PACK_DATA_BYTEORDER=0, packing little-endian data samples\n");
+                            Logging.ms_log(1, "PACK_DATA_BYTEORDER=0, packing little-endian data samples\n");
                         }
                     }
                     else
@@ -171,7 +172,7 @@ namespace libmseedNetCore
                         packdatabyteorder = 1;
                         if (verbose > 2)
                         {
-                            ms_log(1, "PACK_DATA_BYTEORDER=1, packing big-endian data samples\n");
+                            Logging.ms_log(1, "PACK_DATA_BYTEORDER=1, packing big-endian data samples\n");
                         }
                     }
                 }
@@ -207,13 +208,13 @@ namespace libmseedNetCore
 
             if (msr.reclen < MINRECLEN || msr.reclen > MAXRECLEN)
             {
-                ms_log(2, "msr_pack(%s): Record length is out of range: %d\n", srcname, msr.reclen);
+                Logging.ms_log(2, "msr_pack(%s): Record length is out of range: %d\n", srcname, msr.reclen);
                 return -1;
             }
 
             if (msr.numsamples <= 0)
             {
-                ms_log(2, "msr_pack(%s): No samples to pack\n", srcname);
+                Logging.ms_log(2, "msr_pack(%s): No samples to pack\n", srcname);
                 return -1;
             }
 
@@ -221,15 +222,15 @@ namespace libmseedNetCore
 
             if (!samplesize)
             {
-                ms_log(2, "msr_pack(%s): Unknown sample type '%c'\n", srcname, msr.sampletype);
+                Logging.ms_log(2, "msr_pack(%s): Unknown sample type '%c'\n", srcname, msr.sampletype);
                 return -1;
             }
 
             /* Sanity check for msr/quality indicator */
             if (!MS_ISDATAINDICATOR(msr.dataquality))
             {
-                ms_log(2, "msr_pack(%s): Record header & quality indicator unrecognized: '%c'\n", srcname, msr.dataquality);
-                ms_log(2, "msr_pack(%s): Packing failed.\n", srcname);
+                Logging.ms_log(2, "msr_pack(%s): Record header & quality indicator unrecognized: '%c'\n", srcname, msr.dataquality);
+                Logging.ms_log(2, "msr_pack(%s): Packing failed.\n", srcname);
                 return -1;
             }
 
@@ -239,7 +240,7 @@ namespace libmseedNetCore
 
             if (rawrec == null)
             {
-                ms_log(2, "msr_pack(%s): Cannot allocate memory\n", srcname);
+                Logging.ms_log(2, "msr_pack(%s): Cannot allocate memory\n", srcname);
                 return -1;
             }
 
@@ -268,19 +269,19 @@ namespace libmseedNetCore
             {
                 if (headerswapflag && dataswapflag)
                 {
-                    ms_log(1, "%s: Byte swapping needed for packing of header and data samples\n", srcname);
+                    Logging.ms_log(1, "%s: Byte swapping needed for packing of header and data samples\n", srcname);
                 }
                 else if (headerswapflag)
                 {
-                    ms_log(1, "%s: Byte swapping needed for packing of header\n", srcname);
+                    Logging.ms_log(1, "%s: Byte swapping needed for packing of header\n", srcname);
                 }
                 else if (dataswapflag)
                 {
-                    ms_log(1, "%s: Byte swapping needed for packing of data samples\n", srcname);
+                    Logging.ms_log(1, "%s: Byte swapping needed for packing of data samples\n", srcname);
                 }
                 else
                 {
-                    ms_log(1, "%s: Byte swapping NOT needed for packing\n", srcname);
+                    Logging.ms_log(1, "%s: Byte swapping NOT needed for packing\n", srcname);
                 }
             }
             /* Add a blank 1000 Blockette if one is not present, the blockette values
@@ -293,12 +294,12 @@ namespace libmseedNetCore
 
                 if (verbose > 2)
                 {
-                    ms_log(1, "%s: Adding 1000 Blockette\n", srcname);
+                    Logging.ms_log(1, "%s: Adding 1000 Blockette\n", srcname);
                 }
 
                 if (!msr_addblockette(msr, (string)blkt1000, sizeof(blkt_1000_s), 1000, 0))
                 {
-                    ms_log(2, "msr_pack(%s): Error adding 1000 Blockette\n", srcname);
+                    Logging.ms_log(2, "msr_pack(%s): Error adding 1000 Blockette\n", srcname);
                     rawrec = null;
                     return -1;
                 }
@@ -308,7 +309,7 @@ namespace libmseedNetCore
 
             if (headerlen == -1)
             {
-                ms_log(2, "msr_pack(%s): Error packing header\n", srcname);
+                Logging.ms_log(2, "msr_pack(%s): Error packing header\n", srcname);
                 rawrec = null;
                 return -1;
             }
@@ -368,7 +369,7 @@ namespace libmseedNetCore
 
                 if (packsamples < 0)
                 {
-                    ms_log(2, "msr_pack(%s): Error packing data samples\n", srcname);
+                    Logging.ms_log(2, "msr_pack(%s): Error packing data samples\n", srcname);
                     rawrec = null;
                     return -1;
                 }
@@ -384,7 +385,7 @@ namespace libmseedNetCore
 
                 if (verbose > 0)
                 {
-                    ms_log(1, "%s: Packed %d samples\n", srcname, packsamples);
+                    Logging.ms_log(1, "%s: Packed %d samples\n", srcname, packsamples);
                 }
 
                 /* Send record to handler */
@@ -423,7 +424,7 @@ namespace libmseedNetCore
 
             if (verbose > 2)
             {
-                ms_log(1, "%s: Packed %d total samples\n", srcname, totalpackedsamples);
+                Logging.ms_log(1, "%s: Packed %d total samples\n", srcname, totalpackedsamples);
             }
 
             rawrec = null;
@@ -454,11 +455,11 @@ namespace libmseedNetCore
          *
          * Returns the header length in bytes on success and -1 on error.
          ***************************************************************************/
-        private int msr_pack_header(MSRecord msr, flag normalize, flag verbose)
+        private int msr_pack_header(MSRecord msr, int normalize, int verbose)
         {
             string srcname = new string(new char[50]);
             string envvariable;
-            flag headerswapflag = 0;
+            int? headerswapflag = 0;
             int headerlen;
             int maxheaderlen;
 
@@ -470,7 +471,7 @@ namespace libmseedNetCore
             /* Generate source name for MSRecord */
             if (msr_srcname(msr, srcname, 1) == null)
             {
-                ms_log(2, "msr_unpack_data(): Cannot generate srcname\n");
+                Logging.ms_log(2, "msr_unpack_data(): Cannot generate srcname\n");
                 return MS_GENERROR;
             }
 
@@ -481,7 +482,7 @@ namespace libmseedNetCore
                 {
                     if (envvariable != '0' && envvariable != '1')
                     {
-                        ms_log(2, "Environment variable PACK_HEADER_BYTEORDER must be set to '0' or '1'\n");
+                        Logging.ms_log(2, "Environment variable PACK_HEADER_BYTEORDER must be set to '0' or '1'\n");
                         return -1;
                     }
                     else if (envvariable == '0')
@@ -489,7 +490,7 @@ namespace libmseedNetCore
                         packheaderbyteorder = 0;
                         if (verbose > 2)
                         {
-                            ms_log(1, "PACK_HEADER_BYTEORDER=0, packing little-endian header\n");
+                            Logging.ms_log(1, "PACK_HEADER_BYTEORDER=0, packing little-endian header\n");
                         }
                     }
                     else
@@ -497,7 +498,7 @@ namespace libmseedNetCore
                         packheaderbyteorder = 1;
                         if (verbose > 2)
                         {
-                            ms_log(1, "PACK_HEADER_BYTEORDER=1, packing big-endian header\n");
+                            Logging.ms_log(1, "PACK_HEADER_BYTEORDER=1, packing big-endian header\n");
                         }
                     }
                 }
@@ -509,17 +510,17 @@ namespace libmseedNetCore
 
             if (msr.reclen < MINRECLEN || msr.reclen > MAXRECLEN)
             {
-                ms_log(2, "msr_pack_header(%s): record length is out of range: %d\n", srcname, msr.reclen);
+                Logging.ms_log(2, "msr_pack_header(%s): record length is out of range: %d\n", srcname, msr.reclen);
                 return -1;
             }
 
             if (msr.byteorder != 0 && msr.byteorder != 1)
             {
-                ms_log(2, "msr_pack_header(%s): byte order is not defined correctly: %d\n", srcname, msr.byteorder);
+                Logging.ms_log(2, "msr_pack_header(%s): byte order is not defined correctly: %d\n", srcname, msr.byteorder);
                 return -1;
             }
 
-            if (msr.fsdh)
+            if (msr.fsdh != null)
             {
                 maxheaderlen = (msr.fsdh.data_offset > 0) ? msr.fsdh.data_offset : msr.reclen;
             }
@@ -544,15 +545,15 @@ namespace libmseedNetCore
             {
                 if (headerswapflag != null)
                 {
-                    ms_log(1, "%s: Byte swapping needed for packing of header\n", srcname);
+                    Logging.ms_log(1, "%s: Byte swapping needed for packing of header\n", srcname);
                 }
                 else
                 {
-                    ms_log(1, "%s: Byte swapping NOT needed for packing of header\n", srcname);
+                    Logging.ms_log(1, "%s: Byte swapping NOT needed for packing of header\n", srcname);
                 }
             }
 
-            headerlen = msr_pack_header_raw(msr, msr.record, maxheaderlen, headerswapflag, normalize, null, srcname, verbose);
+            headerlen = msr_pack_header_raw(msr, ref msr.record, maxheaderlen, headerswapflag, normalize, null, ref srcname, verbose);
 
             return headerlen;
         } // End of msr_pack_header()
@@ -571,7 +572,7 @@ namespace libmseedNetCore
          *
          * Returns the header length in bytes on success or -1 on error.
          ***************************************************************************/
-        private static int msr_pack_header_raw(MSRecord msr, ref string rawrec, int maxheaderlen, flag swapflag, flag normalize, blkt_1001_s[] blkt1001, ref string srcname, flag verbose)
+        private static int msr_pack_header_raw(MSRecord msr, ref string rawrec, int maxheaderlen, int? swapflag, int? normalize, blkt_1001_s[] blkt1001, ref string srcname, int verbose)
         {
             blkt_link_s cur_blkt;
             fsdh_s fsdh;
@@ -592,7 +593,7 @@ namespace libmseedNetCore
 
                 if (msr.fsdh == null)
                 {
-                    ms_log(2, "msr_pack_header_raw(%s): Cannot allocate memory\n", srcname);
+                    Logging.ms_log(2, "msr_pack_header_raw(%s): Cannot allocate memory\n", srcname);
                     return -1;
                 }
             }
@@ -602,25 +603,25 @@ namespace libmseedNetCore
             {
                 if (msr_normalize_header(msr, verbose) < 0)
                 {
-                    ms_log(2, "msr_pack_header_raw(%s): error normalizing header values\n", srcname);
+                    Logging.ms_log(2, "msr_pack_header_raw(%s): error normalizing header values\n", srcname);
                     return -1;
                 }
             }
 
             if (verbose > 2)
             {
-                ms_log(1, "%s: Packing fixed section of data header\n", srcname);
+                Logging.ms_log(1, "%s: Packing fixed section of data header\n", srcname);
             }
 
             if (maxheaderlen > msr.reclen)
             {
-                ms_log(2, "msr_pack_header_raw(%s): maxheaderlen of %d is beyond record length of %d\n", srcname, maxheaderlen, msr.reclen);
+                Logging.ms_log(2, "msr_pack_header_raw(%s): maxheaderlen of %d is beyond record length of %d\n", srcname, maxheaderlen, msr.reclen);
                 return -1;
             }
 
             if (maxheaderlen < (int)sizeof(fsdh_s))
             {
-                ms_log(2, "msr_pack_header_raw(%s): maxheaderlen of %d is too small, must be >= %d\n", srcname, maxheaderlen, sizeof(fsdh_s));
+                Logging.ms_log(2, "msr_pack_header_raw(%s): maxheaderlen of %d is too small, must be >= %d\n", srcname, maxheaderlen, sizeof(fsdh_s));
                 return -1;
             }
 
@@ -657,7 +658,7 @@ namespace libmseedNetCore
                 /* Check that the blockette fits */
                 if ((offset + 4 + cur_blkt.blktdatalen) > maxheaderlen)
                 {
-                    ms_log(2, "msr_pack_header_raw(%s): header exceeds maxheaderlen of %d\n", srcname, maxheaderlen);
+                    Logging.ms_log(2, "msr_pack_header_raw(%s): header exceeds maxheaderlen of %d\n", srcname, maxheaderlen);
                     break;
                 }
 
@@ -821,7 +822,7 @@ namespace libmseedNetCore
 
                     if (verbose > 0)
                     {
-                        ms_log(1, "msr_pack_header_raw(%s): WARNING Blockette 405 cannot be fully supported\n", srcname);
+                        Logging.ms_log(1, "msr_pack_header_raw(%s): WARNING Blockette 405 cannot be fully supported\n", srcname);
                     }
                 }
 
@@ -917,7 +918,7 @@ namespace libmseedNetCore
 
             if (verbose > 2)
             {
-                ms_log(1, "%s: Packed %d blockettes\n", srcname, blktcnt);
+                Logging.ms_log(1, "%s: Packed %d blockettes\n", srcname, blktcnt);
             }
 
             return new return (offset);
@@ -959,7 +960,7 @@ namespace libmseedNetCore
 
             if (verbose > 2)
             {
-                ms_log(1, "%s: Updating fixed section of data header\n", srcname);
+                Logging.ms_log(1, "%s: Updating fixed section of data header\n", srcname);
             }
 
             fsdh = (fsdh_s)rawrec;
@@ -973,7 +974,7 @@ namespace libmseedNetCore
             ms_hptime2tomsusecoffset(msr.starttime, hptimems, usecoffset);
 
             /* Update fixed-section start time */
-            ms_hptime2btime(hptimems, (fsdh.start_time));
+            genutils.ms_hptime2btime(hptimems, (fsdh.start_time));
 
             /* Swap byte order? */
             if (swapflag != null)
@@ -1011,14 +1012,15 @@ namespace libmseedNetCore
          *
          *  Return number of samples packed on success and a negative on error.
          ************************************************************************/
-        private static int msr_pack_data(object dest, object src, int maxsamples, int maxdatabytes, ref int lastintsample, flag comphistory, char sampletype, flag encoding, flag swapflag, ref string srcname, flag verbose)
+        private static int msr_pack_data(ref object[] dest, object[] src, int maxsamples, int maxdatabytes, ref int lastintsample, int? comphistory, char sampletype, int encoding, int swapflag, ref string srcname, int? verbose)
         {
             int nsamples;
             int[] intbuff;
+
             int d0;
 
             /* Check for encode debugging environment variable */
-            if (getenv("ENCODE_DEBUG"))
+            if (Environment.GetEnvironmentVariable("ENCODE_DEBUG")!=null)
             {
                 encodedebug = 1;
             }
@@ -1029,101 +1031,104 @@ namespace libmseedNetCore
                 case DE_ASCII:
                     if (sampletype != 'a')
                     {
-                        ms_log(2, "%s: Sample type must be ascii (a) for ASCII text encoding not '%c'\n", srcname, sampletype);
+                        Logging.ms_log(2, "%s: Sample type must be ascii (a) for ASCII text encoding not '%c'\n", srcname, sampletype);
                         return -1;
                     }
 
                     if (verbose > 1)
                     {
-                        ms_log(1, "%s: Packing ASCII data\n", srcname);
+                        Logging.ms_log(1, "%s: Packing ASCII data\n", srcname);
                     }
 
-                    nsamples = msr_encode_text(src, maxsamples, dest, maxdatabytes);
+                    nsamples = packdata.msr_encode_text(src, maxsamples, dest, maxdatabytes);
 
                     break;
 
                 case DE_INT16:
                     if (sampletype != 'i')
                     {
-                        ms_log(2, "%s: Sample type must be integer (i) for INT16 encoding not '%c'\n", srcname, sampletype);
+                        Logging.ms_log(2, "%s: Sample type must be integer (i) for INT16 encoding not '%c'\n", srcname, sampletype);
                         return -1;
                     }
 
                     if (verbose > 1)
                     {
-                        ms_log(1, "%s: Packing INT16 data samples\n", srcname);
+                        Logging.ms_log(1, "%s: Packing INT16 data samples\n", srcname);
                     }
 
-                    nsamples = msr_encode_int16(src, maxsamples, dest, maxdatabytes, swapflag);
+                    nsamples = packdata.msr_encode_int16(ref src, maxsamples,ref dest, maxdatabytes, swapflag);
 
                     break;
 
                 case DE_INT32:
                     if (sampletype != 'i')
                     {
-                        ms_log(2, "%s: Sample type must be integer (i) for INT32 encoding not '%c'\n", srcname, sampletype);
+                        Logging.ms_log(2, "%s: Sample type must be integer (i) for INT32 encoding not '%c'\n", srcname, sampletype);
                         return -1;
                     }
 
                     if (verbose > 1)
                     {
-                        ms_log(1, "%s: Packing INT32 data samples\n", srcname);
+                        Logging.ms_log(1, "%s: Packing INT32 data samples\n", srcname);
                     }
 
-                    nsamples = msr_encode_int32(src, maxsamples, dest, maxdatabytes, swapflag);
+                    nsamples = packdata.msr_encode_int32(src, maxsamples, dest, maxdatabytes, swapflag);
 
                     break;
 
                 case DE_FLOAT32:
                     if (sampletype != 'f')
                     {
-                        ms_log(2, "%s: Sample type must be float (f) for FLOAT32 encoding not '%c'\n", srcname, sampletype);
+                        Logging.ms_log(2, "%s: Sample type must be float (f) for FLOAT32 encoding not '%c'\n", srcname, sampletype);
                         return -1;
                     }
 
                     if (verbose > 1)
                     {
-                        ms_log(1, "%s: Packing FLOAT32 data samples\n", srcname);
+                        Logging.ms_log(1, "%s: Packing FLOAT32 data samples\n", srcname);
                     }
 
-                    nsamples = msr_encode_float32(src, maxsamples, dest, maxdatabytes, swapflag);
+                    nsamples = packdata.msr_encode_float32(src, maxsamples, dest, maxdatabytes, swapflag);
 
                     break;
 
                 case DE_FLOAT64:
                     if (sampletype != 'd')
                     {
-                        ms_log(2, "%s: Sample type must be double (d) for FLOAT64 encoding not '%c'\n", srcname, sampletype);
+                        Logging.ms_log(2, "%s: Sample type must be double (d) for FLOAT64 encoding not '%c'\n", srcname, sampletype);
                         return -1;
                     }
 
                     if (verbose > 1)
                     {
-                        ms_log(1, "%s: Packing FLOAT64 data samples\n", srcname);
+                        Logging.ms_log(1, "%s: Packing FLOAT64 data samples\n", srcname);
                     }
 
-                    nsamples = msr_encode_float64(src, maxsamples, dest, maxdatabytes, swapflag);
+                    nsamples = packdata.msr_encode_float64(src, maxsamples, dest, maxdatabytes, swapflag);
 
                     break;
 
                 case DE_STEIM1:
                     if (sampletype != 'i')
                     {
-                        ms_log(2, "%s: Sample type must be integer (i) for Steim1 compression not '%c'\n", srcname, sampletype);
+                        Logging.ms_log(2, "%s: Sample type must be integer (i) for Steim1 compression not '%c'\n", srcname, sampletype);
                         return -1;
                     }
 
-                    intbuff = (int)src;
+                    // intbuff = (int)src;
+                    intbuff = src.Cast<int>().ToArray();
+                    var outbuff = dest.Cast<int>().ToArray();
 
                     /* If a previous sample is supplied use it for compression history otherwise cold-start */
                     d0 = (lastintsample != 0 && comphistory != null) ? (intbuff[0] - lastintsample) : 0;
 
                     if (verbose > 1)
                     {
-                        ms_log(1, "%s: Packing Steim1 data frames\n", srcname);
+                        Logging.ms_log(1, "%s: Packing Steim1 data frames\n", srcname);
                     }
 
-                    nsamples = msr_encode_steim1(src, maxsamples, dest, maxdatabytes, d0, swapflag);
+                    nsamples = packdata.msr_encode_steim1(intbuff, maxsamples, ref outbuff, maxdatabytes, d0, swapflag);
+                    dest =  outbuff.Cast<object>().ToArray();
 
                     /* If a previous sample is supplied update it with the last sample value */
                     if (lastintsample != 0 && nsamples > 0)
@@ -1136,21 +1141,25 @@ namespace libmseedNetCore
                 case DE_STEIM2:
                     if (sampletype != 'i')
                     {
-                        ms_log(2, "%s: Sample type must be integer (i) for Steim2 compression not '%c'\n", srcname, sampletype);
+                        Logging.ms_log(2, "%s: Sample type must be integer (i) for Steim2 compression not '%c'\n", srcname, sampletype);
                         return -1;
                     }
 
-                    intbuff = (int)src;
+                    //intbuff = (int)src;
+                    intbuff = src.Cast<int>().ToArray();
+                    outbuff = dest.Cast<int>().ToArray();
 
                     /* If a previous sample is supplied use it for compression history otherwise cold-start */
                     d0 = (lastintsample != 0 && comphistory != null) ? (intbuff[0] - lastintsample) : 0;
 
                     if (verbose > 1)
                     {
-                        ms_log(1, "%s: Packing Steim2 data frames\n", srcname);
+                        Logging.ms_log(1, "%s: Packing Steim2 data frames\n", srcname);
                     }
 
-                    nsamples = msr_encode_steim2(src, maxsamples, dest, maxdatabytes, d0, srcname, swapflag);
+                    nsamples = packdata.msr_encode_steim2(src, maxsamples, dest, maxdatabytes, d0, srcname, swapflag);
+
+                    dest = outbuff.Cast<object>().ToArray();
 
                     /* If a previous sample is supplied update it with the last sample value */
                     if (lastintsample != 0 && nsamples > 0)
@@ -1161,7 +1170,7 @@ namespace libmseedNetCore
                     break;
 
                 default:
-                    ms_log(2, "%s: Unable to pack format %d\n", srcname, encoding);
+                    Logging.ms_log(2, "%s: Unable to pack format %d\n", srcname, encoding);
 
                     return -1;
             }

@@ -238,7 +238,7 @@ namespace libmseedNetCore
             return idx;
         } /* End of msr_encode_float64() */
 
-        private static int msr_encode_steim1(int[] input, int samplecount, ref int[] output, int outputlength, int diff0, int swapflag)
+        public static int msr_encode_steim1(int[] input, int samplecount, ref int[] output, int outputlength, int diff0, int swapflag)
         {
             uint[] frameptr; // Frame pointer in output
             int frameptr_index;
@@ -485,7 +485,7 @@ namespace libmseedNetCore
             return (outputsamples);
         } // End of msr_encode_steim1()
 
-        private static int msr_encode_steim2(int[] input, int samplecount, ref int[] output, int outputlength, int diff0, ref string srcname, int swapflag)
+        public static int msr_encode_steim2(int[] input, int samplecount, ref int[] output, int outputlength, int diff0, ref string srcname, int swapflag)
         {
             uint[] frameptr; // Frame pointer in output
             int frameptr_index;
