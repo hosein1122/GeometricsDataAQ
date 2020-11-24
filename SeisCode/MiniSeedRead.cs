@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -28,7 +29,7 @@ namespace SeisCode
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public MiniSeedRead(java.io.DataInput inStream) throws java.io.IOException
-		public MiniSeedRead(DataInput inStream)
+		public MiniSeedRead(BinaryReader inStream)
 		{
 			this.inStream = inStream;
 		}
@@ -76,7 +77,7 @@ namespace SeisCode
 
 		protected internal int numRead = 0;
 
-		protected internal DataInput inStream;
+		protected internal BinaryReader inStream;
 
 		protected internal int recordSize;
 
@@ -85,15 +86,15 @@ namespace SeisCode
 		public static void Main(string[] args)
 		{
 			DataInputStream ls = null;
-			PrintWriter @out = new PrintWriter(System.out, true);
+			TextWriter @out = new TextWriter(System.out, true);
 			int maxPackets = -1;
 			try
 			{
-				@out.println("open socket");
+				@out.WriteLine("open socket");
 				if (args.Length == 0)
 				{
 					//JAVA TO C# CONVERTER WARNING: The .NET Type.FullName property will not always yield results identical to the Java Class.getName method:
-					@out.println("Usage: java " + typeof(MiniSeedRead).FullName + " filename");
+					@out.WriteLine("Usage: java " + typeof(MiniSeedRead).FullName + " filename");
 				}
 				else
 				{
@@ -109,7 +110,7 @@ namespace SeisCode
 					}
 					catch (MissingBlockette1000)
 					{
-						@out.println("Missing Blockette1000, trying with record size of 4096");
+						@out.WriteLine("Missing Blockette1000, trying with record size of 4096");
 						// try with 4096 as default
 						sr = rf.getNextRecord(4096);
 					}
@@ -117,7 +118,7 @@ namespace SeisCode
 					if (sr is DataRecord)
 					{
 						DataRecord dr = (DataRecord)sr;
-						sbyte[] data = dr.Data;
+						byte[] data = dr.Data;
 						// should use seedCodec to do something with the data...
 					}
 				}

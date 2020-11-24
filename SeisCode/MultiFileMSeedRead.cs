@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -15,7 +16,7 @@ namespace SeisCode
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public MultiFileMSeedRead(java.io.File[] files) throws java.io.IOException
-		public MultiFileMSeedRead(File[] files)
+		public MultiFileMSeedRead(FileInfo[] files)
 		{
 			this.files = files;
 			initNextFile();
@@ -23,7 +24,7 @@ namespace SeisCode
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public void close() throws java.io.IOException
-		public virtual void close()
+		public override void close()
 		{
 			if (current != null)
 			{
@@ -65,7 +66,7 @@ namespace SeisCode
 			}
 		}
 
-		public virtual int NumRecordsRead
+		public override int NumRecordsRead
 		{
 			get
 			{
@@ -93,7 +94,7 @@ namespace SeisCode
 
 		internal int currentIndex = 0;
 
-		internal File[] files;
+		internal FileInfo[] files;
 
 		internal MiniSeedRead current;
 

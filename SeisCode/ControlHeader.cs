@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -9,15 +10,15 @@ namespace SeisCode
 
 		protected internal int sequenceNum;
 
-		protected internal sbyte typeCode;
+		protected internal byte typeCode;
 
 		protected internal bool continuationCode;
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public static ControlHeader read(java.io.DataInput in) throws java.io.IOException, SeedFormatException
-		public static ControlHeader read(DataInput @in)
+		public static ControlHeader read(BinaryReader @in)
 		{
-			sbyte[] seqBytes = new sbyte[6];
+			byte[] seqBytes = new byte[6];
 			@in.readFully(seqBytes);
 			string seqNumString = StringHelper.NewString(seqBytes);
 
@@ -35,9 +36,9 @@ namespace SeisCode
 				} // end of try-catch
 			}
 
-			sbyte typeCode = @in.readByte();
+			byte typeCode = @in.Readbyte();
 
-			int b = @in.readByte();
+			int b = @in.ReadByte();
 			bool continuationCode;
 			if (b == 32)
 			{
@@ -54,7 +55,7 @@ namespace SeisCode
 				throw new SeedFormatException("ControlHeader, expected space or *, but got " + b);
 			}
 
-			if (typeCode == (sbyte)'D' || typeCode == (sbyte)'R' || typeCode == (sbyte)'Q' || typeCode == (sbyte)'M')
+			if (typeCode == (byte)'D' || typeCode == (byte)'R' || typeCode == (byte)'Q' || typeCode == (byte)'M')
 			{
 				// Data Header is D, R, Q or M
 				return DataHeader.read(@in, sequenceNum, (char)typeCode, continuationCode);
@@ -76,32 +77,32 @@ namespace SeisCode
 		{
 			DecimalFormat sequenceNumFormat = new DecimalFormat("000000");
 			string sequenceNumString = sequenceNumFormat.format(SequenceNum);
-			sbyte[] sequenceNumByteArray = null;
+			byte[] sequenceNumByteArray = null;
 			try
 			{
 				sequenceNumByteArray = sequenceNumString.GetBytes(Encoding.ASCII);
 			}
-			catch (java.io.UnsupportedEncodingException e)
+			catch (UnsupportedEncodingException e)
 			{
 				Console.WriteLine(e.ToString());
 				Console.Write(e.StackTrace);
 			}
 
-			sbyte continuationCodeByte;
+			byte continuationCodeByte;
 			if (continuationCode == true)
 			{
 				//if it is continuation,it is represented as asterix '*'
-				continuationCodeByte = (sbyte)42;
+				continuationCodeByte = (byte)42;
 			}
 			else
 			{
 				//if it continuationCode is false...it is represented as space ' '
-				continuationCodeByte = (sbyte)32;
+				continuationCodeByte = (byte)32;
 			}
 			try
 			{
 				dos.write(sequenceNumByteArray);
-				dos.write((sbyte)typeCode);
+				dos.write((byte)typeCode);
 				dos.write(continuationCodeByte);
 			}
 			catch (Exception e)
@@ -123,28 +124,28 @@ namespace SeisCode
 		///  </param>
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public void writeASCII(java.io.PrintWriter out) throws java.io.IOException
-		public virtual void writeASCII(PrintWriter @out)
+		public virtual void writeASCII(TextWriter @out)
 		{
 			writeASCII(@out, "");
 		}
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public void writeASCII(java.io.PrintWriter out, String indent) throws java.io.IOException
-		public virtual void writeASCII(PrintWriter @out, string indent)
+		public virtual void writeASCII(TextWriter @out, string indent)
 		{
-			@out.print(indent + "seq=" + SequenceNum);
-			@out.print(" type=" + TypeCode);
-			@out.println(" cont=" + Continuation);
+			@out.Write(indent + "seq=" + SequenceNum);
+			@out.Write(" type=" + TypeCode);
+			@out.WriteLine(" cont=" + Continuation);
 		}
 
-		public ControlHeader(int sequenceNum, sbyte typeCode, bool continuationCode)
+		public ControlHeader(int sequenceNum, byte typeCode, bool continuationCode)
 		{
 			this.sequenceNum = sequenceNum;
-			this.typeCode = (sbyte)typeCode;
+			this.typeCode = (byte)typeCode;
 			this.continuationCode = continuationCode;
 		}
 
-		public ControlHeader(int sequenceNum, char typeCode, bool continuationCode) : this(sequenceNum, (sbyte)typeCode, continuationCode)
+		public ControlHeader(int sequenceNum, char typeCode, bool continuationCode) : this(sequenceNum, (byte)typeCode, continuationCode)
 		{
 		}
 
@@ -191,7 +192,7 @@ namespace SeisCode
 			try
 			{
 				dos = new DataOutputStream(new BufferedOutputStream(new FileStream(fileName, FileMode.Create, FileAccess.Write)));
-				ControlHeader controlHeaderObject = new ControlHeader(23, (sbyte)'D', true);
+				ControlHeader controlHeaderObject = new ControlHeader(23, (byte)'D', true);
 				controlHeaderObject.write(dos);
 				dos.close();
 			}

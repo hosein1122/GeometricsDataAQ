@@ -7,7 +7,7 @@ namespace SeisCode
 	public class DataBlocketteUnknown : DataBlockette
 	{
 
-		public DataBlocketteUnknown(sbyte[] info, int type, bool swapBytes) : base(info, swapBytes)
+		public DataBlocketteUnknown(byte[] info, int type, bool swapBytes) : base(info, swapBytes)
 		{
 			this.type = type;
 		}
@@ -36,7 +36,7 @@ namespace SeisCode
 			}
 		}
 
-		public virtual sbyte[] toBytes()
+		public virtual byte[] toBytes()
 		{
 			return info;
 		}

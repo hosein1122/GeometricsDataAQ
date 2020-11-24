@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -7,17 +8,17 @@ namespace SeisCode
 	public class Blockette2000 : DataBlockette
 	{
 
-		public Blockette2000(string[] headerFields, sbyte[] opaqueData) : base(opaqueData.Length + FIXED_HEADER_LENGTH + calcHeaderFieldLength(headerFields))
+		public Blockette2000(string[] headerFields, byte[] opaqueData) : base(opaqueData.Length + FIXED_HEADER_LENGTH + calcHeaderFieldLength(headerFields))
 		{
-			Array.Copy(Utility.intToByteArray(info.length), 2, info, BLOCKETTE_LENGTH, 2);
-			info[NUM_HEADER_FIELD] = (sbyte)headerFields.Length;
+			Array.Copy(Utility.intToByteArray(info.Length), 2, info, BLOCKETTE_LENGTH, 2);
+			info[NUM_HEADER_FIELD] = (byte)headerFields.Length;
 			int pos = HEADER_FIELD;
 			for (int i = 0; i < headerFields.Length; i++)
 			{
-				sbyte[] headerBytes;
+				byte[] headerBytes;
 				try
 				{
-					headerBytes = (headerFields[i] + '~').getBytes("US-ASCII");
+					headerBytes = (headerFields[i] + '~').GetBytes("US-ASCII");
 				}
 				catch (UnsupportedEncodingException)
 				{
@@ -26,7 +27,7 @@ namespace SeisCode
 				Array.Copy(headerBytes, 0, info, pos, headerBytes.Length);
 				pos += headerBytes.Length;
 			}
-			info[OPAQUE_OFFSET] = (sbyte)pos;
+			info[OPAQUE_OFFSET] = (byte)pos;
 			Array.Copy(opaqueData, 0, info, pos, opaqueData.Length);
 		}
 
@@ -42,14 +43,14 @@ namespace SeisCode
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public Blockette2000(byte[] info, boolean swapBytes) throws SeedFormatException
-		public Blockette2000(sbyte[] info, bool swapBytes) : base(info, swapBytes)
+		public Blockette2000(byte[] info, bool swapBytes) : base(info, swapBytes)
 		{
 			checkMinimumSize(FIXED_HEADER_LENGTH);
 			int size = Utility.uBytesToInt(info[4], info[5], swapBytes);
 			trimToSize(size);
 		}
 
-		public virtual string Name
+		public override string Name
 		{
 			get
 			{
@@ -57,15 +58,15 @@ namespace SeisCode
 			}
 		}
 
-		public virtual int Size
+		public override int Size
 		{
 			get
 			{
-				return info.length;
+				return info.Length;
 			}
 		}
 
-		public virtual int Type
+		public override int Type
 		{
 			get
 			{
@@ -77,7 +78,7 @@ namespace SeisCode
 		{
 			int curHeader = 0;
 			int start = HEADER_FIELD;
-			for (; start < info.length && curHeader != i; start++)
+			for (; start < info.Length && curHeader != i; start++)
 			{
 				if (info[start] == '~')
 				{
@@ -100,24 +101,24 @@ namespace SeisCode
 			}
 		}
 
-		public virtual sbyte[] OpaqueData
+		public virtual byte[] OpaqueData
 		{
 			get
 			{
-				sbyte[] opaque = new sbyte[info.length - info[OPAQUE_OFFSET]];
+				byte[] opaque = new byte[info.Length - info[OPAQUE_OFFSET]];
 				Array.Copy(info, info[OPAQUE_OFFSET], opaque, 0, opaque.Length);
 				return opaque;
 			}
 		}
 
-		public virtual void writeASCII(PrintWriter @out)
+		public override void WriteASCII(TextWriter @out)
 		{
-			@out.print("Blockette2000 numHeaders=" + NumHeaders + " ");
+			@out.Write("Blockette2000 numHeaders=" + NumHeaders + " ");
 			for (int i = 0; i < NumHeaders; i++)
 			{
-				@out.print(getHeaderField(i) + ",");
+				@out.Write(getHeaderField(i) + ",");
 			}
-			@out.println(" " + OpaqueData.Length + " bytes of opaque (binary) data");
+			@out.WriteLine(" " + OpaqueData.Length + " bytes of opaque (binary) data");
 		}
 
 		public override bool Equals(object o)
@@ -128,8 +129,8 @@ namespace SeisCode
 			}
 			if (o is Blockette2000)
 			{
-				sbyte[] oinfo = ((Blockette2000)o).info;
-				if (info.length != oinfo.Length)
+				byte[] oinfo = ((Blockette2000)o).info;
+				if (info.Length != oinfo.Length)
 				{
 					return false;
 				}

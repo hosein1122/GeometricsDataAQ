@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -7,7 +8,7 @@ namespace SeisCode
 	public class Blockette5 : ControlRecordLengthBlockette
 	{
 
-		public Blockette5(sbyte[] info) : base(info)
+		public Blockette5(byte[] info) : base(info)
 		{
 		}
 
@@ -35,10 +36,10 @@ namespace SeisCode
 			}
 		}
 
-		public virtual void writeASCII(PrintWriter @out)
+		public override void WriteASCII(TextWriter @out)
 		{
 			base.writeASCIINoNewline(@out);
-			@out.println(" beg vol=" + BeginningOfVolume);
+			@out.WriteLine(" beg vol=" + BeginningOfVolume);
 		}
 	}
 

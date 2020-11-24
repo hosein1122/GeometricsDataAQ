@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -7,7 +8,7 @@ namespace SeisCode
 	public class PartialBlockette : BlocketteUnknown
 	{
 
-		public PartialBlockette(int type, sbyte[] info, bool swapBytes, int priorBytes, int totalBytes) : base(info, type, swapBytes)
+		public PartialBlockette(int type, byte[] info, bool swapBytes, int priorBytes, int totalBytes) : base(info, type, swapBytes)
 		{
 			bytesRead = info.Length;
 			this.priorBytes = priorBytes;
@@ -16,16 +17,16 @@ namespace SeisCode
 
 		public static PartialBlockette combine(PartialBlockette first, PartialBlockette second)
 		{
-			sbyte[] tmp = new sbyte[first.Size + second.Size];
-			Array.Copy(first.toBytes(), 0, tmp, 0, first.Size);
-			Array.Copy(second.toBytes(), 0, tmp, first.Size, second.Size);
+			byte[] tmp = new byte[first.Size + second.Size];
+			Array.Copy(first.ToBytes(), 0, tmp, 0, first.Size);
+			Array.Copy(second.ToBytes(), 0, tmp, first.Size, second.Size);
 			return new PartialBlockette(first.Type, tmp, first.swapBytes, first.PriorSize, first.TotalSize);
 		}
 
-		public virtual void writeASCII(PrintWriter @out)
+		public virtual void writeASCII(TextWriter @out)
 		{
-			string infoStr = new string(info);
-			@out.println("Partial Blockette " + Type + ", " + bytesRead + " with " + priorBytes + " prior of " + totalBytes + " total bytes: " + infoStr);
+			string infoStr = Encoding.ASCII.GetString(info);
+			@out.WriteLine("Partial Blockette " + Type + ", " + bytesRead + " with " + priorBytes + " prior of " + totalBytes + " total bytes: " + infoStr);
 		}
 
 		public virtual bool Begin

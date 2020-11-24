@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -15,12 +16,12 @@ namespace SeisCode
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public Blockette1001(byte[] info, boolean swapBytes) throws SeedFormatException
-		public Blockette1001(sbyte[] info, bool swapBytes) : base(info, swapBytes)
+		public Blockette1001(byte[] info, bool swapBytes) : base(info, swapBytes)
 		{
 			trimToSize(B1001_SIZE);
 		}
 
-		public virtual int Size
+		public override int Size
 		{
 			get
 			{
@@ -28,7 +29,7 @@ namespace SeisCode
 			}
 		}
 
-		public virtual int Type
+		public override int Type
 		{
 			get
 			{
@@ -36,14 +37,14 @@ namespace SeisCode
 			}
 		}
 
-		public virtual string Name
+		public override string Name
 		{
 			get
 			{
 				return "Data Extension Blockette";
 			}
 		}
-		public virtual sbyte TimingQuality
+		public virtual byte TimingQuality
 		{
 			get
 			{
@@ -56,7 +57,7 @@ namespace SeisCode
 		}
 
 
-		public virtual sbyte Microsecond
+		public virtual byte Microsecond
 		{
 			get
 			{
@@ -69,7 +70,7 @@ namespace SeisCode
 		}
 
 
-		public virtual sbyte Reserved
+		public virtual byte Reserved
 		{
 			get
 			{
@@ -82,7 +83,7 @@ namespace SeisCode
 		}
 
 
-		public virtual sbyte FrameCount
+		public virtual byte FrameCount
 		{
 			get
 			{
@@ -95,9 +96,9 @@ namespace SeisCode
 		}
 
 
-		public override void writeASCII(PrintWriter @out)
+		public override void WriteASCII(TextWriter @out)
 		{
-			@out.println("Blockette1001 tQual=" + TimingQuality + " microsec=" + Microsecond + " frameC=" + FrameCount);
+			@out.WriteLine("Blockette1001 tQual=" + TimingQuality + " microsec=" + Microsecond + " frameC=" + FrameCount);
 		}
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -14,23 +15,23 @@ namespace SeisCode
     public class DataHeader : ControlHeader
     {
 
-        protected internal sbyte[] stationIdentifier = new sbyte[5];
+        protected internal byte[] stationIdentifier = new byte[5];
 
         protected internal string stationIdentifierString;
 
-        protected internal sbyte[] locationIdentifier = new sbyte[2];
+        protected internal byte[] locationIdentifier = new byte[2];
 
         protected internal string locationIdentifierString;
 
-        protected internal sbyte[] channelIdentifier = new sbyte[3];
+        protected internal byte[] channelIdentifier = new byte[3];
 
         protected internal string channelIdentifierString;
 
-        protected internal sbyte[] networkCode = new sbyte[2];
+        protected internal byte[] networkCode = new byte[2];
 
         protected internal string networkCodeString;
 
-        protected internal sbyte[] startTime = new sbyte[10];
+        protected internal byte[] startTime = new byte[10];
 
         protected internal int numSamples;
 
@@ -38,13 +39,13 @@ namespace SeisCode
 
         protected internal int sampleRateMultiplier;
 
-        protected internal sbyte activityFlags;
+        protected internal byte activityFlags;
 
-        protected internal sbyte ioClockFlags;
+        protected internal byte ioClockFlags;
 
-        protected internal sbyte dataQualityFlags;
+        protected internal byte dataQualityFlags;
 
-        protected internal sbyte numBlockettes;
+        protected internal byte numBlockettes;
 
         protected internal int timeCorrection;
 
@@ -78,28 +79,28 @@ namespace SeisCode
         ///  </param>
         //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
         //ORIGINAL LINE: public void writeASCII(java.io.PrintWriter out) throws java.io.IOException
-        public virtual void writeASCII(PrintWriter @out)
+        public override void writeASCII(TextWriter @out)
         {
             writeASCII(@out, "");
         }
 
         //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
         //ORIGINAL LINE: public void writeASCII(java.io.PrintWriter out, String indent) throws java.io.IOException
-        public virtual void writeASCII(PrintWriter @out, string indent)
+        public override void writeASCII(TextWriter @out, string indent)
         {
             base.writeASCII(@out, indent);
-            @out.print(indent + NetworkCode.Trim() + "." + StationIdentifier.Trim() + "." + LocationIdentifier + "." + ChannelIdentifier);
-            @out.print(" start=" + StartTime);
-            @out.print(" numPTS=" + getNumSamples());
-            @out.print(" sampFac=" + getSampleRateFactor());
-            @out.print(" sampMul=" + getSampleRateMultiplier());
-            @out.print(" ac=" + ActivityFlags);
-            @out.print(" io=" + IOClockFlags);
-            @out.print(" qual=" + DataQualityFlags);
-            @out.print(" numBlockettes=" + NumBlockettes);
-            @out.print(" blocketteOffset=" + getDataBlocketteOffset());
-            @out.print(" dataOffset=" + getDataOffset());
-            @out.println(" tcor=" + TimeCorrection);
+            @out.Write(indent + NetworkCode.Trim() + "." + StationIdentifier.Trim() + "." + LocationIdentifier + "." + ChannelIdentifier);
+            @out.Write(" start=" + StartTime);
+            @out.Write(" numPTS=" + getNumSamples());
+            @out.Write(" sampFac=" + getSampleRateFactor());
+            @out.Write(" sampMul=" + getSampleRateMultiplier());
+            @out.Write(" ac=" + ActivityFlags);
+            @out.Write(" io=" + IOClockFlags);
+            @out.Write(" qual=" + DataQualityFlags);
+            @out.Write(" numBlockettes=" + NumBlockettes);
+            @out.Write(" blocketteOffset=" + getDataBlocketteOffset());
+            @out.Write(" dataOffset=" + getDataOffset());
+            @out.WriteLine(" tcor=" + TimeCorrection);
         }
 
         /// <summary>
@@ -128,9 +129,9 @@ namespace SeisCode
         /// <exception cref="SeedFormatException"> </exception>
         //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
         //ORIGINAL LINE: public static DataHeader read(java.io.DataInput in, int sequenceNum, char typeCode, boolean continuationCode) throws java.io.IOException, SeedFormatException
-        public static DataHeader read(DataInput @in, int sequenceNum, char typeCode, bool continuationCode)
+        public static DataHeader read(BinaryReader @in, int sequenceNum, char typeCode, bool continuationCode)
         {
-            sbyte[] buf = new sbyte[40];
+            byte[] buf = new byte[40];
             @in.readFully(buf);
             DataHeader data = new DataHeader(sequenceNum, typeCode, continuationCode);
             data.read(buf, 0);
@@ -155,7 +156,7 @@ namespace SeisCode
         ///            data buffer containing FSDH information </param>
         /// <param name="offset">
         ///            byte offset to begin reading buf </param>
-        protected internal virtual void read(sbyte[] buf, int offset)
+        protected internal virtual void read(byte[] buf, int offset)
         {
             Array.Copy(buf, offset + 0, stationIdentifier, 0, stationIdentifier.Length);
             Array.Copy(buf, offset + 5, locationIdentifier, 0, locationIdentifier.Length);
@@ -182,24 +183,24 @@ namespace SeisCode
         ///            DataOutput stream to write to </param>
         //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
         //ORIGINAL LINE: protected void write(java.io.DataOutput dos) throws java.io.IOException
-        protected internal virtual void write(DataOutput dos)
+        protected internal virtual void write(BinaryWriter dos)
         {
             base.write(dos);
-            dos.write(Utility.pad(StationIdentifier.GetBytes(Encoding.ASCII), 5, (sbyte)32));
-            dos.write(Utility.pad(LocationIdentifier.GetBytes(Encoding.ASCII), 2, (sbyte)32));
-            dos.write(Utility.pad(ChannelIdentifier.GetBytes(Encoding.ASCII), 3, (sbyte)32));
-            dos.write(Utility.pad(NetworkCode.GetBytes(Encoding.ASCII), 2, (sbyte)32));
-            dos.write(startTime);
-            dos.writeShort((short)getNumSamples());
-            dos.writeShort((short)getSampleRateFactor());
-            dos.writeShort((short)getSampleRateMultiplier());
-            dos.writeByte(ActivityFlags);
-            dos.writeByte(IOClockFlags);
-            dos.writeByte(DataQualityFlags);
-            dos.writeByte(NumBlockettes);
-            dos.writeInt(TimeCorrection);
-            dos.writeShort((short)getDataOffset());
-            dos.writeShort((short)getDataBlocketteOffset());
+            dos.Write(Utility.pad(StationIdentifier.GetBytes(Encoding.ASCII), 5, (byte)32));
+            dos.Write(Utility.pad(LocationIdentifier.GetBytes(Encoding.ASCII), 2, (byte)32));
+            dos.Write(Utility.pad(ChannelIdentifier.GetBytes(Encoding.ASCII), 3, (byte)32));
+            dos.Write(Utility.pad(NetworkCode.GetBytes(Encoding.ASCII), 2, (byte)32));
+            dos.Write(startTime);
+            dos.Write((short)getNumSamples());
+            dos.Write((short)getSampleRateFactor());
+            dos.Write((short)getSampleRateMultiplier());
+            dos.Write(ActivityFlags);
+            dos.Write(IOClockFlags);
+            dos.Write(DataQualityFlags);
+            dos.Write(NumBlockettes);
+            dos.Write(TimeCorrection);
+            dos.Write((short)getDataOffset());
+            dos.Write((short)getDataBlocketteOffset());
         }
 
         public virtual short Size
@@ -240,7 +241,7 @@ namespace SeisCode
                 stationIdentifierString = value;
                 try
                 {
-                    this.stationIdentifier = Utility.pad(value.GetBytes(Encoding.ASCII), 5, (sbyte)32);
+                    this.stationIdentifier = Utility.pad(value.GetBytes(Encoding.ASCII), 5, (byte)32);
                 }
                 catch (java.io.UnsupportedEncodingException e)
                 {
@@ -270,7 +271,7 @@ namespace SeisCode
                 int requiredBytes = 2; // REFER SEED Format
                 try
                 {
-                    this.locationIdentifier = Utility.pad(value.GetBytes(Encoding.ASCII), requiredBytes, (sbyte)32);
+                    this.locationIdentifier = Utility.pad(value.GetBytes(Encoding.ASCII), requiredBytes, (byte)32);
                 }
                 catch (java.io.UnsupportedEncodingException e)
                 {
@@ -300,7 +301,7 @@ namespace SeisCode
                 int requiredBytes = 3; // REFER SEED Format
                 try
                 {
-                    this.channelIdentifier = Utility.pad(value.GetBytes(Encoding.ASCII), requiredBytes, (sbyte)32);
+                    this.channelIdentifier = Utility.pad(value.GetBytes(Encoding.ASCII), requiredBytes, (byte)32);
                 }
                 catch (java.io.UnsupportedEncodingException e)
                 {
@@ -328,7 +329,7 @@ namespace SeisCode
             {
                 networkCodeString = value;
                 int requiredBytes = 2; // REFER SEED FORMAT
-                sbyte paddingByte = (sbyte)32;
+                byte paddingByte = (byte)32;
                 try
                 {
                     this.networkCode = Utility.pad(value.GetBytes(Encoding.ASCII), requiredBytes, paddingByte);
@@ -353,7 +354,7 @@ namespace SeisCode
             }
             set
             {
-                this.startTime = value.AsBytes;
+                this.startTime = value.Abytes;
             }
         }
 
@@ -683,7 +684,7 @@ namespace SeisCode
         /// Get the value of activityFlags.
         /// </summary>
         /// <returns> Value of activityFlags. </returns>
-        public virtual sbyte ActivityFlags
+        public virtual byte ActivityFlags
         {
             get
             {
@@ -700,7 +701,7 @@ namespace SeisCode
         /// Get the value of IOClockFlags.
         /// </summary>
         /// <returns> Value of IOClockFlags. </returns>
-        public virtual sbyte IOClockFlags
+        public virtual byte IOClockFlags
         {
             get
             {
@@ -956,7 +957,7 @@ namespace SeisCode
         /// Get the value of dataQualityFlags.
         /// </summary>
         /// <returns> Value of dataQualityFlags. </returns>
-        public virtual sbyte DataQualityFlags
+        public virtual byte DataQualityFlags
         {
             get
             {
@@ -973,7 +974,7 @@ namespace SeisCode
         /// Get the value of numBlockettes.
         /// </summary>
         /// <returns> Value of numBlockettes. </returns>
-        public virtual sbyte NumBlockettes
+        public virtual byte NumBlockettes
         {
             get
             {

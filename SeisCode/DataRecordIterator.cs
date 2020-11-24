@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -7,7 +8,7 @@ namespace SeisCode
 	public class DataRecordIterator
 	{
 
-		public DataRecordIterator(DataInput @in)
+		public DataRecordIterator(BinaryReader @in)
 		{
 			this.@in = @in;
 		}
@@ -85,7 +86,7 @@ namespace SeisCode
 
 		internal DataRecord nextDr;
 
-		internal DataInput @in;
+		internal BinaryReader @in;
 
 		private static readonly org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(typeof(DataRecordIterator));
 

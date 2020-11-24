@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -8,7 +9,7 @@ namespace SeisCode
 	public abstract class DataBlockette : Blockette
 	{
 
-		public DataBlockette(sbyte[] info, bool swapBytes)
+		public DataBlockette(byte[] info, bool swapBytes)
 		{
 			this.info = info;
 			this.swapBytes = swapBytes;
@@ -16,7 +17,7 @@ namespace SeisCode
 
 		public DataBlockette(int size)
 		{
-			this.info = new sbyte[size];
+			this.info = new byte[size];
 			Array.Copy(Utility.intToByteArray(Type), 2, info, 0, 2);
 		}
 
@@ -44,7 +45,7 @@ namespace SeisCode
 			if (info.Length > size)
 			{
 				// must be extra junk at end, trim
-				sbyte[] tmp = new sbyte[size];
+				byte[] tmp = new byte[size];
 				Array.Copy(info, 0, tmp, 0, size);
 				info = tmp;
 			}
@@ -52,23 +53,23 @@ namespace SeisCode
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public void write(java.io.DataOutputStream dos, short nextOffset) throws java.io.IOException
-		public virtual void write(DataOutputStream dos, short nextOffset)
+		public virtual void write(BinaryWriter dos, short nextOffset)
 		{
-			dos.write(toBytes(nextOffset));
+			dos.Write(toBytes(nextOffset));
 		}
 
-		public virtual sbyte[] toBytes(short nextOffset)
+		public virtual byte[] toBytes(short nextOffset)
 		{
 			Array.Copy(Utility.intToByteArray(nextOffset), 2, info, 2, 2);
 			return info;
 		}
 
-		public virtual sbyte[] toBytes()
+		public  override byte[] ToBytes()
 		{
-			return toBytes((short)0);
+			return toBytes(0);
 		}
 
-		protected internal sbyte[] info;
+		protected internal byte[] info;
 
 		protected internal bool swapBytes;
 

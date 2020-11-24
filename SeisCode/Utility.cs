@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -15,45 +16,45 @@ namespace SeisCode
 	public class Utility
 	{
 
-		public static int extractInteger(sbyte[] info, int start, int length)
+		public static int extractInteger(byte[] info, int start, int length)
 		{
 			return int.Parse(extractString(info, start, length));
 		}
 
-		public static string extractString(sbyte[] info, int start, int length)
+		public static string extractString(byte[] info, int start, int length)
 		{
-			sbyte[] subbytes = new sbyte[length];
+			byte[] subbytes = new byte[length];
 			Array.Copy(info, start, subbytes, 0, length);
 			return StringHelper.NewString(subbytes);
 		}
 
-		public static string extractVarString(sbyte[] info, int start, int maxLength)
+		public static string extractVarString(byte[] info, int start, int maxLength)
 		{
-			return extractTermString(info, start, maxLength, (sbyte)126);
+			return extractTermString(info, start, maxLength, (byte)126);
 		}
 
-		public static string extractNullTermString(sbyte[] info, int start, int maxLength)
+		public static string extractNullTermString(byte[] info, int start, int maxLength)
 		{
-			return extractTermString(info, start, maxLength, (sbyte)0);
+			return extractTermString(info, start, maxLength, (byte)0);
 		}
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public static void writeNullTermString(String value, int maxLength, java.io.DataOutput out) throws java.io.IOException
-		public static void writeNullTermString(string value, int maxLength, DataOutput @out)
+		public static void writeNullTermString(string value, int maxLength, BinaryWriter @out)
 		{
 			string s = value;
 			if (s.Length > maxLength)
 			{
 				s = s.Substring(0, maxLength);
 			}
-			@out.writeBytes(s);
+			@out.Write(s);
 			for (int i = s.Length; i < maxLength; i++)
 			{
-				@out.write((sbyte)0);
+				@out.Write((byte)0);
 			}
 		}
 
-		internal static string extractTermString(sbyte[] info, int start, int maxLength, sbyte termChar)
+		internal static string extractTermString(byte[] info, int start, int maxLength, byte termChar)
 		{
 			int length = 0;
 			while (length < maxLength && start + length < info.Length && info[start + length] != termChar)
@@ -64,12 +65,12 @@ namespace SeisCode
 			{
 				return "";
 			}
-			sbyte[] tmp = new sbyte[length];
+			byte[] tmp = new byte[length];
 			Array.Copy(info, start, tmp, 0, length);
 			return StringHelper.NewString(tmp);
 		}
 
-		public static short bytesToShort(sbyte hi, sbyte low, bool swapBytes)
+		public static short bytesToShort(byte hi, byte low, bool swapBytes)
 		{
 			if (swapBytes)
 			{
@@ -81,28 +82,28 @@ namespace SeisCode
 			}
 		}
 
-		public static int bytesToInt(sbyte a)
+		public static int bytesToInt(byte a)
 		{
 			return (int)a;
 		}
 
-		public static int uBytesToInt(sbyte a)
+		public static int uBytesToInt(byte a)
 		{
 			// we and with 0xff in order to get the sign correct (pos)
 			return a & 0xff;
 		}
 
-		public static int bytesToInt(sbyte[] info, int start, bool swapBytes)
+		public static int bytesToInt(byte[] info, int start, bool swapBytes)
 		{
 			return bytesToInt(info[start], info[start + 1], info[start + 2], info[start + 3], swapBytes);
 		}
 
-		public static long bytesToLong(sbyte[] info, int start, bool swapBytes)
+		public static long bytesToLong(byte[] info, int start, bool swapBytes)
 		{
 			return bytesToLong(info[start], info[start + 1], info[start + 2], info[start + 3], info[start + 4], info[start + 5], info[start + 6], info[start + 7], swapBytes);
 		}
 
-		public static int bytesToInt(sbyte a, sbyte b, bool swapBytes)
+		public static int bytesToInt(byte a, byte b, bool swapBytes)
 		{
 			if (swapBytes)
 			{
@@ -114,7 +115,7 @@ namespace SeisCode
 			}
 		}
 
-		public static int uBytesToInt(sbyte a, sbyte b, bool swapBytes)
+		public static int uBytesToInt(byte a, byte b, bool swapBytes)
 		{
 			// we "and" with 0xff to get the sign correct (pos)
 			if (swapBytes)
@@ -127,7 +128,7 @@ namespace SeisCode
 			}
 		}
 
-		public static int bytesToInt(sbyte a, sbyte b, sbyte c, bool swapBytes)
+		public static int bytesToInt(byte a, byte b, byte c, bool swapBytes)
 		{
 			if (swapBytes)
 			{
@@ -139,7 +140,7 @@ namespace SeisCode
 			}
 		}
 
-		public static int bytesToInt(sbyte a, sbyte b, sbyte c, sbyte d, bool swapBytes)
+		public static int bytesToInt(byte a, byte b, byte c, byte d, bool swapBytes)
 		{
 			if (swapBytes)
 			{
@@ -151,7 +152,7 @@ namespace SeisCode
 			}
 		}
 
-		public static long bytesToLong(sbyte a, sbyte b, sbyte c, sbyte d, sbyte e, sbyte f, sbyte g, sbyte h, bool swapBytes)
+		public static long bytesToLong(byte a, byte b, byte c, byte d, byte e, byte f, byte g, byte h, bool swapBytes)
 		{
 			if (swapBytes)
 			{
@@ -163,71 +164,74 @@ namespace SeisCode
 			}
 		}
 
-		public static float bytesToFloat(sbyte a, sbyte b, sbyte c, sbyte d, bool swapBytes)
+		public static float bytesToFloat(byte a, byte b, byte c, byte d, bool swapBytes)
 		{
-			return Float.intBitsToFloat(bytesToInt(a, b, c, d, swapBytes));
+			return bytesToInt(a, b, c, d, swapBytes);
 		}
 
-		public static double bytesToDouble(sbyte a, sbyte b, sbyte c, sbyte d, sbyte e, sbyte f, sbyte g, sbyte h, bool swapBytes)
+		public static double bytesToDouble(byte a, byte b, byte c, byte d, byte e, byte f, byte g, byte h, bool swapBytes)
 		{
-			return Double.longBitsToDouble(bytesToLong(a, b, c, d, e, f, g, h, swapBytes));
+			//return Double.longBitsToDouble(bytesToLong(a, b, c, d, e, f, g, h, swapBytes));
+			return bytesToLong(a, b, c, d, e, f, g, h, swapBytes);
 		}
 
-		public static double bytesToDouble(sbyte[] info, int start, bool swapBytes)
+		public static double bytesToDouble(byte[] info, int start, bool swapBytes)
 		{
-			return Double.longBitsToDouble(Utility.bytesToLong(info, start, swapBytes));
+			//return Double.longBitsToDouble(Utility.bytesToLong(info, start, swapBytes));
+			return bytesToLong(info, start, swapBytes);
 		}
 
-		public static float bytesToFloat(sbyte[] info, int start, bool swapBytes)
+		public static float bytesToFloat(byte[] info, int start, bool swapBytes)
 		{
-			return Float.intBitsToFloat(Utility.bytesToInt(info, start, swapBytes));
+			return Utility.bytesToInt(info, start, swapBytes);
 		}
 
-		public static sbyte[] intToByteArray(int a)
+		public static byte[] intToByteArray(int a)
 		{
-			sbyte[] returnByteArray = new sbyte[4]; // int is 4 bytes
-			returnByteArray[0] = unchecked((sbyte)((a >> 24) & 0xff));
-			returnByteArray[1] = unchecked((sbyte)((a >> 16) & 0xff));
-			returnByteArray[2] = unchecked((sbyte)((a >> 8) & 0xff));
-			returnByteArray[3] = unchecked((sbyte)((a) & 0xff));
+			byte[] returnByteArray = new byte[4]; // int is 4 bytes
+			returnByteArray[0] = unchecked((byte)((a >> 24) & 0xff));
+			returnByteArray[1] = unchecked((byte)((a >> 16) & 0xff));
+			returnByteArray[2] = unchecked((byte)((a >> 8) & 0xff));
+			returnByteArray[3] = unchecked((byte)((a) & 0xff));
 			return returnByteArray;
 		}
 
-		public static sbyte[] floatToByteArray(float a)
+		public static byte[] floatToByteArray(float a)
 		{
-			return intToByteArray(Float.floatToIntBits(a));
+			//return intToByteArray(Float.floatToIntBits(a));
+			return intToByteArray((int)a);
 		}
 
 
-		public static sbyte[] longToByteArray(long a)
+		public static byte[] longToByteArray(long a)
 		{
-			sbyte[] returnByteArray = new sbyte[8]; // long is 8 bytes
-			returnByteArray[0] = unchecked((sbyte)(((long)((ulong)a >> 56)) & 0xffl));
-			returnByteArray[1] = unchecked((sbyte)(((long)((ulong)a >> 48)) & 0xffl));
-			returnByteArray[2] = unchecked((sbyte)(((long)((ulong)a >> 40)) & 0xffl));
-			returnByteArray[3] = unchecked((sbyte)(((long)((ulong)a >> 32)) & 0xffl));
-			returnByteArray[4] = unchecked((sbyte)(((long)((ulong)a >> 24)) & 0xffl));
-			returnByteArray[5] = unchecked((sbyte)(((long)((ulong)a >> 16)) & 0xffl));
-			returnByteArray[6] = unchecked((sbyte)(((long)((ulong)a >> 8)) & 0xffl));
-			returnByteArray[7] = unchecked((sbyte)((a) & 0xffl));
+			byte[] returnByteArray = new byte[8]; // long is 8 bytes
+			returnByteArray[0] = unchecked((byte)(((long)((ulong)a >> 56)) & 0xffl));
+			returnByteArray[1] = unchecked((byte)(((long)((ulong)a >> 48)) & 0xffl));
+			returnByteArray[2] = unchecked((byte)(((long)((ulong)a >> 40)) & 0xffl));
+			returnByteArray[3] = unchecked((byte)(((long)((ulong)a >> 32)) & 0xffl));
+			returnByteArray[4] = unchecked((byte)(((long)((ulong)a >> 24)) & 0xffl));
+			returnByteArray[5] = unchecked((byte)(((long)((ulong)a >> 16)) & 0xffl));
+			returnByteArray[6] = unchecked((byte)(((long)((ulong)a >> 8)) & 0xffl));
+			returnByteArray[7] = unchecked((byte)((a) & 0xffl));
 			return returnByteArray;
 		}
 
-		public static sbyte[] doubleToByteArray(double d)
+		public static byte[] doubleToByteArray(double d)
 		{
 			return longToByteArray(System.BitConverter.DoubleToInt64Bits(d));
 		}
 		/// <summary>
 		/// Inserts float into dest at index pos 
 		/// </summary>
-		public static void insertFloat(float value, sbyte[] dest, int pos)
+		public static void insertFloat(float value, byte[] dest, int pos)
 		{
-			int bits = Float.floatToIntBits(value);
-			sbyte[] b = Utility.intToByteArray(bits);
+			int bits = (int)value;
+			byte[] b = Utility.intToByteArray(bits);
 			Array.Copy(b, 0, dest, pos, 4);
 		}
 
-		public static sbyte[] pad(sbyte[] source, int requiredBytes, sbyte paddingByte)
+		public static byte[] pad(byte[] source, int requiredBytes, byte paddingByte)
 		{
 			if (source.Length == requiredBytes)
 			{
@@ -235,7 +239,7 @@ namespace SeisCode
 			}
 			else
 			{
-				sbyte[] returnByteArray = new sbyte[requiredBytes];
+				byte[] returnByteArray = new byte[requiredBytes];
 				Array.Copy(source, 0, returnByteArray, 0, source.Length);
 				for (int i = source.Length; i < requiredBytes; i++)
 				{
@@ -245,9 +249,9 @@ namespace SeisCode
 			}
 		}
 
-		public static sbyte[] format(sbyte[] source, int start, int end)
+		public static byte[] format(byte[] source, int start, int end)
 		{
-			sbyte[] returnByteArray = new sbyte[start - end + 1];
+			byte[] returnByteArray = new byte[start - end + 1];
 			int j = 0;
 			for (int i = start; i < end; i++, j++)
 			{
@@ -297,20 +301,20 @@ namespace SeisCode
 		public static void Main(string[] args)
 		{
 			int a = 256;
-			sbyte a1 = (sbyte)((a & 0xff000000) >> 24);
-			sbyte a2 = (sbyte)((a & 0x00ff0000) >> 16);
-			sbyte a3 = (sbyte)((a & 0x0000ff00) >> 8);
-			sbyte a4 = unchecked((sbyte)((a & 0x000000ff)));
+			byte a1 = (byte)((a & 0xff000000) >> 24);
+			byte a2 = (byte)((a & 0x00ff0000) >> 16);
+			byte a3 = (byte)((a & 0x0000ff00) >> 8);
+			byte a4 = unchecked((byte)((a & 0x000000ff)));
 			Console.WriteLine("first byte is " + a1);
 			Console.WriteLine("2 byte is " + a2);
 			Console.WriteLine("3 byte is " + a3);
 			Console.WriteLine("4  byte is " + a4);
-			sbyte[] source = new sbyte[5];
+			byte[] source = new byte[5];
 			for (int i = 0; i < 5; i++)
 			{
-				source[i] = (sbyte)10;
+				source[i] = (byte)10;
 			}
-			sbyte[] output = Utility.pad(source, 5, (sbyte)32);
+			byte[] output = Utility.pad(source, 5, (byte)32);
 			// for(int j = 0; j< output.length; j++)
 			// {
 			// System.out.println("byte"+j+" " + output[j]);
@@ -323,7 +327,9 @@ namespace SeisCode
 
 		public static void cleanDuplicatesOverlaps(IList<DataRecord> drFromFileList)
 		{
-			drFromFileList.Sort(new DataRecordBeginComparator());
+			//drFromFileList.Sort(new DataRecordBeginComparator());
+			var comparator = new DataRecordBeginComparator();
+			drFromFileList.Sort((x, y) => comparator.compare(x, y));
 			DataRecord prev = null;
 			IEnumerator<DataRecord> itFromFileList = drFromFileList.GetEnumerator();
 			while (itFromFileList.MoveNext())

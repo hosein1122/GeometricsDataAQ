@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace SeisCode
 {
@@ -25,18 +26,18 @@ namespace SeisCode
 		/// <param name="out">
 		///            a Writer
 		///  </param>
-		public abstract void writeASCII(PrintWriter @out);
+		public abstract void WriteASCII(TextWriter @out);
 
-		public virtual void writeASCII(PrintWriter @out, string indent)
+		public virtual void WriteASCII(TextWriter @out, string indent)
 		{
-			@out.write(indent);
-			writeASCII(@out);
+			@out.Write(indent);
+			WriteASCII(@out);
 		}
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: @Deprecated public static Blockette parseBlockette(int type, byte[] bytes, boolean swapBytes) throws java.io.IOException, SeedFormatException
 		[Obsolete]
-		public static Blockette parseBlockette(int type, sbyte[] bytes, bool swapBytes)
+		public static Blockette ParseBlockette(int type, byte[] bytes, bool swapBytes)
 		{
 			switch (type)
 			{
@@ -74,7 +75,7 @@ namespace SeisCode
 
 		public abstract int Size { get; }
 
-		public abstract sbyte[] toBytes();
+		public abstract byte[] ToBytes();
 
 		public override string ToString()
 		{

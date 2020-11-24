@@ -7,24 +7,24 @@ namespace SeisCode
 	public abstract class ControlBlockette : Blockette
 	{
 
-		public ControlBlockette(sbyte[] info)
+		public ControlBlockette(byte[] info)
 		{
 			this.info = info;
 		}
 
-		internal sbyte[] info;
+		internal byte[] info;
 
 		public override int Size
 		{
 			get
 			{
-				sbyte[] lengthBytes = new sbyte[4];
+				byte[] lengthBytes = new byte[4];
 				Array.Copy(info, 3, lengthBytes, 0, 4);
 				return int.Parse(StringHelper.NewString(lengthBytes));
 			}
 		}
 
-		public override sbyte[] toBytes()
+		public override byte[] ToBytes()
 		{
 			return info;
 		}

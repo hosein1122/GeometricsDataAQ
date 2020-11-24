@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -58,7 +59,7 @@ namespace SeisCode
 									// turn into real and add
 									try
 									{
-										@out.Add(SeedRecord.BlocketteFactory.parseBlockette(prior.Type, prior.toBytes(), true));
+										@out.Add(SeedRecord.BlocketteFactory.parseBlockette(prior.Type, prior.ToBytes(), true));
 										prior = null;
 									}
 									catch (Exception e)
@@ -113,9 +114,9 @@ namespace SeisCode
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: @Override public void writeASCII(java.io.PrintWriter out, String indent) throws java.io.IOException
-		public override void writeASCII(PrintWriter @out, string indent)
+		public override void writeASCII(TextWriter @out, string indent)
 		{
-			@out.print(indent + "ContinuedControlRecord");
+			@out.Write(indent + "ContinuedControlRecord");
 			ControlHeader.writeASCII(@out, indent + "  ");
 			foreach (ControlRecord cr in subRecords)
 			{

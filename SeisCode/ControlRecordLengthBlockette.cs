@@ -7,7 +7,7 @@ namespace SeisCode
 	public abstract class ControlRecordLengthBlockette : ControlBlockette, RecordLengthBlockette
 	{
 
-		public ControlRecordLengthBlockette(sbyte[] info) : base(info)
+		public ControlRecordLengthBlockette(byte[] info) : base(info)
 		{
 		}
 

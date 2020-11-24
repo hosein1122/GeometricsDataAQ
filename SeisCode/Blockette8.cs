@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -7,7 +8,7 @@ namespace SeisCode
 	public class Blockette8 : ControlRecordLengthBlockette
 	{
 
-		public Blockette8(sbyte[] info) : base(info)
+		public Blockette8(byte[] info) : base(info)
 		{
 		}
 
@@ -47,7 +48,7 @@ namespace SeisCode
 		{
 			get
 			{
-				return Utility.extractString(info, info.length - 2, 2);
+				return Utility.extractString(info, info.Length - 2, 2);
 			}
 		}
 
@@ -90,6 +91,11 @@ namespace SeisCode
 				return "Telemetry Volume Identifier Blockette";
 			}
 		}
-	}
+
+        public override void WriteASCII(TextWriter @out)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
 }

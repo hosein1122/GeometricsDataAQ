@@ -77,7 +77,7 @@ namespace SeisCode
 			if (b is DataBlockette)
 			{
 				base.addBlockette(b);
-				Header.NumBlockettes = (sbyte)(Header.NumBlockettes + 1);
+				Header.NumBlockettes = (byte)(Header.NumBlockettes + 1);
 			}
 			else
 			{
@@ -126,7 +126,7 @@ namespace SeisCode
 		/// the format from blockette 1000. The return type is byte[], so the caller
 		/// must decode the data based on its format.
 		/// </summary>
-		public virtual sbyte[] Data
+		public virtual byte[] Data
 		{
 			get
 			{
@@ -330,7 +330,7 @@ namespace SeisCode
 			}
 		}
 
-		public virtual sbyte[] toByteArray()
+		public virtual byte[] toByteArray()
 		{
 			try
 			{
@@ -352,10 +352,10 @@ namespace SeisCode
 		public virtual void write(DataOutputStream dos)
 		{
 			Blockette[] blocks = Blockettes;
-			Header.NumBlockettes = (sbyte)blocks.Length;
+			Header.NumBlockettes = (byte)blocks.Length;
 			if (blocks.Length != 0)
 			{
-				Header.DataBlocketteOffset = (sbyte)48;
+				Header.DataBlocketteOffset = (byte)48;
 			}
 			Header.write(dos);
 			DataBlockette dataB;
@@ -397,7 +397,7 @@ namespace SeisCode
 
 		public virtual void printData(PrintWriter @out)
 		{
-			sbyte[] d = Data;
+			byte[] d = Data;
 			DecimalFormat byteFormat = new DecimalFormat("000");
 			int i;
 			for (i = 0; i < d.Length; i++)
@@ -432,13 +432,13 @@ namespace SeisCode
 				// read garbage between header and blockettes
 				if (header.DataBlocketteOffset != 0)
 				{
-					sbyte[] garbage = new sbyte[header.DataBlocketteOffset - header.Size];
+					byte[] garbage = new byte[header.DataBlocketteOffset - header.Size];
 					if (garbage.Length != 0)
 					{
 						inStream.readFully(garbage);
 					}
 				}
-				sbyte[] blocketteBytes;
+				byte[] blocketteBytes;
 				int currOffset = header.DataBlocketteOffset;
 				if (header.DataBlocketteOffset == 0)
 				{
@@ -449,31 +449,31 @@ namespace SeisCode
 				for (int i = 0; i < header.NumBlockettes; i++)
 				{
 					// get blockette type (first 2 bytes)
-					sbyte hibyteType = inStream.readByte();
-					sbyte lowbyteType = inStream.readByte();
+					byte hibyteType = inStream.readByte();
+					byte lowbyteType = inStream.readByte();
 					type = Utility.uBytesToInt(hibyteType, lowbyteType, swapBytes);
-					sbyte hibyteOffset = inStream.readByte();
-					sbyte lowbyteOffset = inStream.readByte();
+					byte hibyteOffset = inStream.readByte();
+					byte lowbyteOffset = inStream.readByte();
 					nextOffset = Utility.uBytesToInt(hibyteOffset, lowbyteOffset, swapBytes);
 					// account for the 4 bytes above
 					currOffset += 4;
 					if (nextOffset != 0)
 					{
-						blocketteBytes = new sbyte[nextOffset - currOffset];
+						blocketteBytes = new byte[nextOffset - currOffset];
 					}
 					else if (header.NumSamples != 0 && header.DataOffset > currOffset)
 					{
-						blocketteBytes = new sbyte[header.DataOffset - currOffset];
+						blocketteBytes = new byte[header.DataOffset - currOffset];
 					}
 					else if (header.NumSamples == 0 && i == header.NumBlockettes - 1 && recordSize > 0)
 					{
 						// weird case where no data, only blockettes and so try to load all bytes as the last
 						// blockette and trim to fit after reading
-						blocketteBytes = new sbyte[recordSize - currOffset];
+						blocketteBytes = new byte[recordSize - currOffset];
 					}
 					else
 					{
-						blocketteBytes = new sbyte[0];
+						blocketteBytes = new byte[0];
 					}
 					inStream.readFully(blocketteBytes);
 					if (nextOffset != 0)
@@ -485,7 +485,7 @@ namespace SeisCode
 						currOffset += blocketteBytes.Length;
 					}
 					// fix so blockette has full bytes
-					sbyte[] fullBlocketteBytes = new sbyte[blocketteBytes.Length + 4];
+					byte[] fullBlocketteBytes = new byte[blocketteBytes.Length + 4];
 					Array.Copy(blocketteBytes, 0, fullBlocketteBytes, 4, blocketteBytes.Length);
 					fullBlocketteBytes[0] = hibyteType;
 					fullBlocketteBytes[1] = lowbyteType;
@@ -523,17 +523,17 @@ namespace SeisCode
 				// read garbage between blockettes and data
 				if (header.DataOffset != 0)
 				{
-					sbyte[] garbage = new sbyte[header.DataOffset - currOffset];
+					byte[] garbage = new byte[header.DataOffset - currOffset];
 					if (garbage.Length != 0)
 					{
 						inStream.readFully(garbage);
 					}
 				}
-				sbyte[] timeseries;
+				byte[] timeseries;
 				if (header.DataOffset == 0)
 				{
 					// data record with no data, so gobble up the rest of the record
-					timeseries = new sbyte[recordSize - currOffset];
+					timeseries = new byte[recordSize - currOffset];
 				}
 				else
 				{
@@ -541,7 +541,7 @@ namespace SeisCode
 					{
 						throw new SeedFormatException("recordSize < header.getDataOffset(): " + recordSize + " < " + header.DataOffset);
 					}
-					timeseries = new sbyte[recordSize - header.DataOffset];
+					timeseries = new byte[recordSize - header.DataOffset];
 				}
 				inStream.readFully(timeseries);
 				dataRec.Data = timeseries;
@@ -580,7 +580,8 @@ namespace SeisCode
 			return s;
 		}
 
-		protected internal sbyte[] data;
+		protected internal byte[] data;
 
-		internal sbyte ZERO_BYTE = 0;
+		internal byte ZERO_BYTE = 0;
 	}
+}

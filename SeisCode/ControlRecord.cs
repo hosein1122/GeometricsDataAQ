@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -23,7 +24,7 @@ namespace SeisCode
 		/// <exception cref="SeedFormatException"> </exception>
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public static ControlRecord readControlRecord(java.io.DataInput inStream, ControlHeader header, int defaultRecordSize) throws java.io.IOException, SeedFormatException
-		public static ControlRecord readControlRecord(DataInput inStream, ControlHeader header, int defaultRecordSize)
+		public static ControlRecord readControlRecord(BinaryReader inStream, ControlHeader header, int defaultRecordSize)
 		{
 			ControlRecord controlRec = readSingleControlRecord(inStream, header, defaultRecordSize, null);
 
@@ -49,7 +50,7 @@ namespace SeisCode
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public static ControlRecord readSingleControlRecord(java.io.DataInput inStream, ControlHeader header, int defaultRecordSize, PartialBlockette partialBlockette) throws java.io.IOException, SeedFormatException
-		public static ControlRecord readSingleControlRecord(DataInput inStream, ControlHeader header, int defaultRecordSize, PartialBlockette partialBlockette)
+		public static ControlRecord readSingleControlRecord(BinaryReader inStream, ControlHeader header, int defaultRecordSize, PartialBlockette partialBlockette)
 		{
 
 			/*
@@ -58,7 +59,7 @@ namespace SeisCode
 			 */
 			int recordSize = defaultRecordSize;
 			ControlRecord controlRec = new ControlRecord(header);
-			sbyte[] readBytes;
+			byte[] readBytes;
 			int currOffset = header.Size;
 			if (partialBlockette != null && header.Continuation)
 			{
@@ -67,14 +68,15 @@ namespace SeisCode
 				int length = partialBlockette.TotalSize - partialBlockette.SoFarSize;
 				if (recordSize == 0 || length + currOffset < recordSize)
 				{
-					readBytes = new sbyte[length];
+					readBytes = new byte[length];
 				}
 				else
 				{
 					// not enought bytes to fill blockette, continues in next record
-					readBytes = new sbyte[recordSize - currOffset];
+					readBytes = new byte[recordSize - currOffset];
 				}
-				inStream.readFully(readBytes);
+				//inStream.readFully(readBytes);
+				readBytes = inStream.ReadBytes(readBytes.Length);
 				currOffset += readBytes.Length;
 				b = new PartialBlockette(partialBlockette.Type, readBytes, partialBlockette.SwapBytes, partialBlockette.SoFarSize, partialBlockette.TotalSize);
 				// assuming here that a record length blockette (5, 8, 10) will not be split across records
@@ -85,7 +87,7 @@ namespace SeisCode
 			while (recordSize == 0 || currOffset <= recordSize - 7)
 			{
 				string typeStr;
-				sbyte[] typeBytes = new sbyte[3];
+				byte[] typeBytes = new byte[3];
 				if (recordSize == 0 || currOffset < recordSize - 3)
 				{
 					inStream.readFully(typeBytes);
@@ -108,23 +110,23 @@ namespace SeisCode
 				}
 
 				int type = int.Parse(typeStr.Trim());
-				sbyte[] lengthBytes = new sbyte[4];
+				byte[] lengthBytes = new byte[4];
 				inStream.readFully(lengthBytes);
 				string lengthStr = StringHelper.NewString(lengthBytes);
 				currOffset += lengthBytes.Length;
 				int length = int.Parse(lengthStr.Trim());
 				if (recordSize == 0 || length + currOffset - 7 < recordSize)
 				{
-					readBytes = new sbyte[length - 7];
+					readBytes = new byte[length - 7];
 				}
 				else
 				{
 					// not enough bytes left in record to fill blockette
-					readBytes = new sbyte[recordSize - currOffset];
+					readBytes = new byte[recordSize - currOffset];
 				}
 				inStream.readFully(readBytes);
 				currOffset += readBytes.Length;
-				sbyte[] fullBlocketteBytes = new sbyte[7 + readBytes.Length]; // less than length in case of continuation
+				byte[] fullBlocketteBytes = new byte[7 + readBytes.Length]; // less than length in case of continuation
 				Array.Copy(typeBytes, 0, fullBlocketteBytes, 0, 3);
 				Array.Copy(lengthBytes, 0, fullBlocketteBytes, 3, 4);
 				Array.Copy(readBytes, 0, fullBlocketteBytes, 7, readBytes.Length);
@@ -160,7 +162,7 @@ namespace SeisCode
 			}
 			controlRec.RECORD_SIZE = recordSize;
 			// read garbage between blockettes and end
-			sbyte[] garbage = new sbyte[recordSize - currOffset];
+			byte[] garbage = new byte[recordSize - currOffset];
 			if (garbage.Length != 0)
 			{
 				inStream.readFully(garbage);
@@ -182,4 +184,4 @@ namespace SeisCode
 	}
 }
 
-}
+
