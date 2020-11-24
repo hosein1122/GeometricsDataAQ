@@ -1403,7 +1403,7 @@ namespace libmseedNetCore
          *
          * Returns 0 if the host is little endian, otherwise 1.
          ***************************************************************************/
-        private int ms_bigendianhost()
+        public static int ms_bigendianhost()
         {
             if (BitConverter.IsLittleEndian)
             {

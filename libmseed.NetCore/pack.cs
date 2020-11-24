@@ -68,7 +68,7 @@ namespace libmseedNetCore
 
             string rawrec;
             string envvariable;
-            string srcname = new string(new char[50]);
+            string srcname = "";
 
             int headerswapflag = 0;
             int dataswapflag = 0;
@@ -109,7 +109,7 @@ namespace libmseedNetCore
             }
 
             /* Generate source name for MSRecord */
-            if (msrutils.msr_srcname(msr, srcname, 1) == null)
+            if (msrutils.msr_srcname(msr, ref srcname, 1) == "")
             {
                 Logging.ms_log(2, "msr_unpack_data(): Cannot generate srcname\n");
                 return MS_GENERROR;
@@ -121,14 +121,14 @@ namespace libmseedNetCore
             /* Read possible environmental variables that force byteorder */
             if (packheaderbyteorder == -2)
             {
-                if ((envvariable = getenv("PACK_HEADER_BYTEORDER")))
+                if ((envvariable = Environment.GetEnvironmentVariable("PACK_HEADER_BYTEORDER")) != null)
                 {
-                    if (envvariable != '0' && envvariable != '1')
+                    if (envvariable != "0" && envvariable != "1")
                     {
                         Logging.ms_log(2, "Environment variable PACK_HEADER_BYTEORDER must be set to '0' or '1'\n");
                         return -1;
                     }
-                    else if (envvariable == '0')
+                    else if (envvariable == "0")
                     {
                         packheaderbyteorder = 0;
                         if (verbose > 2)
@@ -152,14 +152,14 @@ namespace libmseedNetCore
             }
             if (packdatabyteorder == -2)
             {
-                if ((envvariable = getenv("PACK_DATA_BYTEORDER")))
+                if ((envvariable = Environment.GetEnvironmentVariable("PACK_DATA_BYTEORDER")) != null)
                 {
-                    if (envvariable != '0' && envvariable != '1')
+                    if (envvariable != "0" && envvariable != "1")
                     {
                         Logging.ms_log(2, "Environment variable PACK_DATA_BYTEORDER must be set to '0' or '1'\n");
                         return -1;
                     }
-                    else if (envvariable == '0')
+                    else if (envvariable == "0")
                     {
                         packdatabyteorder = 0;
                         if (verbose > 2)
@@ -218,9 +218,9 @@ namespace libmseedNetCore
                 return -1;
             }
 
-            samplesize = ms_samplesize(msr.sampletype);
+            samplesize = lookup.ms_samplesize(msr.sampletype);
 
-            if (!samplesize)
+            if (samplesize == 0)
             {
                 Logging.ms_log(2, "msr_pack(%s): Unknown sample type '%c'\n", srcname, msr.sampletype);
                 return -1;
@@ -245,11 +245,13 @@ namespace libmseedNetCore
             }
 
             /* Set header pointers to known offsets into FSDH */
-            HPnumsamples = (ushort)(rawrec + 30);
-            HPdataoffset = (ushort)(rawrec + 44);
+            //HPnumsamples = (ushort)(rawrec + 30);
+            //HPdataoffset = (ushort)(rawrec + 44);
+            HPnumsamples = 30;
+            HPdataoffset = 44;
 
             /* Check to see if byte swapping is needed */
-            if (msr.byteorder != ms_bigendianhost())
+            if (msr.byteorder != genutils.ms_bigendianhost())
             {
                 headerswapflag = dataswapflag = 1;
             }
@@ -267,15 +269,15 @@ namespace libmseedNetCore
 
             if (verbose > 2)
             {
-                if (headerswapflag && dataswapflag)
+                if (headerswapflag == 1 && dataswapflag == 1)
                 {
                     Logging.ms_log(1, "%s: Byte swapping needed for packing of header and data samples\n", srcname);
                 }
-                else if (headerswapflag)
+                else if (headerswapflag == 1)
                 {
                     Logging.ms_log(1, "%s: Byte swapping needed for packing of header\n", srcname);
                 }
-                else if (dataswapflag)
+                else if (dataswapflag == 1)
                 {
                     Logging.ms_log(1, "%s: Byte swapping needed for packing of data samples\n", srcname);
                 }
@@ -286,11 +288,11 @@ namespace libmseedNetCore
             }
             /* Add a blank 1000 Blockette if one is not present, the blockette values
                  will be populated in msr_pack_header_raw()/msr_normalize_header() */
-            if (!msr.Blkt1000)
+            if (msr.Blkt1000 == null)
             {
                 blkt_1000_s blkt1000 = new blkt_1000_s();
                 //C++ TO C# CONVERTER TODO TASK: The memory management function 'memset' has no equivalent in C#:
-                memset(blkt1000, 0, sizeof(blkt_1000_s));
+                //memset(blkt1000, 0, sizeof(blkt_1000_s));
 
                 if (verbose > 2)
                 {
@@ -332,10 +334,10 @@ namespace libmseedNetCore
                 dataoffset = headerlen;
             }
 
-            *HPdataoffset = (ushort)dataoffset;
-            if (headerswapflag)
+            HPdataoffset = (ushort)dataoffset;
+            if (headerswapflag>0)
             {
-                ms_gswap2(HPdataoffset);
+                gswap.ms_gswap2(ref HPdataoffset);
             }
 
             /* Determine the max data bytes and sample count */
@@ -355,12 +357,12 @@ namespace libmseedNetCore
             }
 
             /* Pack samples into records */
-            *HPnumsamples = 0;
+            HPnumsamples = 0;
             totalpackedsamples = 0;
             packoffset = 0;
-            if (packedsamples)
+            if (packedsamples>0)
             {
-                *packedsamples = 0;
+                packedsamples = 0;
             }
 
             while ((msr.numsamples - totalpackedsamples) > maxsamples || flush)
@@ -377,10 +379,10 @@ namespace libmseedNetCore
                 packoffset += packsamples * samplesize;
 
                 /* Update number of samples */
-                *HPnumsamples = (ushort)packsamples;
-                if (headerswapflag)
+                HPnumsamples = (ushort)packsamples;
+                if (headerswapflag>0)
                 {
-                    ms_gswap2(HPnumsamples);
+                    gswap.ms_gswap2(ref HPnumsamples);
                 }
 
                 if (verbose > 0)
@@ -392,9 +394,9 @@ namespace libmseedNetCore
                 record_handler(rawrec, msr.reclen, handlerdata);
 
                 totalpackedsamples += packsamples;
-                if (packedsamples)
+                if (packedsamples>0)
                 {
-                    *packedsamples = totalpackedsamples;
+                    packedsamples = totalpackedsamples;
                 }
                 msr.ststate.packedsamples += packsamples;
 
@@ -469,7 +471,7 @@ namespace libmseedNetCore
             }
 
             /* Generate source name for MSRecord */
-            if (msr_srcname(msr, srcname, 1) == null)
+            if (msrutils.msr_srcname(msr, ref srcname, 1) == null)
             {
                 Logging.ms_log(2, "msr_unpack_data(): Cannot generate srcname\n");
                 return MS_GENERROR;
@@ -478,14 +480,14 @@ namespace libmseedNetCore
             /* Read possible environmental variables that force byteorder */
             if (packheaderbyteorder == -2)
             {
-                if ((envvariable = getenv("PACK_HEADER_BYTEORDER")))
+                if ((envvariable = Environment.GetEnvironmentVariable("PACK_HEADER_BYTEORDER"))!=null)
                 {
-                    if (envvariable != '0' && envvariable != '1')
+                    if (envvariable != "0" && envvariable != "1")
                     {
                         Logging.ms_log(2, "Environment variable PACK_HEADER_BYTEORDER must be set to '0' or '1'\n");
                         return -1;
                     }
-                    else if (envvariable == '0')
+                    else if (envvariable == "0")
                     {
                         packheaderbyteorder = 0;
                         if (verbose > 2)
@@ -530,7 +532,7 @@ namespace libmseedNetCore
             }
 
             /* Check to see if byte swapping is needed */
-            if (msr.byteorder != ms_bigendianhost())
+            if (msr.byteorder != genutils.ms_bigendianhost())
             {
                 headerswapflag = 1;
             }
@@ -574,7 +576,7 @@ namespace libmseedNetCore
          ***************************************************************************/
         private static int msr_pack_header_raw(MSRecord msr, ref string rawrec, int maxheaderlen, int? swapflag, int? normalize, blkt_1001_s[] blkt1001, ref string srcname, int verbose)
         {
-            blkt_link_s cur_blkt;
+            BlktLink cur_blkt;
             fsdh_s fsdh;
             short offset;
             int blktcnt = 0;
@@ -642,12 +644,12 @@ namespace libmseedNetCore
             if (swapflag != null)
             {
                 MS_SWAPBTIME(fsdh.start_time);
-                ms_gswap2(fsdh.numsamples);
-                ms_gswap2(fsdh.samprate_fact);
-                ms_gswap2(fsdh.samprate_mult);
-                ms_gswap4(fsdh.time_correct);
-                ms_gswap2(fsdh.data_offset);
-                ms_gswap2(fsdh.blockette_offset);
+                gswap.ms_gswap2(ref fsdh.numsamples);
+                gswap.ms_gswap2(ref fsdh.samprate_fact);
+                gswap.ms_gswap2(ref fsdh.samprate_mult);
+                gswap.ms_gswap4(ref fsdh.time_correct);
+                gswap.ms_gswap2(ref fsdh.data_offset);
+                gswap.ms_gswap2(ref fsdh.blockette_offset);
             }
 
             /* Traverse blockette chain and pack blockettes at 'offset' */
@@ -667,7 +669,7 @@ namespace libmseedNetCore
                 memcpy(rawrec.Substring(offset), cur_blkt.blkt_type, 2);
                 if (swapflag != null)
                 {
-                    ms_gswap2(rawrec.Substring(offset));
+                    gswap.ms_gswap2(ref rawrec.Substring(offset));
                 }
                 nextoffset = offset + 2;
                 offset += 4;
@@ -678,9 +680,9 @@ namespace libmseedNetCore
                     memcpy(blkt_100, cur_blkt.blktdata, sizeof(blkt_100_s));
                     offset += sizeof(blkt_100_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
-                        ms_gswap4(blkt_100.samprate);
+                        gswap.ms_gswap4(ref blkt_100.samprate);
                     }
                 }
 
@@ -691,11 +693,11 @@ namespace libmseedNetCore
                     memcpy(blkt_200, cur_blkt.blktdata, sizeof(blkt_200_s));
                     offset += sizeof(blkt_200_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
-                        ms_gswap4(blkt_200.amplitude);
-                        ms_gswap4(blkt_200.period);
-                        ms_gswap4(blkt_200.background_estimate);
+                        gswap.ms_gswap4(blkt_200.amplitude);
+                        gswap.ms_gswap4(blkt_200.period);
+                        gswap.ms_gswap4(blkt_200.background_estimate);
                         MS_SWAPBTIME(blkt_200.time);
                     }
                 }
@@ -707,11 +709,11 @@ namespace libmseedNetCore
                     memcpy(blkt_201, cur_blkt.blktdata, sizeof(blkt_201_s));
                     offset += sizeof(blkt_201_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
-                        ms_gswap4(blkt_201.amplitude);
-                        ms_gswap4(blkt_201.period);
-                        ms_gswap4(blkt_201.background_estimate);
+                        gswap.ms_gswap4(blkt_201.amplitude);
+                        gswap.ms_gswap4(blkt_201.period);
+                        gswap.ms_gswap4(blkt_201.background_estimate);
                         MS_SWAPBTIME(blkt_201.time);
                     }
                 }
@@ -723,13 +725,13 @@ namespace libmseedNetCore
                     memcpy(blkt_300, cur_blkt.blktdata, sizeof(blkt_300_s));
                     offset += sizeof(blkt_300_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
                         MS_SWAPBTIME(blkt_300.time);
-                        ms_gswap4(blkt_300.step_duration);
-                        ms_gswap4(blkt_300.interval_duration);
-                        ms_gswap4(blkt_300.amplitude);
-                        ms_gswap4(blkt_300.reference_amplitude);
+                        gswap.ms_gswap4(blkt_300.step_duration);
+                        gswap.ms_gswap4(blkt_300.interval_duration);
+                        gswap.ms_gswap4(blkt_300.amplitude);
+                        gswap.ms_gswap4(blkt_300.reference_amplitude);
                     }
                 }
 
@@ -740,13 +742,13 @@ namespace libmseedNetCore
                     memcpy(blkt_310, cur_blkt.blktdata, sizeof(blkt_310_s));
                     offset += sizeof(blkt_310_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
                         MS_SWAPBTIME(blkt_310.time);
-                        ms_gswap4(blkt_310.duration);
-                        ms_gswap4(blkt_310.period);
-                        ms_gswap4(blkt_310.amplitude);
-                        ms_gswap4(blkt_310.reference_amplitude);
+                        gswap.ms_gswap4(blkt_310.duration);
+                        gswap.ms_gswap4(blkt_310.period);
+                        gswap.ms_gswap4(blkt_310.amplitude);
+                        gswap.ms_gswap4(blkt_310.reference_amplitude);
                     }
                 }
 
@@ -757,12 +759,12 @@ namespace libmseedNetCore
                     memcpy(blkt_320, cur_blkt.blktdata, sizeof(blkt_320_s));
                     offset += sizeof(blkt_320_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
                         MS_SWAPBTIME(blkt_320.time);
-                        ms_gswap4(blkt_320.duration);
-                        ms_gswap4(blkt_320.ptp_amplitude);
-                        ms_gswap4(blkt_320.reference_amplitude);
+                        gswap.ms_gswap4(blkt_320.duration);
+                        gswap.ms_gswap4(blkt_320.ptp_amplitude);
+                        gswap.ms_gswap4(blkt_320.reference_amplitude);
                     }
                 }
 
@@ -773,11 +775,11 @@ namespace libmseedNetCore
                     memcpy(blkt_390, cur_blkt.blktdata, sizeof(blkt_390_s));
                     offset += sizeof(blkt_390_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
                         MS_SWAPBTIME(blkt_390.time);
-                        ms_gswap4(blkt_390.duration);
-                        ms_gswap4(blkt_390.amplitude);
+                        gswap.ms_gswap4(blkt_390.duration);
+                        gswap.ms_gswap4(blkt_390.amplitude);
                     }
                 }
                 else if (cur_blkt.blkt_type == 395)
@@ -787,7 +789,7 @@ namespace libmseedNetCore
                     memcpy(blkt_395, cur_blkt.blktdata, sizeof(blkt_395_s));
                     offset += sizeof(blkt_395_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
                         MS_SWAPBTIME(blkt_395.time);
                     }
@@ -800,11 +802,11 @@ namespace libmseedNetCore
                     memcpy(blkt_400, cur_blkt.blktdata, sizeof(blkt_400_s));
                     offset += sizeof(blkt_400_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
-                        ms_gswap4(blkt_400.azimuth);
-                        ms_gswap4(blkt_400.slowness);
-                        ms_gswap2(blkt_400.configuration);
+                        gswap.ms_gswap4(blkt_400.azimuth);
+                        gswap.ms_gswap4(blkt_400.slowness);
+                        gswap.ms_gswap2(blkt_400.configuration);
                     }
                 }
 
@@ -815,9 +817,9 @@ namespace libmseedNetCore
                     memcpy(blkt_405, cur_blkt.blktdata, sizeof(blkt_405_s));
                     offset += sizeof(blkt_405_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
-                        ms_gswap2(blkt_405.delay_values);
+                        gswap.ms_gswap2(blkt_405.delay_values);
                     }
 
                     if (verbose > 0)
@@ -833,11 +835,11 @@ namespace libmseedNetCore
                     memcpy(blkt_500, cur_blkt.blktdata, sizeof(blkt_500_s));
                     offset += sizeof(blkt_500_s);
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
-                        ms_gswap4(blkt_500.vco_correction);
+                        gswap.ms_gswap4(blkt_500.vco_correction);
                         MS_SWAPBTIME(blkt_500.time);
-                        ms_gswap4(blkt_500.exception_count);
+                        gswap.ms_gswap4(blkt_500.exception_count);
                     }
                 }
 
@@ -876,11 +878,11 @@ namespace libmseedNetCore
                     memcpy(blkt_2000, cur_blkt.blktdata, cur_blkt.blktdatalen);
                     offset += cur_blkt.blktdatalen;
 
-                    if (swapflag)
+                    if (swapflag>0)
                     {
-                        ms_gswap2(blkt_2000.length);
-                        ms_gswap2(blkt_2000.data_offset);
-                        ms_gswap4(blkt_2000.recnum);
+                        gswap.ms_gswap2(blkt_2000.length);
+                        gswap.ms_gswap2(blkt_2000.data_offset);
+                        gswap.ms_gswap4(blkt_2000.recnum);
                     }
 
                     /* Nothing done to pack the opaque headers and data, they should already
@@ -899,9 +901,9 @@ namespace libmseedNetCore
                 {
                     //C++ TO C# CONVERTER TODO TASK: The memory management function 'memcpy' has no equivalent in C#:
                     memcpy(rawrec + nextoffset, offset, 2);
-                    if (swapflag)
+                    if (swapflag>0)
                     {
-                        ms_gswap2(rawrec + nextoffset);
+                        gswap.ms_gswap2(rawrec + nextoffset);
                     }
                 }
                 else
@@ -1020,7 +1022,7 @@ namespace libmseedNetCore
             int d0;
 
             /* Check for encode debugging environment variable */
-            if (Environment.GetEnvironmentVariable("ENCODE_DEBUG")!=null)
+            if (Environment.GetEnvironmentVariable("ENCODE_DEBUG") != null)
             {
                 encodedebug = 1;
             }
@@ -1056,7 +1058,7 @@ namespace libmseedNetCore
                         Logging.ms_log(1, "%s: Packing INT16 data samples\n", srcname);
                     }
 
-                    nsamples = packdata.msr_encode_int16(ref src, maxsamples,ref dest, maxdatabytes, swapflag);
+                    nsamples = packdata.msr_encode_int16(ref src, maxsamples, ref dest, maxdatabytes, swapflag);
 
                     break;
 
@@ -1128,7 +1130,7 @@ namespace libmseedNetCore
                     }
 
                     nsamples = packdata.msr_encode_steim1(intbuff, maxsamples, ref outbuff, maxdatabytes, d0, swapflag);
-                    dest =  outbuff.Cast<object>().ToArray();
+                    dest = outbuff.Cast<object>().ToArray();
 
                     /* If a previous sample is supplied update it with the last sample value */
                     if (lastintsample != 0 && nsamples > 0)
@@ -1178,6 +1180,21 @@ namespace libmseedNetCore
             return nsamples;
         } // End of msr_pack_data()
 
+        private bool MS_ISDATAINDICATOR(char X)
+        {
+            //#define MS_ISDATAINDICATOR(X) (X=='D' || X=='R' || X=='Q' || X=='M')
+            if (X == 'D' || X == 'R' || X == 'Q' || X == 'M')
+                return true;
+            return false;
+
+        }
+
+
+        private static void MS_SWAPBTIME(BTime x) {
+            gswap.ms_gswap2(ref x.year);
+            gswap.ms_gswap2(ref x.day);
+            gswap.ms_gswap2(ref x.fract); 
+        }
 
     }
 }

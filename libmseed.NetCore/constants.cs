@@ -7,7 +7,9 @@ namespace libmseedNetCore
     public class Constants
     {
 
-       
+        public const int STEIM1_FRAME_MAX_SAMPLES = 60;
+        public const int STEIM2_FRAME_MAX_SAMPLES = 105;
+
         /* SEED data encoding types */
         public const int MINRECLEN = 128; // Minimum Mini-SEED record length, 2^7 bytes
         public const int MAXRECLEN = 1048576; // Maximum Mini-SEED record length, 2^20 bytes
@@ -173,7 +175,7 @@ namespace libmseedNetCore
         
 
 
-        public class MSRecord_s
+        public class MSRecord
         {
             public string record; // Mini-SEED record
             public int reclen; // Length of Mini-SEED record in bytes
@@ -212,20 +214,19 @@ namespace libmseedNetCore
             
         }
 
-       public class MSRecord : MSRecord_s { }
 
         /* Blockette chain link, generic linkable blockette index */
-        public class blkt_link_s
+        public class BlktLink
         {
             public ushort blktoffset; // Offset to this blockette
             public ushort blkt_type; // Blockette type
             public ushort next_blkt; // Offset to next blockette
             public object blktdata; // Blockette data
             public ushort blktdatalen; // Length of blockette data in bytes
-            public blkt_link_s next;
+            public BlktLink next;
         }
 
-        public class BlktLink : blkt_link_s { }
+       
 
 
         /* Blockette 100, Sample Rate (without header) */
@@ -253,6 +254,74 @@ namespace libmseedNetCore
             public byte reserved;
             public byte framecnt;
         }
+
+
+        /* Blockette 310, Sine Calibration (without header) */
+        public class blkt_310_s
+        {
+            public BTime time = new BTime();
+            public byte reserved1;
+            public byte flags;
+            public uint duration;
+            public float period;
+            public float amplitude;
+            public string input_channel = new string(new char[3]);
+            public byte reserved2;
+            public uint reference_amplitude;
+            public string coupling = new string(new char[12]);
+            public string rolloff = new string(new char[12]);
+        }
+
+        /* Blockette 320, Pseudo-random Calibration (without header) */
+        public class blkt_320_s
+        {
+            public BTime time = new BTime();
+            public byte reserved1;
+            public byte flags;
+            public uint duration;
+            public float ptp_amplitude;
+            public string input_channel = new string(new char[3]);
+            public byte reserved2;
+            public uint reference_amplitude;
+            public string coupling = new string(new char[12]);
+            public string rolloff = new string(new char[12]);
+            public string noise_type = new string(new char[8]);
+        }
+
+        /* Blockette 390, Generic Calibration (without header) */
+        public class blkt_390_s
+        {
+            public BTime time = new BTime();
+            public byte reserved1;
+            public byte flags;
+            public uint duration;
+            public float amplitude;
+            public string input_channel = new string(new char[3]);
+            public byte reserved2;
+        }
+
+        /* Blockette 395, Calibration Abort (without header) */
+        public class blkt_395_s
+        {
+            public BTime time = new BTime();
+            public byte[] reserved = new byte[2];
+        }
+
+        /* Blockette 400, Beam (without header) */
+        public class blkt_400_s
+        {
+            public float azimuth;
+            public float slowness;
+            public ushort configuration;
+            public byte[] reserved = new byte[2];
+        }
+
+        /* Blockette 405, Beam Delay (without header) */
+        public class blkt_405_s
+        {
+            public ushort[] delay_values = new ushort[1];
+        }
+
 
         public class StreamState_s
         {

@@ -21,7 +21,7 @@ namespace libmseedNetCore
          *
          * Returns the sample size based on type code or 0 for unknown.
          ***************************************************************************/
-        private byte ms_samplesize(char sampletype)
+        public static byte ms_samplesize(char sampletype)
         {
             switch (sampletype)
             {
