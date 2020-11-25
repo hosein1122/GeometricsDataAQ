@@ -39,14 +39,14 @@ namespace SeisCode
 			}
 		}
 
-		public virtual bool overlaps(Btime btime)
+		public virtual bool Overlaps(Btime btime)
 		{
-			return btime.afterOrEquals(begin) && end.afterOrEquals(btime);
+			return btime.AfterOrEquals(begin) && end.AfterOrEquals(btime);
 		}
 
-		public virtual bool overlaps(BtimeRange range)
+		public virtual bool Overlaps(BtimeRange range)
 		{
-			return !(range.Begin.after(End) || Begin.after(range.End));
+			return !(range.Begin.After(End) || Begin.After(range.End));
 		}
 	}
 

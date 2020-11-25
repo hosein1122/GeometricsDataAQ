@@ -18,8 +18,6 @@ namespace SeisCode
     public abstract class SeedRecord
     {
 
-        protected internal static BlocketteFactory blocketteFactory = new DefaultBlocketteFactory();
-
         public static BlocketteFactory BlocketteFactory
         {
             set
@@ -33,19 +31,19 @@ namespace SeisCode
         }
 
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public static SeedRecord read(java.io.DataInput inStream) throws java.io.IOException, SeedFormatException
-        public static SeedRecord read(BinaryReader inStream)
+        public static SeedRecord Read(BinaryReader inStream)
         {
-            return read(inStream, 0);
+            return Read(inStream, 0);
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public static SeedRecord read(byte[] bytes) throws java.io.IOException, SeedFormatException
-        public static SeedRecord read(byte[] bytes)
+
+        public static SeedRecord Read(byte[] bytes)
         {
-            DataInputStream seedIn = new DataInputStream(new MemoryStream(bytes));
-            return DataRecord.read(seedIn);
+            BinaryReader seedIn = new BinaryReader(new MemoryStream(bytes));
+            return DataRecord.Read(seedIn);
+
+            //DataInputStream seedIn = new DataInputStream(new MemoryStream(bytes));
+            //return DataRecord.read(seedIn);
 
         }
 
@@ -62,26 +60,29 @@ namespace SeisCode
         /// exception. A buffer sized to be the largest seed record expected is sufficient
         /// and so 4096 is a reasonable buffer size.
         /// </summary>
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public static SeedRecord read(java.io.DataInput inStream, int defaultRecordSize) throws java.io.IOException, SeedFormatException
-        public static SeedRecord read(BinaryReader inStream, int defaultRecordSize)
+
+        public static SeedRecord Read(BinaryReader inStream, int defaultRecordSize)
         {
-            bool resetOnError = inStream is DataInputStream && ((Stream)inStream).markSupported();
+            bool resetOnError = true;// = inStream is BinaryReader && ((Stream)inStream).markSupported();
             if (resetOnError)
             {
-                ((Stream)inStream).mark((defaultRecordSize != 0 ? defaultRecordSize : 4096)); // do twice in case of continuation record?
+                //((Stream)inStream).mark((defaultRecordSize != 0 ? defaultRecordSize : 4096)); // do twice in case of continuation record?
+                //TODO Check this part.
+                // byte[] buff =new byte[4096];
+                // instream2.BaseStream.Read(buff,0,4096);
+                // instream2 = new BinaryReader(new MemoryStream(buff));
             }
             try
             {
-                ControlHeader header = ControlHeader.read(inStream);
+                ControlHeader header = ControlHeader.Read(inStream);
                 SeedRecord newRecord;
                 if (header is DataHeader)
                 {
-                    newRecord = DataRecord.readDataRecord(inStream, (DataHeader)header, defaultRecordSize);
+                    newRecord = DataRecord.ReadDataRecord(inStream, (DataHeader)header, defaultRecordSize);
                 }
                 else
                 {
-                    ControlRecord contRec = ControlRecord.readControlRecord(inStream, header, defaultRecordSize);
+                    ControlRecord contRec = ControlRecord.ReadControlRecord(inStream, header, defaultRecordSize);
                     defaultRecordSize = contRec.RecordSize; // in case of b8 or b5 setting record size
                     newRecord = contRec;
                 }
@@ -93,7 +94,8 @@ namespace SeisCode
                 {
                     try
                     {
-                        ((Stream)inStream).reset();
+                        //(inStream).reset();
+                        _ = inStream.ReadByte();
                     }
                     catch (IOException)
                     {
@@ -108,7 +110,7 @@ namespace SeisCode
                 {
                     try
                     {
-                        ((Stream)inStream).reset();
+                        //((Stream)inStream).reset();
                     }
                     catch (IOException)
                     {
@@ -123,7 +125,7 @@ namespace SeisCode
                 {
                     try
                     {
-                        ((Stream)inStream).reset();
+                        // ((Stream)inStream).reset();
                     }
                     catch (IOException)
                     {
@@ -139,9 +141,8 @@ namespace SeisCode
             this.header = header;
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public void addBlockette(Blockette b) throws SeedFormatException
-        public virtual void addBlockette(Blockette b)
+
+        public virtual void AddBlockette(Blockette b)
         {
             blockettes.Add(b);
         }
@@ -154,11 +155,10 @@ namespace SeisCode
             }
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public Blockette getUniqueBlockette(int type) throws SeedFormatException
-        public virtual Blockette getUniqueBlockette(int type)
+
+        public virtual Blockette GetUniqueBlockette(int type)
         {
-            Blockette[] b = getBlockettes(type);
+            Blockette[] b = GetBlockettes(type);
             if (b.Length == 1)
             {
                 return b[0];
@@ -178,9 +178,7 @@ namespace SeisCode
             }
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public int getNumBlockettes(int type) throws SeedFormatException
-        public virtual int getNumBlockettes(int type)
+        public virtual int GetNumBlockettes(int type)
         {
             int @out = 0;
             foreach (Blockette b in blockettes)
@@ -193,7 +191,7 @@ namespace SeisCode
             return @out;
         }
 
-        public virtual Blockette[] getBlockettes(int type)
+        public virtual Blockette[] GetBlockettes(int type)
         {
             IList<Blockette> @out = new List<Blockette>();
             foreach (Blockette b in blockettes)
@@ -251,32 +249,30 @@ namespace SeisCode
                 return header;
             }
         }
+
         public override string ToString()
         {
-            StringWriter sw = new StringWriter();
-            TextWriter p = new TextWriter(sw);
+
+            Stream st = new MemoryStream();
+            TextWriter p = new StreamWriter(st);
             try
             {
-                writeASCII(p);
+                WriteASCII(p);
             }
             catch (IOException e)
             {
                 // dont think this should happen
                 throw new Exception(e.Message, e);
             }
-            return sw.ToString();
+            return st.ToString();
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public void writeASCII(PrintWriter out) throws IOException
-        public virtual void writeASCII(TextWriter @out)
+        public virtual void WriteASCII(TextWriter @out)
         {
-            writeASCII(@out, "");
+            WriteASCII(@out, "");
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public void writeASCII(PrintWriter out, String indent) throws IOException
-        public virtual void writeASCII(TextWriter @out, string indent)
+        public virtual void WriteASCII(TextWriter @out, string indent)
         {
             if (this is DataRecord)
             {
@@ -290,7 +286,7 @@ namespace SeisCode
             {
                 @out.Write(indent + "SeedRecord");
             }
-            ControlHeader.writeASCII(@out, indent + "  ");
+            ControlHeader.WriteASCII(@out, indent + "  ");
             foreach (Blockette b in blockettes)
             {
                 b.WriteASCII(@out, indent + "    ");
@@ -303,11 +299,15 @@ namespace SeisCode
             {
                 return RECORD_SIZE;
             }
+            set { }
+
         }
 
         protected internal ControlHeader header;
 
         protected internal IList<Blockette> blockettes = new List<Blockette>();
+
+        protected internal static BlocketteFactory blocketteFactory = new DefaultBlocketteFactory();
 
         protected internal int RECORD_SIZE = 4096;
     } // SeedRecord

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SeisCode
@@ -43,15 +44,15 @@ namespace SeisCode
 		}
 
 
-		public virtual void writeASCII(PrintWriter @out)
+		public override void WriteASCII(TextWriter @out)
 		{
-			writeASCIINoNewline(@out);
-			@out.println();
+			WriteASCIINoNewline(@out);
+			@out.WriteLine();
 		}
 
-		public virtual void writeASCIINoNewline(PrintWriter @out)
+		public virtual void WriteASCIINoNewline(TextWriter @out)
 		{
-			@out.print("Blockette" + Type + " record length=" + LogicalRecordLength + " (" + LogicalRecordLengthByte + ") " + new string(info));
+			@out.Write("Blockette" + Type + " record length=" + LogicalRecordLength + " (" + LogicalRecordLengthByte + ") " + Encoding.Default.GetString(info));
 		}
 	}
 

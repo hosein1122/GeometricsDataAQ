@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace SeisCode
 {
-	public class Blockette1001 : DataBlockette
+    public class Blockette1001 : DataBlockette
 	{
 
 		public const int B1001_SIZE = 8;
@@ -14,11 +11,9 @@ namespace SeisCode
 		{
 		}
 
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: public Blockette1001(byte[] info, boolean swapBytes) throws SeedFormatException
 		public Blockette1001(byte[] info, bool swapBytes) : base(info, swapBytes)
 		{
-			trimToSize(B1001_SIZE);
+			TrimToSize(B1001_SIZE);
 		}
 
 		public override int Size

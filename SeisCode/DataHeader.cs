@@ -79,27 +79,27 @@ namespace SeisCode
         ///  </param>
         //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
         //ORIGINAL LINE: public void writeASCII(java.io.PrintWriter out) throws java.io.IOException
-        public override void writeASCII(TextWriter @out)
+        public override void WriteASCII(TextWriter @out)
         {
-            writeASCII(@out, "");
+            WriteASCII(@out, "");
         }
 
         //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
         //ORIGINAL LINE: public void writeASCII(java.io.PrintWriter out, String indent) throws java.io.IOException
-        public override void writeASCII(TextWriter @out, string indent)
+        public override void WriteASCII(TextWriter @out, string indent)
         {
-            base.writeASCII(@out, indent);
+            base.WriteASCII(@out, indent);
             @out.Write(indent + NetworkCode.Trim() + "." + StationIdentifier.Trim() + "." + LocationIdentifier + "." + ChannelIdentifier);
             @out.Write(" start=" + StartTime);
-            @out.Write(" numPTS=" + getNumSamples());
-            @out.Write(" sampFac=" + getSampleRateFactor());
-            @out.Write(" sampMul=" + getSampleRateMultiplier());
+            @out.Write(" numPTS=" + NumSamples);
+            @out.Write(" sampFac=" + SampleRateFactor);
+            @out.Write(" sampMul=" + SampleRateMultiplier);
             @out.Write(" ac=" + ActivityFlags);
             @out.Write(" io=" + IOClockFlags);
             @out.Write(" qual=" + DataQualityFlags);
             @out.Write(" numBlockettes=" + NumBlockettes);
-            @out.Write(" blocketteOffset=" + getDataBlocketteOffset());
-            @out.Write(" dataOffset=" + getDataOffset());
+            @out.Write(" blocketteOffset=" + DataBlocketteOffset);
+            @out.Write(" dataOffset=" + DataOffset);
             @out.WriteLine(" tcor=" + TimeCorrection);
         }
 
@@ -131,8 +131,7 @@ namespace SeisCode
         //ORIGINAL LINE: public static DataHeader read(java.io.DataInput in, int sequenceNum, char typeCode, boolean continuationCode) throws java.io.IOException, SeedFormatException
         public static DataHeader read(BinaryReader @in, int sequenceNum, char typeCode, bool continuationCode)
         {
-            byte[] buf = new byte[40];
-            @in.readFully(buf);
+            byte[] buf = @in.ReadBytes(40);
             DataHeader data = new DataHeader(sequenceNum, typeCode, continuationCode);
             data.read(buf, 0);
             return data;
@@ -144,7 +143,7 @@ namespace SeisCode
         /// </summary>
         internal virtual bool flagByteSwap()
         {
-            return Btime.shouldSwapBytes(startTime);
+            return Btime.ShouldSwapBytes(startTime);
         }
 
         /// <summary>
@@ -185,25 +184,25 @@ namespace SeisCode
         //ORIGINAL LINE: protected void write(java.io.DataOutput dos) throws java.io.IOException
         protected internal virtual void write(BinaryWriter dos)
         {
-            base.write(dos);
-            dos.Write(Utility.pad(StationIdentifier.GetBytes(Encoding.ASCII), 5, (byte)32));
-            dos.Write(Utility.pad(LocationIdentifier.GetBytes(Encoding.ASCII), 2, (byte)32));
-            dos.Write(Utility.pad(ChannelIdentifier.GetBytes(Encoding.ASCII), 3, (byte)32));
-            dos.Write(Utility.pad(NetworkCode.GetBytes(Encoding.ASCII), 2, (byte)32));
+            base.Write(dos);
+            dos.Write(Utility.pad(Encoding.ASCII.GetBytes(StationIdentifier), 5, (byte)32));
+            dos.Write(Utility.pad(Encoding.ASCII.GetBytes(LocationIdentifier), 2, (byte)32));
+            dos.Write(Utility.pad(Encoding.ASCII.GetBytes(ChannelIdentifier), 3, (byte)32));
+            dos.Write(Utility.pad(Encoding.ASCII.GetBytes(NetworkCode), 2, (byte)32));
             dos.Write(startTime);
-            dos.Write((short)getNumSamples());
-            dos.Write((short)getSampleRateFactor());
-            dos.Write((short)getSampleRateMultiplier());
+            dos.Write((short)NumSamples);
+            dos.Write((short)SampleRateFactor);
+            dos.Write((short)SampleRateMultiplier);
             dos.Write(ActivityFlags);
             dos.Write(IOClockFlags);
             dos.Write(DataQualityFlags);
             dos.Write(NumBlockettes);
             dos.Write(TimeCorrection);
-            dos.Write((short)getDataOffset());
-            dos.Write((short)getDataBlocketteOffset());
+            dos.Write((short)DataOffset);
+            dos.Write((short)DataBlocketteOffset);
         }
 
-        public virtual short Size
+        public override short Size
         {
             get
             {
@@ -232,7 +231,7 @@ namespace SeisCode
             {
                 if (stationIdentifierString == null)
                 {
-                    stationIdentifierString = new string(stationIdentifier);
+                    stationIdentifierString = Encoding.ASCII.GetString(stationIdentifier);
                 }
                 return stationIdentifierString;
             }
@@ -241,9 +240,9 @@ namespace SeisCode
                 stationIdentifierString = value;
                 try
                 {
-                    this.stationIdentifier = Utility.pad(value.GetBytes(Encoding.ASCII), 5, (byte)32);
+                    this.stationIdentifier = Utility.pad(Encoding.ASCII.GetBytes(value), 5, (byte)32);
                 }
-                catch (java.io.UnsupportedEncodingException e)
+                catch (Exception e)
                 {
                     throw new Exception("Shouldn't happen", e);
                 }
@@ -261,7 +260,7 @@ namespace SeisCode
             {
                 if (locationIdentifierString == null)
                 {
-                    locationIdentifierString = new string(locationIdentifier);
+                    locationIdentifierString = Encoding.ASCII.GetString(locationIdentifier);
                 }
                 return locationIdentifierString;
             }
@@ -271,9 +270,9 @@ namespace SeisCode
                 int requiredBytes = 2; // REFER SEED Format
                 try
                 {
-                    this.locationIdentifier = Utility.pad(value.GetBytes(Encoding.ASCII), requiredBytes, (byte)32);
+                    this.locationIdentifier = Utility.pad(Encoding.ASCII.GetBytes(value), requiredBytes, (byte)32);
                 }
-                catch (java.io.UnsupportedEncodingException e)
+                catch (Exception e)
                 {
                     throw new Exception("Shouldn't happen", e);
                 }
@@ -291,7 +290,7 @@ namespace SeisCode
             {
                 if (channelIdentifierString == null)
                 {
-                    channelIdentifierString = new string(channelIdentifier);
+                    channelIdentifierString = Encoding.ASCII.GetString(channelIdentifier);
                 }
                 return channelIdentifierString;
             }
@@ -301,9 +300,9 @@ namespace SeisCode
                 int requiredBytes = 3; // REFER SEED Format
                 try
                 {
-                    this.channelIdentifier = Utility.pad(value.GetBytes(Encoding.ASCII), requiredBytes, (byte)32);
+                    this.channelIdentifier = Utility.pad(Encoding.ASCII.GetBytes(value), requiredBytes, (byte)32);
                 }
-                catch (java.io.UnsupportedEncodingException e)
+                catch (Exception e)
                 {
                     throw new Exception("Shouldn't happen", e);
                 }
@@ -321,7 +320,7 @@ namespace SeisCode
             {
                 if (networkCodeString == null)
                 {
-                    networkCodeString = new string(networkCode);
+                    networkCodeString = Encoding.ASCII.GetString(networkCode);
                 }
                 return networkCodeString;
             }
@@ -332,9 +331,9 @@ namespace SeisCode
                 byte paddingByte = (byte)32;
                 try
                 {
-                    this.networkCode = Utility.pad(value.GetBytes(Encoding.ASCII), requiredBytes, paddingByte);
+                    this.networkCode = Utility.pad(Encoding.ASCII.GetBytes(value), requiredBytes, paddingByte);
                 }
-                catch (java.io.UnsupportedEncodingException e)
+                catch (Exception e)
                 {
                     throw new Exception("Shouldn't happen", e);
                 }
@@ -350,11 +349,11 @@ namespace SeisCode
         {
             get
             {
-                return new Btime(startTime);
+                return new Btime(startTime, 0);
             }
             set
             {
-                this.startTime = value.Abytes;
+                startTime = value.Bytes;
             }
         }
 
@@ -369,57 +368,91 @@ namespace SeisCode
         [Obsolete("Use DataRecord.getSampleRate() as it also checks for a possible blockette100 value.")]
         public virtual float getSampleRate()
         {
-            return calcSampleRateFromMultipilerFactor();
+            return CalcSampleRateFromMultipilerFactor();
         }
 
         // convert contents of Btime structure to the number of
         // ten thousandths of seconds it represents within that year
         private static double ttConvert(Btime bTime)
         {
-            double tenThousandths = bTime.jday * 864000000.0;
-            tenThousandths += bTime.hour * 36000000.0;
-            tenThousandths += bTime.min * 600000.0;
-            tenThousandths += bTime.sec * 10000.0;
-            tenThousandths += bTime.tenthMilli;
+            double tenThousandths = bTime.Jday * 864000000.0;
+            tenThousandths += bTime.Hour * 36000000.0;
+            tenThousandths += bTime.Min * 600000.0;
+            tenThousandths += bTime.Sec * 10000.0;
+            tenThousandths += bTime.TenthMilli;
             return tenThousandths;
         }
 
         // take the Btime structure and forward-project a new time that is
         // the specified number of ten thousandths of seconds ahead
-        internal static Btime projectTime(Btime bTime, double tenThousandths)
+        public  static Btime ProjectTime(Btime bTime, double tenThousandths)
         {
+            //int offset = 0; // leap year offset
+            //                // check to see if this is a leap year we are starting on
+            //bool is_leap = bTime.Year % 4 == 0 && bTime.Year % 100 != 0 || bTime.Year % 400 == 0;
+            //if (is_leap)
+            //{
+            //    offset = 1;
+            //}
+            //// convert bTime to tenths of seconds in the current year, then
+            //// add that value to the incremental time value tenThousandths
+            //tenThousandths += ttConvert(bTime);
+            //// now increment year if it crosses the year boundary
+            //if ((tenThousandths) >= (366 + offset) * 864000000.0)
+            //{
+            //    bTime.year++;
+            //    tenThousandths -= (365 + offset) * 864000000.0;
+            //}
+            //// increment day
+            //bTime.jday = (int)(tenThousandths / 864000000.0);
+            //tenThousandths -= (double)bTime.jday * 864000000.0;
+            //// increment hour
+            //bTime.hour = (int)(tenThousandths / 36000000.0);
+            //tenThousandths -= (double)bTime.hour * 36000000.0;
+            //// increment minutes
+            //bTime.min = (int)(tenThousandths / 600000.0);
+            //tenThousandths -= (double)bTime.min * 600000.0;
+            //// increment seconds
+            //bTime.sec = (int)(tenThousandths / 10000.0);
+            //tenThousandths -= (double)bTime.sec * 10000.0;
+            //// set tenth seconds
+            //bTime.tenthMilli = (int)tenThousandths;
+            //// return the resultant value
+            //return bTime;
             int offset = 0; // leap year offset
-                            // check to see if this is a leap year we are starting on
-            bool is_leap = bTime.year % 4 == 0 && bTime.year % 100 != 0 || bTime.year % 400 == 0;
+            // check to see if this is a leap year we are starting on
+            bool is_leap = bTime.Year % 4 == 0 && bTime.Year % 100 != 0
+                    || bTime.Year % 400 == 0;
             if (is_leap)
-            {
                 offset = 1;
-            }
             // convert bTime to tenths of seconds in the current year, then
             // add that value to the incremental time value tenThousandths
             tenThousandths += ttConvert(bTime);
             // now increment year if it crosses the year boundary
+
+            var year = bTime.Year;
             if ((tenThousandths) >= (366 + offset) * 864000000.0)
             {
-                bTime.year++;
+                year++;
                 tenThousandths -= (365 + offset) * 864000000.0;
             }
             // increment day
-            bTime.jday = (int)(tenThousandths / 864000000.0);
-            tenThousandths -= (double)bTime.jday * 864000000.0;
+            var jday = (int)(tenThousandths / 864000000.0);
+            tenThousandths -= (double)jday * 864000000.0;
             // increment hour
-            bTime.hour = (int)(tenThousandths / 36000000.0);
-            tenThousandths -= (double)bTime.hour * 36000000.0;
+            var hour = (int)(tenThousandths / 36000000.0);
+            tenThousandths -= (double)hour * 36000000.0;
             // increment minutes
-            bTime.min = (int)(tenThousandths / 600000.0);
-            tenThousandths -= (double)bTime.min * 600000.0;
+            var min = (int)(tenThousandths / 600000.0);
+            tenThousandths -= (double)min * 600000.0;
             // increment seconds
-            bTime.sec = (int)(tenThousandths / 10000.0);
-            tenThousandths -= (double)bTime.sec * 10000.0;
+            var sec = (int)(tenThousandths / 10000.0);
+            tenThousandths -= (double)sec * 10000.0;
             // set tenth seconds
-            bTime.tenthMilli = (int)tenThousandths;
+            var tenthMilli = (int)tenThousandths;
             // return the resultant value
-            return bTime;
+            return new Btime(year, jday, hour, min, sec, tenthMilli);
+
         }
 
         /// <summary>
@@ -438,10 +471,10 @@ namespace SeisCode
             {
                 Btime startBtime = StartBtime;
                 // get the number of ten thousandths of seconds of data
-                double numTenThousandths = (((double)getNumSamples() / getSampleRate()) * 10000.0);
+                double numTenThousandths = (((double)NumSamples / getSampleRate()) * 10000.0);
                 // return the time structure projected by the number of ten thousandths
                 // of seconds
-                return projectTime(startBtime, numTenThousandths);
+                return ProjectTime(startBtime, numTenThousandths);
             }
         }
         /// <summary>
@@ -484,10 +517,10 @@ namespace SeisCode
             {
                 Btime startBtime = StartBtime;
                 // get the number of ten thousandths of seconds of data
-                double numTenThousandths = (((double)(getNumSamples() - 1) / SampleRate) * 10000.0);
+                double numTenThousandths = (((double)(NumSamples - 1) / SampleRate) * 10000.0);
                 // return the time structure projected by the number of ten thousandths
                 // of seconds
-                return projectTime(startBtime, numTenThousandths);
+                return ProjectTime(startBtime, numTenThousandths);
             }
         }
 
@@ -501,40 +534,17 @@ namespace SeisCode
             {
                 // get time structure
                 Btime startStruct = StartBtime;
-                // zero padding format of output numbers
-                DecimalFormat twoZero = new DecimalFormat("00");
-                DecimalFormat threeZero = new DecimalFormat("000");
-                DecimalFormat fourZero = new DecimalFormat("0000");
-                // return string in standard jday format
-                return new string(fourZero.format(startStruct.year) + "," + threeZero.format(startStruct.jday) + "," + twoZero.format(startStruct.hour) + ":" + twoZero.format(startStruct.min) + ":" + twoZero.format(startStruct.sec) + "." + fourZero.format(startStruct.tenthMilli));
+                return startStruct.Year.ToString("####") + ","
+                   + startStruct.Jday.ToString("###") + ","
+                   + startStruct.Hour.ToString("##") + ":"
+                   + startStruct.Min.ToString("##") + ":"
+                   + startStruct.Sec.ToString("##") + "."
+                   + startStruct.TenthMilli.ToString("###");
+
             }
         }
 
-        /// <summary>
-        /// get the value of end time. derived from Start time, sample rate, and
-        /// number of samples. Note this is not the time of the last sample, but
-        /// rather the predicted begin time of the next record.
-        /// 
-        /// Note that this may not be correct if the record also contains a more accurate
-        /// sample rate in a blockette100.
-        /// </summary>
-        /// <returns> the value of end time </returns>
-        /// @deprecated Use DataRecord.getEndTime() as it also checks for a possible blockette100 value.  
-        [Obsolete("Use DataRecord.getEndTime() as it also checks for a possible blockette100 value.")]
-        public virtual string EndTime
-        {
-            get
-            {
-                // get time structure
-                Btime endStruct = EndBtime;
-                // zero padding format of output numbers
-                DecimalFormat twoZero = new DecimalFormat("00");
-                DecimalFormat threeZero = new DecimalFormat("000");
-                DecimalFormat fourZero = new DecimalFormat("0000");
-                // return string in standard jday format
-                return new string(fourZero.format(endStruct.year) + "," + threeZero.format(endStruct.jday) + "," + twoZero.format(endStruct.hour) + ":" + twoZero.format(endStruct.min) + ":" + twoZero.format(endStruct.sec) + "." + fourZero.format(endStruct.tenthMilli));
-            }
-        }
+
 
         /// <summary>
         /// get the value of end time. derived from Start time, sample rate, and
@@ -552,79 +562,64 @@ namespace SeisCode
             {
                 // get time structure
                 Btime endStruct = LastSampleBtime;
-                // zero padding format of output numbers
-                DecimalFormat twoZero = new DecimalFormat("00");
-                DecimalFormat threeZero = new DecimalFormat("000");
-                DecimalFormat fourZero = new DecimalFormat("0000");
-                // return string in standard jday format
-                return new string(fourZero.format(endStruct.year) + "," + threeZero.format(endStruct.jday) + "," + twoZero.format(endStruct.hour) + ":" + twoZero.format(endStruct.min) + ":" + twoZero.format(endStruct.sec) + "." + fourZero.format(endStruct.tenthMilli));
+                return endStruct.Year.ToString("####") + ","
+                    + endStruct.Jday.ToString("###") + ","
+                    + endStruct.Hour.ToString("###") + ":"
+                    + endStruct.Min.ToString("###") + ":"
+                    + endStruct.Sec.ToString("###") + "."
+                    + endStruct.TenthMilli.ToString("####");
             }
         }
 
-        /// <summary>
-        /// Get the value of numSamples.
-        /// </summary>
-        /// <returns> Value of numSamples. </returns>
-        public virtual int getNumSamples()
-        {
-            return numSamples;
-        }
 
-        /// <summary>
-        /// Set the value of numSamples.
-        /// </summary>
-        /// <param name="v">
-        ///            Value to assign to numSamples. </param>
-        public virtual void setNumSamples(short v)
-        {
-            this.numSamples = v;
-        }
+        
 
         /// <summary>
         /// Get the value of sampleRateFactor.
         /// </summary>
         /// <returns> Value of sampleRateFactor. </returns>
-        public virtual int getSampleRateFactor()
+        public virtual int SampleRateFactor
         {
-            return sampleRateFactor;
+            get
+            {
+                return sampleRateFactor;
+            }
+            set
+            {
+                sampleRateFactor = value;
+            }
         }
 
-        /// <summary>
-        /// Set the value of sampleRateFactor.
-        /// </summary>
-        /// <param name="v">
-        ///            Value to assign to sampleRateFactor. </param>
-        public virtual void setSampleRateFactor(short v)
-        {
-            this.sampleRateFactor = v;
-        }
+
 
         /// <summary>
         /// Get the value of sampleRateMultiplier.
         /// </summary>
         /// <returns> Value of sampleRateMultiplier. </returns>
-        public virtual int getSampleRateMultiplier()
+        public virtual int SampleRateMultiplier
         {
-            return sampleRateMultiplier;
+            get
+            {
+                return sampleRateMultiplier;
+            }
+            set
+            {
+                sampleRateMultiplier = value;
+            }
         }
 
-        /// <summary>
-        /// Set the value of sampleRateMultiplier.
-        /// </summary>
-        /// <param name="v">
-        ///            Value to assign to sampleRateMultiplier. </param>
-        public virtual void setSampleRateMultiplier(short v)
-        {
-            this.sampleRateMultiplier = v;
-        }
 
         public virtual double SampleRate
         {
             set
             {
-                short[] tmp = calcSeedMultipilerFactor(value);
-                setSampleRateFactor(tmp[0]);
-                setSampleRateMultiplier(tmp[1]);
+                short[] tmp = CalcSeedMultipilerFactor(value);
+                SampleRateFactor = tmp[0];
+                SampleRateMultiplier = tmp[1];
+            }
+            get
+            {
+                return CalcSampleRateFromMultipilerFactor();
             }
         }
 
@@ -635,10 +630,10 @@ namespace SeisCode
         /// 
         /// Returns zero if either of the multiplier or factor are zero, usually in the case of log/ascii/opaque data. </summary>
         /// <returns> sample rate </returns>
-        public virtual float calcSampleRateFromMultipilerFactor()
+        public virtual float CalcSampleRateFromMultipilerFactor()
         {
-            double factor = (double)getSampleRateFactor();
-            double multiplier = (double)getSampleRateMultiplier();
+            double factor = (double)SampleRateFactor;
+            double multiplier = (double)SampleRateMultiplier;
             float sampleRate;
             if ((factor * multiplier) != 0.0)
             { // in the case of log records
@@ -652,7 +647,7 @@ namespace SeisCode
             return sampleRate;
         }
 
-        public static short[] calcSeedMultipilerFactor(double sps)
+        public static short[] CalcSeedMultipilerFactor(double sps)
         {
             if (sps >= 1)
             {
@@ -713,71 +708,13 @@ namespace SeisCode
             }
         }
 
-        /// <summary>
-        /// returns the predicted start time of the next record, ie begin + numSample*period
-        /// 
-        /// Note that this may not be correct if the record also contains a more accurate
-        /// sample rate in a blockette100.
-        /// </summary>
-        /// @deprecated Use DataRecord.getPredictedNextStartBtime() as it also checks for a possible blockette100 value.  
-        [Obsolete("Use DataRecord.getPredictedNextStartBtime() as it also checks for a possible blockette100 value.")]
-        public virtual Btime PredictedNextStartBtime
-        {
-            get
-            {
-                return EndBtime;
-            }
-        }
 
-        /// @deprecated Use DataRecord.getBtimeRange() as it also checks for a possible blockette100 value.  
-        [Obsolete("Use DataRecord.getBtimeRange() as it also checks for a possible blockette100 value.")]
-        public virtual BtimeRange BtimeRange
-        {
-            get
-            {
-                return new BtimeRange(StartBtime, LastSampleBtime);
-            }
-        }
 
-        /// <summary>
-        /// return a Btime structure containing the derived last sample time for this
-        /// record.
-        /// 
-        /// Note that this may not be correct if the record also contains a more accurate
-        /// sample rate in a blockette100. </summary>
-        /// @deprecated Use DataRecord.getLastSampleBtime() as it also checks for a possible blockette100 value.  
-        [Obsolete("Use DataRecord.getLastSampleBtime() as it also checks for a possible blockette100 value.")]
-        public virtual Btime LastSampleBtime
-        {
-            get
-            {
-                Btime startBtime = StartBtime;
-                // get the number of ten thousandths of seconds of data
-                double numTenThousandths = (((double)(getNumSamples() - 1) / SampleRate) * 10000.0);
-                // return the time structure projected by the number of ten thousandths
-                // of seconds
-                return projectTime(startBtime, numTenThousandths);
-            }
-        }
 
-        /// <summary>
-        /// Get the value of startTime.
-        /// </summary>
-        /// <returns> Value of startTime. </returns>
-        public virtual string StartTime
-        {
-            get
-            {
-                // get time structure
-                Btime startStruct = StartBtime;
-                // zero padding format of output numbers
-                DecimalFormat twoZero = new DecimalFormat("00");
-                DecimalFormat threeZero = new DecimalFormat("000");
-                DecimalFormat fourZero = new DecimalFormat("0000");
-                // return string in standard jday format
-                return new string(fourZero.format(startStruct.year) + "," + threeZero.format(startStruct.jday) + "," + twoZero.format(startStruct.hour) + ":" + twoZero.format(startStruct.min) + ":" + twoZero.format(startStruct.sec) + "." + fourZero.format(startStruct.tenthMilli));
-            }
-        }
+
+
+
+
 
         /// <summary>
         /// get the value of end time. derived from Start time, sample rate, and
@@ -796,158 +733,40 @@ namespace SeisCode
             {
                 // get time structure
                 Btime endStruct = EndBtime;
-                // zero padding format of output numbers
-                DecimalFormat twoZero = new DecimalFormat("00");
-                DecimalFormat threeZero = new DecimalFormat("000");
-                DecimalFormat fourZero = new DecimalFormat("0000");
-                // return string in standard jday format
-                return new string(fourZero.format(endStruct.year) + "," + threeZero.format(endStruct.jday) + "," + twoZero.format(endStruct.hour) + ":" + twoZero.format(endStruct.min) + ":" + twoZero.format(endStruct.sec) + "." + fourZero.format(endStruct.tenthMilli));
+                return endStruct.Year.ToString("####") + ","
+                    + endStruct.Jday.ToString("###") + ","
+                    + endStruct.Hour.ToString("###") + ":"
+                    + endStruct.Min.ToString("###") + ":"
+                    + endStruct.Sec.ToString("###") + "."
+                    + endStruct.TenthMilli.ToString("####");
             }
         }
 
-        /// <summary>
-        /// get the value of end time. derived from Start time, sample rate, and
-        /// number of samples.
-        /// 
-        /// Note that this may not be correct if the record also contains a more accurate
-        /// sample rate in a blockette100.
-        /// </summary>
-        /// <returns> the value of end time </returns>
-        /// @deprecated Use DataRecord.getLastSampleTime() as it also checks for a possible blockette100 value.  
-        [Obsolete("Use DataRecord.getLastSampleTime() as it also checks for a possible blockette100 value.")]
-        public virtual string LastSampleTime
-        {
-            get
-            {
-                // get time structure
-                Btime endStruct = LastSampleBtime;
-                // zero padding format of output numbers
-                DecimalFormat twoZero = new DecimalFormat("00");
-                DecimalFormat threeZero = new DecimalFormat("000");
-                DecimalFormat fourZero = new DecimalFormat("0000");
-                // return string in standard jday format
-                return new string(fourZero.format(endStruct.year) + "," + threeZero.format(endStruct.jday) + "," + twoZero.format(endStruct.hour) + ":" + twoZero.format(endStruct.min) + ":" + twoZero.format(endStruct.sec) + "." + fourZero.format(endStruct.tenthMilli));
-            }
-        }
+
 
         /// <summary>
         /// Get the value of numSamples.
         /// </summary>
         /// <returns> Value of numSamples. </returns>
-        public virtual int getNumSamples()
+        public virtual int NumSamples
         {
-            return numSamples;
-        }
-
-        /// <summary>
-        /// Set the value of numSamples.
-        /// </summary>
-        /// <param name="v">
-        ///            Value to assign to numSamples. </param>
-        public virtual void setNumSamples(short v)
-        {
-            this.numSamples = v;
-        }
-
-        /// <summary>
-        /// Get the value of sampleRateFactor.
-        /// </summary>
-        /// <returns> Value of sampleRateFactor. </returns>
-        public virtual int getSampleRateFactor()
-        {
-            return sampleRateFactor;
-        }
-
-        /// <summary>
-        /// Set the value of sampleRateFactor.
-        /// </summary>
-        /// <param name="v">
-        ///            Value to assign to sampleRateFactor. </param>
-        public virtual void setSampleRateFactor(short v)
-        {
-            this.sampleRateFactor = v;
-        }
-
-        /// <summary>
-        /// Get the value of sampleRateMultiplier.
-        /// </summary>
-        /// <returns> Value of sampleRateMultiplier. </returns>
-        public virtual int getSampleRateMultiplier()
-        {
-            return sampleRateMultiplier;
-        }
-
-        /// <summary>
-        /// Set the value of sampleRateMultiplier.
-        /// </summary>
-        /// <param name="v">
-        ///            Value to assign to sampleRateMultiplier. </param>
-        public virtual void setSampleRateMultiplier(short v)
-        {
-            this.sampleRateMultiplier = v;
-        }
-
-        public virtual double SampleRate
-        {
+            get
+            {
+                return numSamples;
+            }
             set
             {
-                short[] tmp = calcSeedMultipilerFactor(value);
-                setSampleRateFactor(tmp[0]);
-                setSampleRateMultiplier(tmp[1]);
+                numSamples = value;
             }
         }
 
-        /// <summary>
-        /// get the sample rate. derived from sample rate factor and the sample rate
-        /// multiplier. Note this may not be the true sample rate if the record contains
-        /// a blockette 100.
-        /// 
-        /// Returns zero if either of the multiplier or factor are zero, usually in the case of log/ascii/opaque data. </summary>
-        /// <returns> sample rate </returns>
-        public virtual float calcSampleRateFromMultipilerFactor()
-        {
-            double factor = (double)getSampleRateFactor();
-            double multiplier = (double)getSampleRateMultiplier();
-            float sampleRate;
-            if ((factor * multiplier) != 0.0)
-            { // in the case of log records
-                sampleRate = (float)(Math.Pow(Math.Abs(factor), (factor / Math.Abs(factor))) * Math.Pow(Math.Abs(multiplier), (multiplier / Math.Abs(multiplier))));
-            }
-            else
-            {
-                // log/ascii/opaque data
-                sampleRate = 0;
-            }
-            return sampleRate;
-        }
 
-        public static short[] calcSeedMultipilerFactor(double sps)
-        {
-            if (sps >= 1)
-            {
-                // don't get too close to the max for a short, use ceil as neg
-                int divisor = (int)Math.Ceiling((short.MinValue + 2) / sps);
-                // don't get too close to the max for a short
-                if (divisor < short.MinValue + 2)
-                {
-                    divisor = short.MinValue + 2;
-                }
-                int factor = (int)(long)Math.Round(-1 * sps * divisor, MidpointRounding.AwayFromZero);
-                return new short[] { (short)factor, (short)divisor };
-            }
-            else
-            {
-                // don't get too close to the max for a short, use ceil as neg
-                int factor = -1 * (int)(long)Math.Round(Math.Floor(1.0 * sps * (short.MaxValue - 2)) / sps, MidpointRounding.AwayFromZero);
-                // don't get too close to the max for a short
-                if (factor > short.MaxValue - 2)
-                {
-                    factor = short.MaxValue - 2;
-                }
-                int divisor = (int)(long)Math.Round(-1 * factor * sps, MidpointRounding.AwayFromZero);
-                return new short[] { (short)factor, (short)divisor };
-            }
-        }
+
+
+
+
+
+
         /// <summary>
         /// Get the value of activityFlags.
         /// 
@@ -1004,43 +823,39 @@ namespace SeisCode
         }
 
 
-        /// <summary>
-        /// Get the value of dataOffset.
-        /// </summary>
-        /// <returns> Value of dataOffset. </returns>
-        public virtual int getDataOffset()
+        public virtual int DataOffset
         {
-            return dataOffset;
+            get
+            {
+                return dataOffset;
+            }
+            set
+            {
+                dataOffset = value;
+            }
         }
 
-        /// <summary>
-        /// Set the value of dataOffset.
-        /// </summary>
-        /// <param name="v">
-        ///            Value to assign to dataOffset. </param>
-        public virtual void setDataOffset(short v)
-        {
-            this.dataOffset = v;
-        }
+
 
         /// <summary>
-        /// Get the value of dataBlocketteOffset.
+        /// Get And Set the value of dataBlocketteOffset.
         /// </summary>
-        /// <returns> Value of dataBlocketteOffset. </returns>
-        public virtual int getDataBlocketteOffset()
+        /// <returns> 
+        /// Value of dataBlocketteOffset. </returns>
+
+        public virtual int DataBlocketteOffset
         {
-            return dataBlocketteOffset;
+            get
+            {
+                return dataBlocketteOffset;
+            }
+            set
+            {
+                dataBlocketteOffset = value;
+            }
         }
 
-        /// <summary>
-        /// Set the value of dataBlocketteOffset.
-        /// </summary>
-        /// <param name="v">
-        ///            Value to assign to dataBlocketteOffset. </param>
-        public virtual void setDataBlocketteOffset(short v)
-        {
-            this.dataBlocketteOffset = v;
-        }
+
 
         /// <summary>
         /// Present a default string representation of the contents of this object
@@ -1049,7 +864,7 @@ namespace SeisCode
         public override string ToString()
         {
             string s = base.ToString() + " ";
-            s += " " + NetworkCode + "." + StationIdentifier + "." + LocationIdentifier + "." + ChannelIdentifier + "." + StartTime + "  " + SampleRate * NumSamples + " " + NumBlockettes + " " + getDataOffset() + " " + getDataBlocketteOffset();
+            s += " " + NetworkCode + "." + StationIdentifier + "." + LocationIdentifier + "." + ChannelIdentifier + "." + StartTime + "  " + SampleRate * NumSamples + " " + NumBlockettes + " " + DataOffset + " " + DataBlocketteOffset;
             return s;
         }
     }

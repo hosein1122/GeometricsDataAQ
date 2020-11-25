@@ -32,7 +32,7 @@ namespace SeisCode
         //ORIGINAL LINE: public Blockette1000(byte[] info, boolean swapBytes) throws SeedFormatException
         public Blockette1000(byte[] info, bool swapBytes) : base(info, swapBytes)
         {
-            trimToSize(B1000_SIZE);
+            TrimToSize(B1000_SIZE);
         }
 
         public override int Size

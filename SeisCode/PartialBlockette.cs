@@ -15,7 +15,7 @@ namespace SeisCode
 			this.totalBytes = totalBytes;
 		}
 
-		public static PartialBlockette combine(PartialBlockette first, PartialBlockette second)
+		public static PartialBlockette Combine(PartialBlockette first, PartialBlockette second)
 		{
 			byte[] tmp = new byte[first.Size + second.Size];
 			Array.Copy(first.ToBytes(), 0, tmp, 0, first.Size);
@@ -23,7 +23,7 @@ namespace SeisCode
 			return new PartialBlockette(first.Type, tmp, first.swapBytes, first.PriorSize, first.TotalSize);
 		}
 
-		public virtual void writeASCII(TextWriter @out)
+		public override void WriteASCII(TextWriter @out)
 		{
 			string infoStr = Encoding.ASCII.GetString(info);
 			@out.WriteLine("Partial Blockette " + Type + ", " + bytesRead + " with " + priorBytes + " prior of " + totalBytes + " total bytes: " + infoStr);

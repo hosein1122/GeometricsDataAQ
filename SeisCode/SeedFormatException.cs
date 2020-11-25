@@ -4,70 +4,92 @@ using System.Text;
 
 namespace SeisCode
 {
-	public class SeedFormatException : SeisFileException
-	{
+    using System;
 
-		public SeedFormatException() : base()
-		{
-		}
+    public class SeisFileException : Exception
+    {
 
-		public SeedFormatException(ControlHeader header) : base()
-		{
-			this.header = header;
-		}
+        public SeisFileException()
+        {
+        }
 
-		public SeedFormatException(string s) : base(s)
-		{
-		}
+        public SeisFileException(string message) : base(message)
+        {
+        }
 
-		public SeedFormatException(Exception cause) : base(cause)
-		{
-		}
+        public SeisFileException(Exception cause) : base(null, cause)
+        {
+        }
 
-		public SeedFormatException(string s, Exception cause) : base(s, cause)
-		{
-		}
+        public SeisFileException(string message, Exception cause) : base(message, cause)
+        {
+        }
+    }
 
-		public SeedFormatException(string s, ControlHeader header) : base(s)
-		{
-			this.header = header;
-		}
+    public class SeedFormatException : SeisFileException
+    {
 
-		public SeedFormatException(Exception cause, ControlHeader header) : base(cause)
-		{
-			this.header = header;
-		}
+        public SeedFormatException() : base()
+        {
+        }
 
-		public SeedFormatException(string s, Exception cause, ControlHeader header) : base(s, cause)
-		{
-			this.header = header;
-		}
+        public SeedFormatException(ControlHeader header) : base()
+        {
+            this.header = header;
+        }
+
+        public SeedFormatException(string s) : base(s)
+        {
+        }
+
+        public SeedFormatException(Exception cause) : base(cause)
+        {
+        }
+
+        public SeedFormatException(string s, Exception cause) : base(s, cause)
+        {
+        }
+
+        public SeedFormatException(string s, ControlHeader header) : base(s)
+        {
+            this.header = header;
+        }
+
+        public SeedFormatException(Exception cause, ControlHeader header) : base(cause)
+        {
+            this.header = header;
+        }
+
+        public SeedFormatException(string s, Exception cause, ControlHeader header) : base(s, cause)
+        {
+            this.header = header;
+        }
 
 
-		public virtual ControlHeader Header
-		{
-			get
-			{
-				return header;
-			}
-			set
-			{
-				this.header = value;
-			}
-		}
+        public virtual ControlHeader Header
+        {
+            get
+            {
+                return header;
+            }
+            set
+            {
+                this.header = value;
+            }
+        }
 
 
 
-		public override string ToString()
-		{
-			if (header != null)
-			{
-				return base.ToString() + " " + header.ToString();
-			}
-			return base.ToString();
-		}
+        public override string ToString()
+        {
+            if (header != null)
+            {
+                return base.ToString() + " " + header.ToString();
+            }
+            return base.ToString();
+        }
 
-		private ControlHeader header;
-	}
+        private ControlHeader header;
+    }
 
 }

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CodecLib;
+using System;
+using System.IO;
 
 namespace SeisCode
 {
@@ -14,10 +14,7 @@ namespace SeisCode
 	/// @version
 	/// </summary>
 
-	using Codec = edu.iris.dmc.seedcodec.Codec;
-	using CodecException = edu.iris.dmc.seedcodec.CodecException;
-	using DecompressedData = edu.iris.dmc.seedcodec.DecompressedData;
-	using UnsupportedCompressionType = edu.iris.dmc.seedcodec.UnsupportedCompressionType;
+	
 
 	[Serializable]
 	public class DataRecord : SeedRecord
@@ -47,9 +44,9 @@ namespace SeisCode
 			try
 			{
 				Data = record.Data;
-				for (int j = 0; j < record.Blockettes.length; j++)
+				for (int j = 0; j < record.Blockettes.Length; j++)
 				{
-					blockettes.add(record.Blockettes[j]);
+					blockettes.Add(record.Blockettes[j]);
 				}
 			}
 			catch (SeedFormatException e)
@@ -62,9 +59,8 @@ namespace SeisCode
 		/// Adds a blockette to the record. The number of blockettes in the header is
 		/// incremented automatically.
 		/// </summary>
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: public void addBlockette(Blockette b) throws SeedFormatException
-		public virtual void addBlockette(Blockette b)
+		
+		public override void AddBlockette(Blockette b)
 		{
 			if (b == null)
 			{
@@ -76,7 +72,7 @@ namespace SeisCode
 			}
 			if (b is DataBlockette)
 			{
-				base.addBlockette(b);
+				base.AddBlockette(b);
 				Header.NumBlockettes = (byte)(Header.NumBlockettes + 1);
 			}
 			else
@@ -87,12 +83,12 @@ namespace SeisCode
 			{
 				RecordSize = ((Blockette1000)b).LogicalRecordLength;
 			}
-			recheckDataOffset();
+			RecheckDataOffset();
 		}
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: protected void recheckDataOffset() throws SeedFormatException
-		protected internal virtual void recheckDataOffset()
+		protected internal virtual void RecheckDataOffset()
 		{
 			int size = Header.Size;
 			Blockette[] blocks = Blockettes;
@@ -135,7 +131,7 @@ namespace SeisCode
 			set
 			{
 				this.data = value;
-				recheckDataOffset();
+				RecheckDataOffset();
 			}
 		}
 
@@ -149,7 +145,7 @@ namespace SeisCode
 		/// <exception cref="CodecException"> </exception>
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public edu.iris.dmc.seedcodec.DecompressedData decompress() throws SeedFormatException, edu.iris.dmc.seedcodec.UnsupportedCompressionType, edu.iris.dmc.seedcodec.CodecException
-		public virtual DecompressedData decompress()
+		public virtual DecompressedData Decompress()
 		{
 			// in case of record with only blockettes, ex detection blockette, which often have compression type
 			// set to 0, which messes up the decompresser even though it doesn't matter since there is no data.
@@ -157,13 +153,13 @@ namespace SeisCode
 			{
 				return new DecompressedData(new int[0]);
 			}
-			Blockette1000 b1000 = (Blockette1000)getUniqueBlockette(1000);
+			Blockette1000 b1000 = (Blockette1000)GetUniqueBlockette(1000);
 			if (b1000 == null)
 			{
 				throw new MissingBlockette1000(Header);
 			}
 			Codec codec = new Codec();
-			return codec.decompress(b1000.EncodingFormat, Data, Header.NumSamples, b1000.LittleEndian);
+			return codec.decompress(b1000.EncodingFormat, ConvertByteToSbyte.ByteToSbyte(Data), Header.NumSamples, b1000.LittleEndian);
 		}
 
 
@@ -181,7 +177,7 @@ namespace SeisCode
 			get
 			{
 				float sampleRate;
-				Blockette[] blocketts = getBlockettes(100);
+				Blockette[] blocketts = GetBlockettes(100);
 				if (blocketts.Length != 0)
 				{
 					Blockette100 b100 = (Blockette100)blocketts[0];
@@ -189,7 +185,7 @@ namespace SeisCode
 				}
 				else
 				{
-					sampleRate = Header.calcSampleRateFromMultipilerFactor();
+					sampleRate = Header.CalcSampleRateFromMultipilerFactor();
 				}
 				return sampleRate;
 			}
@@ -212,7 +208,7 @@ namespace SeisCode
 				double numTenThousandths = (((double)Header.NumSamples / SampleRate) * 10000.0);
 				// return the time structure projected by the number of ten thousandths
 				// of seconds
-				return Header.projectTime(startBtime, numTenThousandths);
+				return DataHeader.ProjectTime(startBtime, numTenThousandths);
 			}
 		}
 
@@ -252,7 +248,7 @@ namespace SeisCode
 				double numTenThousandths = (((double)(Header.NumSamples - 1) / SampleRate) * 10000.0);
 				// return the time structure projected by the number of ten thousandths
 				// of seconds
-				return DataHeader.projectTime(startBtime, numTenThousandths);
+				return DataHeader.ProjectTime(startBtime, numTenThousandths);
 			}
 		}
 
@@ -291,12 +287,12 @@ namespace SeisCode
 			{
 				// get time structure
 				Btime endStruct = EndBtime;
-				// zero padding format of output numbers
-				DecimalFormat twoZero = new DecimalFormat("00");
-				DecimalFormat threeZero = new DecimalFormat("000");
-				DecimalFormat fourZero = new DecimalFormat("0000");
-				// return string in standard jday format
-				return new string(fourZero.format(endStruct.year) + "," + threeZero.format(endStruct.jday) + "," + twoZero.format(endStruct.hour) + ":" + twoZero.format(endStruct.min) + ":" + twoZero.format(endStruct.sec) + "." + fourZero.format(endStruct.tenthMilli));
+				return endStruct.Year.ToString("####") + ","
+					+ endStruct.Jday.ToString("###") + ","
+					+ endStruct.Hour.ToString("##") + ":"
+					+ endStruct.Min.ToString("##") + ":"
+					+ endStruct.Sec.ToString("##") + "."
+					+ endStruct.TenthMilli.ToString("####");
 			}
 		}
 
@@ -313,12 +309,12 @@ namespace SeisCode
 			{
 				// get time structure
 				Btime endStruct = LastSampleBtime;
-				// zero padding format of output numbers
-				DecimalFormat twoZero = new DecimalFormat("00");
-				DecimalFormat threeZero = new DecimalFormat("000");
-				DecimalFormat fourZero = new DecimalFormat("0000");
-				// return string in standard jday format
-				return new string(fourZero.format(endStruct.year) + "," + threeZero.format(endStruct.jday) + "," + twoZero.format(endStruct.hour) + ":" + twoZero.format(endStruct.min) + ":" + twoZero.format(endStruct.sec) + "." + fourZero.format(endStruct.tenthMilli));
+				return endStruct.Year.ToString("####") + ","
+					+ endStruct.Jday.ToString("###") + ","
+					+ endStruct.Hour.ToString("##") + ":"
+					+ endStruct.Min.ToString("##") + ":"
+					+ endStruct.Sec.ToString("##") + "."
+					+ endStruct.TenthMilli.ToString("####");
 			}
 		}
 
@@ -330,15 +326,15 @@ namespace SeisCode
 			}
 		}
 
-		public virtual byte[] toByteArray()
+		public virtual byte[] ToByteArray()
 		{
 			try
 			{
 				MemoryStream byteStream = new MemoryStream();
-				DataOutputStream dos = new DataOutputStream(byteStream);
-				write(dos);
-				dos.close();
-				return byteStream.toByteArray();
+				BinaryWriter dos = new BinaryWriter(byteStream);
+				Write(dos);
+				dos.Close();
+				return byteStream.ToArray();
 			}
 			catch (IOException e)
 			{
@@ -347,9 +343,8 @@ namespace SeisCode
 			}
 		}
 
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: public void write(DataOutputStream dos) throws IOException
-		public virtual void write(DataOutputStream dos)
+		
+		public virtual void Write(BinaryWriter dos)
 		{
 			Blockette[] blocks = Blockettes;
 			Header.NumBlockettes = (byte)blocks.Length;
@@ -366,22 +361,22 @@ namespace SeisCode
 				blockettesSize += (short)dataB.Size;
 				if (i != blocks.Length - 1)
 				{
-					dos.write(dataB.toBytes(blockettesSize));
+					dos.Write(dataB.ToBytes(blockettesSize));
 				}
 				else
 				{
-					dos.write(dataB.toBytes((short)0));
+					dos.Write(dataB.ToBytes((short)0));
 				}
 			} // end of for ()
 			for (int i = blockettesSize; i < Header.DataOffset; i++)
 			{
-				dos.write(ZERO_BYTE);
+				dos.Write(ZERO_BYTE);
 			}
-			dos.write(data);
+			dos.Write(data);
 			int remainBytes = RECORD_SIZE - Header.DataOffset - data.Length;
 			for (int i = 0; i < remainBytes; i++)
 			{
-				dos.write(ZERO_BYTE);
+				dos.Write(ZERO_BYTE);
 			} // end of for ()
 		}
 
@@ -390,36 +385,34 @@ namespace SeisCode
 		/// 
 		/// <param name="out"> </param>
 		[Obsolete("Confusing method name, use printData(PrintWriter) for textual")]
-		public virtual void writeData(PrintWriter @out)
+		public virtual void writeData(TextWriter @out)
 		{
-			printData(@out);
+			PrintData(@out);
 		}
 
-		public virtual void printData(PrintWriter @out)
+		public virtual void PrintData(TextWriter @out)
 		{
 			byte[] d = Data;
-			DecimalFormat byteFormat = new DecimalFormat("000");
 			int i;
 			for (i = 0; i < d.Length; i++)
 			{
-				@out.write(byteFormat.format(0xff & d[i]) + " ");
+				@out.Write((0xff & d[i]).ToString("000") + " ");
 				if (i % 4 == 3)
 				{
-					@out.write("  ");
+					@out.Write("  ");
 				}
 				if (i % 16 == 15 && i != 0)
 				{
-					@out.write("\n");
+					@out.Write("\n");
 				}
 			}
 			if (i % 16 != 15 && i != 0)
 			{
-				@out.write("\n");
+				@out.Write("\n");
 			}
 		}
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: public static SeedRecord readDataRecord(DataInput inStream, DataHeader header, int defaultRecordSize) throws IOException, SeedFormatException
-		public static SeedRecord readDataRecord(DataInput inStream, DataHeader header, int defaultRecordSize)
+		
+		public static SeedRecord ReadDataRecord(BinaryReader inStream, DataHeader header, int defaultRecordSize)
 		{
 			try
 			{
@@ -435,7 +428,7 @@ namespace SeisCode
 					byte[] garbage = new byte[header.DataBlocketteOffset - header.Size];
 					if (garbage.Length != 0)
 					{
-						inStream.readFully(garbage);
+						garbage = inStream.ReadBytes(garbage.Length);
 					}
 				}
 				byte[] blocketteBytes;
@@ -449,11 +442,11 @@ namespace SeisCode
 				for (int i = 0; i < header.NumBlockettes; i++)
 				{
 					// get blockette type (first 2 bytes)
-					byte hibyteType = inStream.readByte();
-					byte lowbyteType = inStream.readByte();
+					byte hibyteType = inStream.ReadByte();
+					byte lowbyteType = inStream.ReadByte();
 					type = Utility.uBytesToInt(hibyteType, lowbyteType, swapBytes);
-					byte hibyteOffset = inStream.readByte();
-					byte lowbyteOffset = inStream.readByte();
+					byte hibyteOffset = inStream.ReadByte();
+					byte lowbyteOffset = inStream.ReadByte();
 					nextOffset = Utility.uBytesToInt(hibyteOffset, lowbyteOffset, swapBytes);
 					// account for the 4 bytes above
 					currOffset += 4;
@@ -475,7 +468,8 @@ namespace SeisCode
 					{
 						blocketteBytes = new byte[0];
 					}
-					inStream.readFully(blocketteBytes);
+					blocketteBytes = inStream.ReadBytes(blocketteBytes.Length);
+
 					if (nextOffset != 0)
 					{
 						currOffset = nextOffset;
@@ -492,14 +486,14 @@ namespace SeisCode
 					fullBlocketteBytes[2] = hibyteOffset;
 					fullBlocketteBytes[3] = lowbyteOffset;
 
-					Blockette b = SeedRecord.BlocketteFactory.parseBlockette(type, fullBlocketteBytes, swapBytes);
+					Blockette b = SeedRecord.BlocketteFactory.ParseBlockette(type, fullBlocketteBytes, swapBytes);
 					if (b.Type == 1000)
 					{
 						// might need this in the case of b2000 as its length is dynamic
 						// and might be no data so data offset is not useful
-						recordSize = ((Blockette1000)b).DataRecordLength;
+						recordSize = ((Blockette1000)b).GetDataRecordLength();
 					}
-					dataRec.blockettes.add(b);
+					dataRec.blockettes.Add(b);
 					if (nextOffset == 0)
 					{
 						break;
@@ -507,7 +501,7 @@ namespace SeisCode
 				}
 				try
 				{
-					recordSize = ((Blockette1000)dataRec.getUniqueBlockette(1000)).DataRecordLength;
+					recordSize = ((Blockette1000)dataRec.GetUniqueBlockette(1000)).GetDataRecordLength();
 				}
 				catch (MissingBlockette1000 e)
 				{
@@ -526,7 +520,7 @@ namespace SeisCode
 					byte[] garbage = new byte[header.DataOffset - currOffset];
 					if (garbage.Length != 0)
 					{
-						inStream.readFully(garbage);
+						garbage = inStream.ReadBytes(garbage.Length);
 					}
 				}
 				byte[] timeseries;
@@ -543,7 +537,8 @@ namespace SeisCode
 					}
 					timeseries = new byte[recordSize - header.DataOffset];
 				}
-				inStream.readFully(timeseries);
+				timeseries = inStream.ReadBytes(timeseries.Length);
+
 				dataRec.Data = timeseries;
 				return dataRec;
 			}
@@ -554,9 +549,8 @@ namespace SeisCode
 			}
 		}
 
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: public void setRecordSize(int recordSize) throws SeedFormatException
-		public virtual int RecordSize
+		
+		public override int RecordSize
 		{
 			set
 			{
@@ -564,7 +558,7 @@ namespace SeisCode
 				RECORD_SIZE = value;
 				try
 				{
-					recheckDataOffset();
+					RecheckDataOffset();
 				}
 				catch (SeedFormatException e)
 				{

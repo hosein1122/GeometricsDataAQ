@@ -13,24 +13,22 @@ namespace SeisCode
 			subRecords.Add(first);
 		}
 
-		public virtual void addContinuation(IList<ControlRecord> nextRecordList)
+		public virtual void AddContinuation(IList<ControlRecord> nextRecordList)
 		{
 			foreach (ControlRecord cr in nextRecordList)
 			{
-				addContinuation(cr);
+				AddContinuation(cr);
 			}
 		}
 
-		public virtual void addContinuation(ControlRecord nextRecord)
+		public virtual void AddContinuation(ControlRecord nextRecord)
 		{
 			subRecords.Add(nextRecord);
 		}
 
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: @Override public void addBlockette(Blockette b) throws SeedFormatException
-		public override void addBlockette(Blockette b)
+		public override void AddBlockette(Blockette b)
 		{
-			subRecords[subRecords.Count - 1].addBlockette(b);
+			subRecords[subRecords.Count - 1].AddBlockette(b);
 		}
 
 		public override Blockette[] Blockettes
@@ -52,14 +50,14 @@ namespace SeisCode
 							}
 							else
 							{
-								prior = PartialBlockette.combine(prior, (PartialBlockette)b);
+								prior = PartialBlockette.Combine(prior, (PartialBlockette)b);
 								if (prior.BytesRead == prior.TotalSize)
 								{
 									// must have finished last section of partial blockette
 									// turn into real and add
 									try
 									{
-										@out.Add(SeedRecord.BlocketteFactory.parseBlockette(prior.Type, prior.ToBytes(), true));
+										@out.Add(SeedRecord.BlocketteFactory.ParseBlockette(prior.Type, prior.ToBytes(), true));
 										prior = null;
 									}
 									catch (Exception e)
@@ -87,15 +85,13 @@ namespace SeisCode
 			}
 		}
 
-
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: @Override public int getNumBlockettes(int type) throws SeedFormatException
-		public override int getNumBlockettes(int type)
+			
+		public override int GetNumBlockettes(int type)
 		{
-			return getBlockettes(type).Length;
+			return GetBlockettes(type).Length;
 		}
 
-		public override Blockette[] getBlockettes(int type)
+		public override Blockette[] GetBlockettes(int type)
 		{
 			IList<Blockette> @out = new List<Blockette>();
 			foreach (ControlRecord cr in subRecords)
@@ -112,15 +108,13 @@ namespace SeisCode
 			return ((List<Blockette>)@out).ToArray();
 		}
 
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: @Override public void writeASCII(java.io.PrintWriter out, String indent) throws java.io.IOException
-		public override void writeASCII(TextWriter @out, string indent)
+		public override void WriteASCII(TextWriter @out, string indent)
 		{
 			@out.Write(indent + "ContinuedControlRecord");
-			ControlHeader.writeASCII(@out, indent + "  ");
+			ControlHeader.WriteASCII(@out, indent + "  ");
 			foreach (ControlRecord cr in subRecords)
 			{
-				cr.writeASCII(@out, indent + "    ");
+				cr.WriteASCII(@out, indent + "    ");
 			}
 		}
 

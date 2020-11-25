@@ -20,7 +20,7 @@ namespace SeisCode
 			{
 				byte[] lengthBytes = new byte[4];
 				Array.Copy(info, 3, lengthBytes, 0, 4);
-				return int.Parse(StringHelper.NewString(lengthBytes));
+				return int.Parse(Encoding.ASCII.GetString(lengthBytes));
 			}
 		}
 

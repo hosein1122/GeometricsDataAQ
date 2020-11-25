@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.IO;
 
 namespace SeisCode
 {
-	public class DataBlocketteUnknown : DataBlockette
+    public class DataBlocketteUnknown : DataBlockette
 	{
 
 		public DataBlocketteUnknown(byte[] info, int type, bool swapBytes) : base(info, swapBytes)
@@ -12,7 +10,7 @@ namespace SeisCode
 			this.type = type;
 		}
 
-		public virtual int Type
+		public override int Type
 		{
 			get
 			{
@@ -20,7 +18,7 @@ namespace SeisCode
 			}
 		}
 
-		public virtual string Name
+		public override string Name
 		{
 			get
 			{
@@ -28,22 +26,22 @@ namespace SeisCode
 			}
 		}
 
-		public virtual int Size
+		public override int Size
 		{
 			get
 			{
-				return info.length;
+				return info.Length;
 			}
 		}
 
-		public virtual byte[] toBytes()
+		public override byte[] ToBytes()
 		{
 			return info;
 		}
 
-		public virtual void writeASCII(PrintWriter @out)
+		public override void WriteASCII(TextWriter @out)
 		{
-			@out.println("Blockette: " + Type);
+			@out.WriteLine("Blockette: " + Type);
 		}
 
 		public virtual bool SwapBytes

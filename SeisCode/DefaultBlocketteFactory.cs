@@ -9,7 +9,7 @@ namespace SeisCode
 
 		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
 		//ORIGINAL LINE: public Blockette parseBlockette(int type, byte[] bytes, boolean swapBytes) throws java.io.IOException, SeedFormatException
-		public virtual Blockette parseBlockette(int type, byte[] bytes, bool swapBytes)
+		public virtual Blockette ParseBlockette(int type, byte[] bytes, bool swapBytes)
 		{
 			switch (type)
 			{

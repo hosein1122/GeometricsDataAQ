@@ -12,11 +12,10 @@ namespace SeisCode
         {
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public Blockette100(byte[] info, boolean swapBytes) throws SeedFormatException
+        
         public Blockette100(byte[] info, bool swapBytes) : base(info, swapBytes)
         {
-            trimToSize(B100_SIZE);
+            TrimToSize(B100_SIZE);
         }
 
         public virtual float ActualSampleRate
@@ -28,7 +27,6 @@ namespace SeisCode
             get
             {
                 int bits = Utility.bytesToInt(info[4], info[5], info[6], info[7], false);
-                //return Float.intBitsToFloat(bits);
                 return bits;
             }
         }

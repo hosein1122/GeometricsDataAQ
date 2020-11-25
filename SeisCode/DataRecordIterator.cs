@@ -5,100 +5,81 @@ using System.Text;
 
 namespace SeisCode
 {
-	public class DataRecordIterator
-	{
+    public class DataRecordIterator
+    {
 
-		public DataRecordIterator(BinaryReader @in)
-		{
-			this.@in = @in;
-		}
+        public DataRecordIterator(BinaryReader @in)
+        {
+            this.@in = @in;
+        }
 
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: public boolean hasNext() throws SeedFormatException, java.io.IOException
-		public virtual bool hasNext()
-		{
-			if (@in == null)
-			{
-				return false;
-			}
-			while (@in != null && nextDr == null)
-			{
-				try
-				{
-					SeedRecord sr = SeedRecord.read(@in);
-					if (sr is DataRecord)
-					{
-						nextDr = (DataRecord)sr;
-						break;
-					}
-					else
-					{
-						logger.warn("Not a data record, skipping..." + sr.ControlHeader.SequenceNum + " " + sr.ControlHeader.TypeCode);
-					}
-				}
-				catch (EOFException)
-				{
-					@in = null;
-					nextDr = null;
-					break;
-				}
-			}
-			return nextDr != null;
-		}
+        public virtual bool HasNext()
+        {
+            if (@in == null)
+            {
+                return false;
+            }
+            while (@in != null && nextDr == null)
+            {
+                try
+                {
+                    SeedRecord sr = SeedRecord.Read(@in);
+                    if (sr is DataRecord)
+                    {
+                        nextDr = (DataRecord)sr;
+                        break;
+                    }
+                    else
+                    {
+                        Logger.Warning("Not a data record, skipping..." + sr.ControlHeader.SequenceNum + " " + sr.ControlHeader.TypeCode);
+                    }
+                }
+                catch (IOException)
+                {
+                    @in = null;
+                    nextDr = null;
+                    break;
+                }
+            }
+            return nextDr != null;
+        }
 
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: public DataRecord next() throws SeedFormatException, java.io.IOException
-		public virtual DataRecord next()
-		{
-			if (hasNext())
-			{
-				DataRecord @out = nextDr;
-				nextDr = null;
-				return @out;
-			}
-			return null;
-		}
+        public virtual DataRecord Next()
+        {
+            if (HasNext())
+            {
+                DataRecord @out = nextDr;
+                nextDr = null;
+                return @out;
+            }
+            return null;
+        }
 
-		public virtual void close()
-		{
-			if (@in != null && @in is DataInputStream)
-			{
-				try
-				{
-					((DataInputStream)@in).close();
-				}
-				catch (IOException)
-				{
-					// oh well...
-				}
-				@in = null;
-			}
-		}
+        public virtual void Close()
+        {
+            if (@in != null && @in is BinaryReader)
+            {
+                try
+                {
+                    @in.Close();
+                }
+                catch (IOException)
+                {
+                    // oh well...
+                }
+                @in = null;
+            }
+        }
 
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: @Override protected void finalize() throws Throwable
-		~DataRecordIterator()
-		{
-			//JAVA TO C# CONVERTER NOTE: The base class finalizer method is automatically called in C#:
-			//			base.finalize();
-			close();
-		}
+        ~DataRecordIterator()
+        {
+            Close();
+        }
 
-		internal DataRecord nextDr;
+        internal DataRecord nextDr;
 
-		internal BinaryReader @in;
+        internal BinaryReader @in;
 
-		private static readonly org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(typeof(DataRecordIterator));
-
-		/* this is to prevent the FdsnDataSelectQuerier from being garbage collected and closing the input stream. */
-		internal FDSNDataSelectQuerier querier;
-		public virtual FDSNDataSelectQuerier Querier
-		{
-			set
-			{
-				this.querier = value;
-			}
-		}
-	}
+    }
 
 }

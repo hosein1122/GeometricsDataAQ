@@ -49,11 +49,11 @@ namespace SeisCode
 			}
 		}
 
-		public virtual int calcSize()
+		public virtual int CalcSize()
 		{
 			byte[] lengthBytes = new byte[4];
-			Array.Copy(info, 3, lengthBytes, 0, 4);
-			return int.Parse(StringHelper.NewString(lengthBytes));
+			System.Array.Copy(info, 3, lengthBytes, 0, 4);
+			return Convert.ToInt32(lengthBytes);
 		}
 
 		public override byte[] ToBytes()
@@ -63,7 +63,7 @@ namespace SeisCode
 
 		public override void WriteASCII(TextWriter @out)
 		{
-			string infoStr = StringHelper.NewString(info);
+			string infoStr = Encoding.ASCII.GetString(info);
 			@out.WriteLine("Blockette " + Type + ": " + infoStr);
 		}
 

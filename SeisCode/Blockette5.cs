@@ -38,7 +38,7 @@ namespace SeisCode
 
 		public override void WriteASCII(TextWriter @out)
 		{
-			base.writeASCIINoNewline(@out);
+			base.WriteASCIINoNewline(@out);
 			@out.WriteLine(" beg vol=" + BeginningOfVolume);
 		}
 	}

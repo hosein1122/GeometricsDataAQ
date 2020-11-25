@@ -4,12 +4,11 @@ using System.Text;
 
 namespace SeisCode
 {
-	public interface RecordLengthBlockette
-	{
+    public interface RecordLengthBlockette
+    {
+        int LogicalRecordLengthByte { get; }
 
-		int LogicalRecordLengthByte { get; }
-
-		int LogicalRecordLength { get; }
-	}
+        int LogicalRecordLength { get; }
+    }
 
 }

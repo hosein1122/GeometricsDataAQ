@@ -94,7 +94,7 @@ namespace SeisCode
 
         public override void WriteASCII(TextWriter @out)
         {
-            throw new NotImplementedException();
+			return;
         }
     }
 

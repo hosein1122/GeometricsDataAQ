@@ -25,7 +25,7 @@ namespace SeisCode
 		{
 			byte[] subbytes = new byte[length];
 			Array.Copy(info, start, subbytes, 0, length);
-			return StringHelper.NewString(subbytes);
+			return Convert.ToString(subbytes);
 		}
 
 		public static string extractVarString(byte[] info, int start, int maxLength)
@@ -67,7 +67,7 @@ namespace SeisCode
 			}
 			byte[] tmp = new byte[length];
 			Array.Copy(info, start, tmp, 0, length);
-			return StringHelper.NewString(tmp);
+			return Convert.ToString(tmp);
 		}
 
 		public static short bytesToShort(byte hi, byte low, bool swapBytes)
@@ -156,11 +156,11 @@ namespace SeisCode
 		{
 			if (swapBytes)
 			{
-				return ((a & 0xffl)) + ((b & 0xffl) << 8) + ((c & 0xffl) << 16) + ((d & 0xffl) << 24) + ((e & 0xffl) << 32) + ((f & 0xffl) << 40) + ((g & 0xffl) << 48) + ((h & 0xffl) << 56);
+				return ((a & 0xffL)) + ((b & 0xffL) << 8) + ((c & 0xffL) << 16) + ((d & 0xffL) << 24) + ((e & 0xffL) << 32) + ((f & 0xffL) << 40) + ((g & 0xffL) << 48) + ((h & 0xffL) << 56);
 			}
 			else
 			{
-				return ((a & 0xffl) << 56) + ((b & 0xffl) << 48) + ((c & 0xffl) << 40) + ((d & 0xffl) << 32) + ((e & 0xffl) << 24) + ((f & 0xffl) << 16) + ((g & 0xffl) << 8) + ((h & 0xffl));
+				return ((a & 0xffL) << 56) + ((b & 0xffL) << 48) + ((c & 0xffL) << 40) + ((d & 0xffL) << 32) + ((e & 0xffL) << 24) + ((f & 0xffL) << 16) + ((g & 0xffL) << 8) + ((h & 0xffL));
 			}
 		}
 
@@ -206,14 +206,14 @@ namespace SeisCode
 		public static byte[] longToByteArray(long a)
 		{
 			byte[] returnByteArray = new byte[8]; // long is 8 bytes
-			returnByteArray[0] = unchecked((byte)(((long)((ulong)a >> 56)) & 0xffl));
-			returnByteArray[1] = unchecked((byte)(((long)((ulong)a >> 48)) & 0xffl));
-			returnByteArray[2] = unchecked((byte)(((long)((ulong)a >> 40)) & 0xffl));
-			returnByteArray[3] = unchecked((byte)(((long)((ulong)a >> 32)) & 0xffl));
-			returnByteArray[4] = unchecked((byte)(((long)((ulong)a >> 24)) & 0xffl));
-			returnByteArray[5] = unchecked((byte)(((long)((ulong)a >> 16)) & 0xffl));
-			returnByteArray[6] = unchecked((byte)(((long)((ulong)a >> 8)) & 0xffl));
-			returnByteArray[7] = unchecked((byte)((a) & 0xffl));
+			returnByteArray[0] = unchecked((byte)(((long)((ulong)a >> 56)) & 0xffL));
+			returnByteArray[1] = unchecked((byte)(((long)((ulong)a >> 48)) & 0xffL));
+			returnByteArray[2] = unchecked((byte)(((long)((ulong)a >> 40)) & 0xffL));
+			returnByteArray[3] = unchecked((byte)(((long)((ulong)a >> 32)) & 0xffL));
+			returnByteArray[4] = unchecked((byte)(((long)((ulong)a >> 24)) & 0xffL));
+			returnByteArray[5] = unchecked((byte)(((long)((ulong)a >> 16)) & 0xffL));
+			returnByteArray[6] = unchecked((byte)(((long)((ulong)a >> 8)) & 0xffL));
+			returnByteArray[7] = unchecked((byte)((a) & 0xffL));
 			return returnByteArray;
 		}
 
@@ -264,7 +264,7 @@ namespace SeisCode
 		{
 			Btime fEnd = first.PredictedNextStartBtime;
 			Btime sBegin = second.Header.StartBtime;
-			return fEnd.tenthMilli == sBegin.tenthMilli && fEnd.sec == sBegin.sec && fEnd.min == sBegin.min && fEnd.hour == sBegin.hour && fEnd.jday == sBegin.jday && fEnd.year == sBegin.year;
+			return fEnd.TenthMilli == sBegin.TenthMilli && fEnd.Sec == sBegin.Sec && fEnd.Min == sBegin.Min && fEnd.Hour == sBegin.Hour && fEnd.Jday == sBegin.Jday && fEnd.Year == sBegin.Year;
 		}
 
 		/// <summary>
@@ -325,13 +325,15 @@ namespace SeisCode
 			}
 		}
 
-		public static void cleanDuplicatesOverlaps(IList<DataRecord> drFromFileList)
+		public static void cleanDuplicatesOverlaps(List<DataRecord> drFromFileList)
 		{
 			//drFromFileList.Sort(new DataRecordBeginComparator());
 			var comparator = new DataRecordBeginComparator();
-			drFromFileList.Sort((x, y) => comparator.compare(x, y));
+            drFromFileList.Sort((x, y) => comparator.compare(x, y));
+
 			DataRecord prev = null;
 			IEnumerator<DataRecord> itFromFileList = drFromFileList.GetEnumerator();
+			List<DataRecord> temp_list = new List<DataRecord>();
 			while (itFromFileList.MoveNext())
 			{
 				DataRecord dataRecord = itFromFileList.Current;
@@ -339,19 +341,25 @@ namespace SeisCode
 				{
 					//  a duplicate
 					//JAVA TO C# CONVERTER TODO TASK: .NET enumerators are read-only:
-					itFromFileList.remove();
+					//itFromFileList.remove();
+					continue;
 				}
-				else if (prev != null && prev.LastSampleBtime.afterOrEquals(dataRecord.Header.StartBtime))
+				else if (prev != null && prev.LastSampleBtime.AfterOrEquals(dataRecord.Header.StartBtime))
 				{
 					//  a overlap
 					//JAVA TO C# CONVERTER TODO TASK: .NET enumerators are read-only:
-					itFromFileList.remove();
+					//itFromFileList.Remove();
+					continue;
+
 				}
 				else
 				{
+					temp_list.Add(prev);
 					prev = dataRecord;
 				}
 			}
+			drFromFileList = temp_list;
+
 		}
 	} // Utility
 

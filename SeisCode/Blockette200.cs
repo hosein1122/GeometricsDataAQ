@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -13,7 +12,7 @@ namespace SeisCode
 			Utility.insertFloat(signal, info, SIGNAL);
 			Utility.insertFloat(period, info, PERIOD);
 			Utility.insertFloat(background, info, BACKGROUND);
-			byte[] onsetBytes = signalOnset.Abytes;
+			byte[] onsetBytes = signalOnset.Bytes;
 			Array.Copy(onsetBytes, 0, info, SIGNAL_ONSET, onsetBytes.Length);
 			if (eventDetector.Length > EVENT_DETECTOR_LENGTH)
 			{
@@ -22,25 +21,24 @@ namespace SeisCode
 			byte[] detectorBytes;
 			try
 			{
-				detectorBytes = eventDetector.GetBytes(Encoding.ASCII);
+				detectorBytes = Encoding.ASCII.GetBytes(eventDetector);
 			}
-			catch (UnsupportedEncodingException)
+			catch (Exception e)
 			{
-				throw new Exception("Java was unable to find the US-ASCII character encoding.");
+				throw new Exception("RuntimeException(Unable to find the US-ASCII character encoding) Error:" + e.Message);
 			}
 			if (detectorBytes.Length != eventDetector.Length)
 			{
-				throw new System.ArgumentException("The characters in event detector must be in the ASCII character set i.e. from 0-127");
+				throw new ArgumentException("The characters in event detector must be in the ASCII character set i.e. from 0-127");
 			}
 			detectorBytes = Utility.pad(detectorBytes, EVENT_DETECTOR_LENGTH, (byte)' ');
 			Array.Copy(detectorBytes, 0, info, EVENT_DETECTOR, detectorBytes.Length);
 		}
 
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: public Blockette200(byte[] info, boolean swapBytes) throws SeedFormatException
+		
 		public Blockette200(byte[] info, bool swapBytes) : base(info, swapBytes)
 		{
-			trimToSize(Size);
+			TrimToSize(Size);
 		}
 
 		public override string Name
@@ -144,8 +142,13 @@ namespace SeisCode
 			return false;
 		}
 
-		// Offsets for various fields
-		private const int SIGNAL = 4;
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        // Offsets for various fields
+        private const int SIGNAL = 4;
 
 		private const int PERIOD = 8;
 
