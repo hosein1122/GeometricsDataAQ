@@ -27,7 +27,7 @@ namespace CodecLib
      *  <p>see B1000Types.java for the values.</p>
      *  <p>see http://www.fdsn.org for the seed manual, blockette 1000, that defines these values.</p>
      */
-    public int getType() {
+    public int GetDataType() {
         if (iData != null) {
             return INTEGER;
         } else  if (sData != null) {
@@ -41,7 +41,7 @@ namespace CodecLib
     }
 
     /** returns a string version of the type for printing in error messages. */
-    public string getTypestring() {
+    public string GetTypeString() {
         if (iData != null) {
             return "INTEGER";
         } else  if (sData != null) {
@@ -57,7 +57,7 @@ namespace CodecLib
     /** Converts the data to an int array if possible without loss. Otherwise
      *  returns null.
      */
-    public int[] getAsInt() {
+    public int[] GetAsInt() {
         int[] temp;
         if (iData != null) {
             return iData;
@@ -74,7 +74,7 @@ namespace CodecLib
     /** Converts the data to a short array if possible without loss. Otherwise
      *  returns null.
      */
-    public short[] getAsShort() {
+    public short[] GetAsShort() {
         if (sData != null) {
             return sData;
         }
@@ -84,7 +84,7 @@ namespace CodecLib
     /** Converts the data to a float array if possible without loss. Otherwise
      *  returns null.
      */
-    public float[] getAsFloat() {
+    public float[] GetAsFloat() {
         float[] temp;
         if (fData != null) {
             return fData;
@@ -107,7 +107,7 @@ namespace CodecLib
     /** Converts the data to a double array if possible without loss. Otherwise
      *  returns null.
      */
-    public double[] getAsDouble() {
+    public double[] GetAsDouble() {
         //double[] temp;
         if (dData != null) {
             return dData;

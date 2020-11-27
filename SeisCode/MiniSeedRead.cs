@@ -27,16 +27,12 @@ namespace SeisCode
         {
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public MiniSeedRead(java.io.DataInput inStream) throws java.io.IOException
         public MiniSeedRead(BinaryReader inStream)
         {
             this.inStream = inStream;
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public void close() throws java.io.IOException
-        public virtual void close()
+        public virtual void Close()
         {
             inStream = null;
         }
@@ -46,23 +42,20 @@ namespace SeisCode
         /// correspond to the logical record structure within the volume as
         /// "continued" records will be concatinated to avoid partial blockettes.
         /// </summary>
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public SeedRecord getNextRecord() throws SeedFormatException, java.io.IOException
         public virtual SeedRecord NextRecord
         {
             get
             {
-                return getNextRecord(0);
+                return GetNextRecord(0);
             }
         }
+
         /// <summary>
         /// gets the next logical record int the seed volume. This may not exactly
         /// correspond to the logical record structure within the volume as
         /// "continued" records will be concatinated to avoid partial blockettes.
         /// </summary>
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public SeedRecord getNextRecord(int defaultRecordSize) throws SeedFormatException, java.io.IOException
-        public virtual SeedRecord getNextRecord(int defaultRecordSize)
+        public virtual SeedRecord GetNextRecord(int defaultRecordSize)
         {
             return SeedRecord.Read(inStream, defaultRecordSize);
         }
@@ -82,7 +75,6 @@ namespace SeisCode
         protected internal int recordSize;
 
         protected internal bool readData;
-
         public static void ReadMiniSeed(string filename)
         {
 
@@ -92,7 +84,6 @@ namespace SeisCode
             {
                 @out.WriteLine("open socket");
                 var fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
-                //ls = new DataInputStream(new BufferedInputStream(new FileStream(args[0], FileMode.Open, FileAccess.Read), 4096));
                 BinaryReader ls = new BinaryReader(fs);
                 MiniSeedRead rf = new MiniSeedRead(ls);
                 for (int i = 0; maxPackets == -1 || i < maxPackets; i++)
@@ -106,7 +97,7 @@ namespace SeisCode
                     {
                         @out.WriteLine("Missing Blockette1000, trying with record size of 4096");
                         // try with 4096 as default
-                        sr = rf.getNextRecord(4096);
+                        sr = rf.GetNextRecord(4096);
                     }
                     sr.WriteASCII(@out, "    ");
                     if (sr is DataRecord)

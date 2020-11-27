@@ -24,7 +24,7 @@ namespace CodecLib
 	 *  @throws SteimException - encoded data Length is not multiple of 64
 	 *  bytes.
 	 */
-	public static int[] decode(sbyte[] b, int numSamples, bool swapBytes, int bias)   {
+	public static int[] Decode(sbyte[] b, int numSamples, bool swapBytes, int bias)   {
 		if (b.Length % 64 != 0) {
 			throw new Exception("SteimException(encoded data Length is not multiple of 64 bytes (" + b.Length + ")"); 
 		}
@@ -39,7 +39,7 @@ namespace CodecLib
 		//System.err.println("DEBUG: number of samples: " + numSamples + ", number of frames: " + numFrames + ", byte array size: " + b.Length);
 		for (int i=0; i< numFrames; i++ ) {
 			//System.err.println("DEBUG: start of frame " + i);
-			tempSamples = extractSamples(b, i*64, swapBytes);   // returns only differences except for frame 0
+			tempSamples = ExtractSamples(b, i*64, swapBytes);   // returns only differences except for frame 0
 			firstData = 0; // d(0) is byte 0 by default
 			if (i==0) {   // special case for first frame
 				lastValue = bias; // assign our X(-1)
@@ -75,9 +75,9 @@ namespace CodecLib
 	 *
 	 * see edu.iris.Fissures.codec.Steim2#decode(byte[],int,boolean,int)
 	 */
-	public static int[] decode(sbyte[] b, int numSamples, bool swapBytes)  {
+	public static int[] Decode(sbyte[] b, int numSamples, bool swapBytes)  {
 		// zero-bias version of decode
-		return decode(b,numSamples,swapBytes,0);
+		return Decode(b,numSamples,swapBytes,0);
 	}
 
 
@@ -85,8 +85,8 @@ namespace CodecLib
      * Abbreviated zero-bias version of encode().
      * see edu.iris.Fissures.codec.Steim2#encode(int[],int,int)
      */
-    public static SteimFrameBlock encode(int[] samples, int frames)  {
-            return encode(samples,frames,0);   // zero-bias version of encode
+    public static SteimFrameBlock Encode(int[] samples, int frames)  {
+            return Encode(samples,frames,0);   // zero-bias version of encode
     }
 
     /**
@@ -108,8 +108,8 @@ namespace CodecLib
      * @throws SteimException number of frames is not a positive value
      * @throws SteimException cannot encode more than 63 frames
      */
-     public static SteimFrameBlock encode(int[] samples, int frames, int bias)  {
-       return encode(samples, frames, bias, samples.Length);
+     public static SteimFrameBlock Encode(int[] samples, int frames, int bias)  {
+       return Encode(samples, frames, bias, samples.Length);
      }
      
      /**
@@ -132,7 +132,7 @@ namespace CodecLib
       * @throws SteimException number of frames is not a positive value
       * @throws SteimException cannot encode more than 63 frames
       */
-      public static SteimFrameBlock encode(int[] samples, int frames, int bias, int samplesLength)  {
+      public static SteimFrameBlock Encode(int[] samples, int frames, int bias, int samplesLength)  {
               if (samplesLength == 0) {
                       throw new Exception("SteimException(samples array is zero size");
               }
@@ -155,8 +155,8 @@ namespace CodecLib
               // and reverse integration constant X(N)
               // ...reverse integration constant may need to be changed if 
               // the frameBlock fills up.
-              frameBlock.addEncodedWord(samples[0],0,0);                // X(0) -- first sample value
-              frameBlock.addEncodedWord(samples[samplesLength-1],0,0); // X(N) -- last sample value
+              frameBlock.AddEncodedWord(samples[0],0,0);                // X(0) -- first sample value
+              frameBlock.AddEncodedWord(samples[samplesLength-1],0,0); // X(N) -- last sample value
               //
               // now begin looping over differences
               int sampleIndex = 0;  // where we are in the sample array
@@ -179,7 +179,7 @@ namespace CodecLib
                                               diff[i] = samples[sampleIndex+i] - samples[sampleIndex+i-1];
                                       }
                                       // and increment the counter
-                                      minbits[i] = minBitsNeeded(diff[i]);
+                                      minbits[i] = MinBitsNeeded(diff[i]);
                                       points_remaining++;
                               } else {
                                 break;  // no more samples, leave for loop
@@ -187,7 +187,7 @@ namespace CodecLib
                       } // end for (0..7)
 
                       // Determine the packing required for the next compressed word in the SteimFrame.
-                      int nbits = bitsForPack(minbits, points_remaining);
+                      int nbits = BitsForPack(minbits, points_remaining);
                       
                       // generate the encoded word and the nibble value
                       int ndiff;  // the number of differences
@@ -241,14 +241,14 @@ namespace CodecLib
                         throw new Exception("SteimException(Unable to encode " + nbits + " bit difference in Steim2 format");
                       }
                       
-                      int word = steimPackWord(diff, nbits, ndiff, bitmask, submask);
+                      int word = SteimPackWord(diff, nbits, ndiff, bitmask, submask);
 
                       // add the encoded word to the frame block
-                      if (frameBlock.addEncodedWord(word,ndiff,nibble)) {
+                      if (frameBlock.AddEncodedWord(word,ndiff,nibble)) {
                               // frame block is full (but the value did get added) 
                               // so modify reverse integration constant to be the very last value added
                               // and break out of loop (read no more samples)
-                              frameBlock.setXsubN(samples[sampleIndex+ndiff-1]); // X(N)
+                              frameBlock.SetXsubN(samples[sampleIndex+ndiff-1]); // X(N)
                               break;
                       }
 
@@ -259,7 +259,7 @@ namespace CodecLib
               return frameBlock;
       }
 
-      private static int minBitsNeeded(int diff) {
+      private static int MinBitsNeeded(int diff) {
               int minbits = 0;
               if (diff >= -8 && diff < 8) minbits= 4;
               else if (diff >= -16 && diff < 16) minbits = 5;
@@ -272,7 +272,7 @@ namespace CodecLib
               return minbits;
       }
 
-      private static int bitsForPack(int[] minbits, int points_remaining) {
+      private static int BitsForPack(int[] minbits, int points_remaining) {
               if (points_remaining >= 7 &&
                       (minbits[0] <= 4) && (minbits[1] <= 4) &&
                       (minbits[2] <= 4) && (minbits[3] <= 4) &&
@@ -307,7 +307,7 @@ namespace CodecLib
        * @param bitmask the bit mask
        * @param submask the sub mask or 0 if none
        */
-      private static int steimPackWord(int[] diff, int nbits, int ndiff, int bitmask, int submask) {
+      private static int SteimPackWord(int[] diff, int nbits, int ndiff, int bitmask, int submask) {
               int val = 0;
               int i = 0;
               for (i=0; i<ndiff; i++) {
@@ -331,7 +331,7 @@ namespace CodecLib
 	 * @param swapBytes reverse the endian-ness of the compressed bytes being read
 	 * @return integer array of difference (and constant) values
 	 */
-	protected static int[] extractSamples(sbyte[] bytes,
+	protected static int[] ExtractSamples(sbyte[] bytes,
 			int offset, 
 			bool swapBytes) 
 	{
@@ -486,7 +486,7 @@ namespace CodecLib
 		b[21] = 1;
 		b[22] = 0;
 		b[23] = 0;
-		temp = Steim2.decode(b, 17, false);
+		temp = Steim2.Decode(b, 17, false);
 	}
 
 }

@@ -88,7 +88,7 @@ namespace libmseedNetCore
         }
 
 
-        public static Int32 msr_encode_int16(ref Int32[] input, Int32 samplecount, ref Int16[] output, Int32 outputlength, Int32 swapflag)
+        public static int msr_encode_int16(ref Int32[] input, Int32 samplecount, ref Int16[] output, Int32 outputlength, Int32 swapflag)
         {
             int idx;
 

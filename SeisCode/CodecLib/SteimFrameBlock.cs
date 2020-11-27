@@ -38,7 +38,7 @@ namespace CodecLib
 
             // initialize the first frame properly
             currentFrame = 0;            // sanity
-            addEncodingNibble(0); // first nibble always 00
+            AddEncodingNibble(0); // first nibble always 00
             this.steimFrame[currentFrame].pos++;  // increment position in frame to W1
         }
 
@@ -49,7 +49,7 @@ namespace CodecLib
          * Return the number of data samples represented by this frame block
          * @return integer value indicating number of samples
          */
-        public int getNumSamples()
+        public int GetNumSamples()
         {
             return numSamples;
         }
@@ -58,17 +58,17 @@ namespace CodecLib
          * Return the version of Steim compression used
          * @return integer value representing the Steim version (1,2,3)
          */
-        public int getSteimVersion()
+        public int GetSteimVersion()
         {
             return steimVersion;
         }
 
-        public SteimFrame[] getSteimFrames()
+        public SteimFrame[] GetSteimFrames()
         {
             return steimFrame;
         }
 
-        public int numNonEmptyFrames()
+        public int NumNonEmptyFrames()
         {
             int i = steimFrame.Length - 1;
             while (i >= 0 && steimFrame[i].isEmpty())
@@ -79,9 +79,9 @@ namespace CodecLib
             return i;
         }
 
-        public void trimEmptyFrames()
+        public void TrimEmptyFrames()
         {
-            int i = numNonEmptyFrames();
+            int i = NumNonEmptyFrames();
             SteimFrame[] tmp = new SteimFrame[i];
             //System.arraycopy(steimFrame, 0, tmp, 0, i);
             Array.Copy(steimFrame, 0, tmp, 0, i);
@@ -101,7 +101,7 @@ namespace CodecLib
         //###################################################################
         //###################################################################
         //see https://social.msdn.microsoft.com/Forums/en-US/453a4b01-fe58-4787-9c68-c962b63ebd23/bytearrayoutputstream-and-dataoutputstream-in-c?forum=netfxcompact
-        public sbyte[] getEncodedData()
+        public sbyte[] GetEncodedData()
         {
             // set up a byte array to write int words to
 
@@ -124,7 +124,7 @@ namespace CodecLib
                 for (int j = 0; j < 16; j++)
                 {     // for each word
                     //convert  litle endian to big by swap   =====by me!
-                    intSerializer.Write(swap(steimFrame[i].word[j]));
+                    intSerializer.Write(Swap(steimFrame[i].word[j]));
                 }
             }
             // convert c# byte to java byte array    =====by me!
@@ -136,7 +136,7 @@ namespace CodecLib
 
             return java_encodedData;//encodedData.ToArray(); // return byte stream as array
         }
-        public static int swap(int value)
+        public static int Swap(int value)
         {
             int b1 = (value >> 0) & 0xff;
             int b2 = (value >> 8) & 0xff;
@@ -155,7 +155,7 @@ namespace CodecLib
          * Return the number of frames in this frame block
          * @return integer value indicating number of frames
          */
-        public int getNumFrames()
+        public int GetNumFrames()
         {
             return numFrames;
         }
@@ -171,11 +171,11 @@ namespace CodecLib
          * @return boolean indicating true if the block is full (ie: the
          * calling app should not add any more to this object)
          */
-        protected internal bool addEncodedWord(int word, int samples, int nibble)
+        protected internal bool AddEncodedWord(int word, int samples, int nibble)
         {
             int pos = steimFrame[currentFrame].pos; // word position
             steimFrame[currentFrame].word[pos] = word; // add word
-            addEncodingNibble(nibble);                     // add nibble
+            AddEncodingNibble(nibble);                     // add nibble
             numSamples += samples;
             pos++;     // increment position in frame
             if (pos > 15)
@@ -185,7 +185,7 @@ namespace CodecLib
                 {  // exceeded frame limit?
                     return true;  // block is full
                 }
-                addEncodingNibble(0); // first nibble always 00
+                AddEncodingNibble(0); // first nibble always 00
             }
             steimFrame[currentFrame].pos++;  // increment position in frame
             return false;  // block is not yet full
@@ -198,7 +198,7 @@ namespace CodecLib
          * fill the frame block before all samples have been read.
          * @param word integer value to be placed in X(N)
          */
-        protected internal void setXsubN(int word)
+        protected internal void SetXsubN(int word)
         {
             steimFrame[0].word[2] = word;
             return;
@@ -208,7 +208,7 @@ namespace CodecLib
         * Add encoding nibble to W0.
         * @param bitFlag a value 0 to 3 representing an encoding nibble
         */
-        private void addEncodingNibble(int bitFlag)
+        private void AddEncodingNibble(int bitFlag)
         {
             int offset = steimFrame[currentFrame].pos; // W0 nibble offset - determines Cn in W0
             int shift = (15 - offset) * 2;  // how much to shift bitFlag

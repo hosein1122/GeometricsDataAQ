@@ -9,7 +9,7 @@ namespace CodecLib
 
     public Codec() {}
 
-    public bool isDecompressable(int type) {
+    public bool IsDecompressable(int type) {
         switch(type){
             case SHORT:
             case DWWSSN:
@@ -34,11 +34,10 @@ namespace CodecLib
     
         /*
          * my change
-         * 1- out ===> out_1
-         * 2- Double.doubleToLongBits ====> BitConverter.DoubleToInt64Bits
-         * 3- delete throws CodecException, UnsupportedCompressionType
+         * 1- Double.doubleToLongBits ====> BitConverter.DoubleToInt64Bits
+         * 2- delete throws CodecException, UnsupportedCompressionType
          * */
-    public DecompressedData decompress(int type,
+    public DecompressedData Decompress(int type,
                                        sbyte[] b,
                                        int numSamples,
                                        bool swapBytes)
@@ -49,7 +48,7 @@ namespace CodecLib
             return new DecompressedData(new int[0]);
         }
         
-        DecompressedData out_1;
+        DecompressedData @out;
         int[] itemp;
         short[] stemp;
         float[] ftemp;
@@ -71,7 +70,7 @@ namespace CodecLib
                                                     swapBytes);
                     offset += 2;
                 }
-                out_1 = new DecompressedData(stemp);
+                @out = new DecompressedData(stemp);
                 break;
             case INT24:
                 // 24 bit values
@@ -88,7 +87,7 @@ namespace CodecLib
                                                   swapBytes);
                     offset += 3;
                 }
-                out_1 = new DecompressedData(itemp);
+                @out = new DecompressedData(itemp);
                 break;
             case INTEGER:
                 // 32 bit integers
@@ -106,7 +105,7 @@ namespace CodecLib
                                                   swapBytes);
                     offset += 4;
                 }
-                out_1 = new DecompressedData(itemp);
+                @out = new DecompressedData(itemp);
                 break;
             case FLOAT:
                 // 32 bit floats
@@ -126,7 +125,7 @@ namespace CodecLib
                                                                        swapBytes));
                     offset += 4;
                 }
-                out_1 = new DecompressedData(ftemp);
+                @out = new DecompressedData(ftemp);
                 break;
             case DOUBLE:
                 // 64 bit doubles
@@ -149,32 +148,32 @@ namespace CodecLib
                                                                        swapBytes));
                     offset += 8;
                 }
-                out_1 = new DecompressedData(dtemp);
+                @out = new DecompressedData(dtemp);
                 break;
             case STEIM1:
                 // steim 1
-                itemp = Steim1.decode(b, numSamples, swapBytes, 0);
-                out_1 = new DecompressedData(itemp);
+                itemp = Steim1.Decode(b, numSamples, swapBytes, 0);
+                @out = new DecompressedData(itemp);
                 break;
             case STEIM2:
                 // steim 2
-                itemp = Steim2.decode(b, numSamples, swapBytes, 0);
-                out_1 = new DecompressedData(itemp);
+                itemp = Steim2.Decode(b, numSamples, swapBytes, 0);
+                @out = new DecompressedData(itemp);
                 break;
             case CDSN:
-                itemp = Cdsn.decode(b, numSamples, swapBytes);
-                out_1 = new DecompressedData(itemp);
+                itemp = Cdsn.Decode(b, numSamples, swapBytes);
+                @out = new DecompressedData(itemp);
                 break;
             case SRO:
-                itemp = Sro.decode(b, numSamples, swapBytes);
-                out_1 = new DecompressedData(itemp);
+                itemp = Sro.Decode(b, numSamples, swapBytes);
+                @out = new DecompressedData(itemp);
                 break;    
             default:
                 // unknown format????
                 throw new Exception( "UnsupportedCompressionType(Type " + type
                         + " is not supported at this time.");
         } // end of switch ()
-        return out_1;
+        return @out;
     }
 
     /**
@@ -185,7 +184,7 @@ namespace CodecLib
     /*
      *1-  delete throws UnsupportedCompressionType 
      */
-    public int getDecompressedType(int type)  {
+    public int GetDecompressedType(int type)  {
         if(type == INT24 || type == INTEGER || type == STEIM1 || type == STEIM2 || type == CDSN || type == SRO) {
             return INTEGER;
         } else if(type == SHORT || type == DWWSSN) {
@@ -201,7 +200,7 @@ namespace CodecLib
     }
         
     /** encodes the short data as a byte array. This is the inverse operation to decompress() with seed type 1 - 16 bit integers. */
-    public byte[] encodeAsBytes(short[] data) {
+    public byte[] EncodeAsBytes(short[] data) {
         byte[] dataBytes = new byte[data.Length*2];
         for (int i = 0; i < data.Length; i++) {
             dataBytes[2 * i    ] = (byte)((data[i] & 0x0000ff00) >> 8);
@@ -211,7 +210,7 @@ namespace CodecLib
     }
     
     /** encodes the integer data as a byte array. This is the inverse operation to decompress() with seed type 3 - 32 bit integers. */
-    public byte[] encodeAsBytes(int[] data) {
+    public byte[] EncodeAsBytes(int[] data) {
         byte[] dataBytes = new byte[data.Length*4];
         for (int i = 0; i < data.Length; i++) {
             dataBytes[4 * i] = (byte)((data[i] & 0xff000000) >> 24);
@@ -226,19 +225,19 @@ namespace CodecLib
     /*
      * 1- Float.floatToIntBits ======> FloatToUInt32Bits
      * */
-    public byte[] encodeAsBytes(float[] data) {
+    public byte[] EncodeAsBytes(float[] data) {
         int[] tmp = new int[data.Length];
         for (int i = 0; i < data.Length; i++) {
             tmp[i] = FloatToUInt32Bits(data[i]);
         }
-        return encodeAsBytes(tmp);
+        return EncodeAsBytes(tmp);
     }
     
     /** encodes the float data as a byte array. This is the inverse operation to decompress() with seed type 5 - 64 bit floats. */
     /*
      * 1- val======> (ulong)val
      * */
-    public byte[] encodeAsBytes(double[] data) {
+    public byte[] EncodeAsBytes(double[] data) {
         byte[] dataBytes = new byte[data.Length*8];
         int byteOffset = 0;
         for (int i = 0; i < data.Length; i++) {
@@ -264,8 +263,6 @@ namespace CodecLib
     public static  int FloatToUInt32Bits(float f)
     {
             uint value = BitConverter.ToUInt32(BitConverter.GetBytes(f), 0);
-
-            //return *((int*)&f);
             return (int)value;
     }
     

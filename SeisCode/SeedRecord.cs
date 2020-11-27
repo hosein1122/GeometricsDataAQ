@@ -40,10 +40,7 @@ namespace SeisCode
         public static SeedRecord Read(byte[] bytes)
         {
             BinaryReader seedIn = new BinaryReader(new MemoryStream(bytes));
-            return DataRecord.Read(seedIn);
-
-            //DataInputStream seedIn = new DataInputStream(new MemoryStream(bytes));
-            //return DataRecord.read(seedIn);
+            return Read(seedIn);
 
         }
 

@@ -8,14 +8,10 @@ using System;
 
 namespace CodecLib
 {
-    public class CodecException : Exception {
-    public CodecException() {
-	
-    }
-    public CodecException(string reason):base(reason) {
-	   //super(reason);
-        //base.Source = reason;
-    }
-    
-}// Codec
+    public class CodecException : Exception
+    {
+        public CodecException() { }
+        public CodecException(string reason) : base(reason) { }
+
+    }// Codec
 }

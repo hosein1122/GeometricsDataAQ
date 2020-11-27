@@ -19,7 +19,7 @@ namespace CodecLib
 	/* maximum 14 bit positive # */
 	public static readonly int MAX14 = 0x1fff;
 
-	public static int[] decode(sbyte[] b, int numSamples, bool swapBytes)
+	public static int[] Decode(sbyte[] b, int numSamples, bool swapBytes)
 			 {
 		if (b.Length < numSamples * 2) {
 			throw new CodecException("Not enough bytes for " + numSamples

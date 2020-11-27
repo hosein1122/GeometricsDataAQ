@@ -24,7 +24,7 @@ namespace CodecLib
 	 *  @throws SteimException - encoded data Length is not multiple of 64
 	 *  bytes.
 	 */
-	public static int[] decode(sbyte[] b, int numSamples, bool swapBytes, int bias)  {
+	public static int[] Decode(sbyte[] b, int numSamples, bool swapBytes, int bias)  {
 		// Decode Steim1 compression format from the provided byte array, which contains numSamples number
 		// of samples.  swapBytes is set to true if the value words are to be byte swapped.  bias represents
 		// a previous value which acts as a starting constant for continuing differences integration.  At the
@@ -43,7 +43,7 @@ namespace CodecLib
 		//System.err.println("DEBUG: number of samples: " + numSamples + ", number of frames: " + numFrames + ", byte array size: " + b.Length);
 		for (int i=0; i< numFrames; i++ ) {
 			//System.err.println("DEBUG: start of frame " + i);
-			tempSamples = extractSamples(b, i*64, swapBytes);   // returns only differences except for frame 0
+			tempSamples = ExtractSamples(b, i*64, swapBytes);   // returns only differences except for frame 0
 			firstData = 0; // d(0) is byte 0 by default
 			if (i==0) {   // special case for first frame
 				lastValue = bias; // assign our X(-1)
@@ -79,9 +79,9 @@ namespace CodecLib
 	 *
 	 * see edu.iris.Fissures.codec.Steim1#decode(byte[],int,boolean,int)
 	 */
-	public static int[] decode(sbyte[] b, int numSamples, bool swapBytes)  {
+	public static int[] Decode(sbyte[] b, int numSamples, bool swapBytes)  {
 		// zero-bias version of decode
-		return decode(b,numSamples,swapBytes,0);
+		return Decode(b,numSamples,swapBytes,0);
 	}
 
 
@@ -104,11 +104,11 @@ namespace CodecLib
 	* @throws SteimException number of frames is not a positive value
 	* @throws SteimException cannot encode more than 63 frames
 	*/
-    public static SteimFrameBlock encode(int[] samples, int frames, int bias)  {
-        return encode(samples, frames, bias, 0);
+    public static SteimFrameBlock Encode(int[] samples, int frames, int bias)  {
+        return Encode(samples, frames, bias, 0);
     }
     
-	public static SteimFrameBlock encode(int[] samples, int frames, int bias, int offset)  {
+	public static SteimFrameBlock Encode(int[] samples, int frames, int bias, int offset)  {
 		if (samples.Length == 0) {
 			throw new Exception(" SteimException(samples array is zero size");
 		}
@@ -137,8 +137,8 @@ namespace CodecLib
 		// and reverse integration constant X(N)
 		// ...reverse integration constant may need to be changed if 
 		// the frameBlock fills up.
-		frameBlock.addEncodedWord(samples[offset],0,0);                // X(0) -- first sample value
-		frameBlock.addEncodedWord(samples[samples.Length-1],0,0); // X(N) -- last sample value
+		frameBlock.AddEncodedWord(samples[offset],0,0);                // X(0) -- first sample value
+		frameBlock.AddEncodedWord(samples[samples.Length-1],0,0); // X(N) -- last sample value
 		//
 		// now begin looping over differences
 		int sampleIndex = offset;  // where we are in the sample array
@@ -207,11 +207,11 @@ namespace CodecLib
 			}
 
 			// add the encoded word to the frame block
-			if (frameBlock.addEncodedWord(word,diffCount,nibble)) {
+			if (frameBlock.AddEncodedWord(word,diffCount,nibble)) {
 				// frame block is full (but the value did get added) 
 				// so modify reverse integration constant to be the very last value added
 				// and break out of loop (read no more samples)
-				frameBlock.setXsubN(samples[sampleIndex+diffCount-1]); // X(N)
+				frameBlock.SetXsubN(samples[sampleIndex+diffCount-1]); // X(N)
 				break;
 			}
 
@@ -226,8 +226,8 @@ namespace CodecLib
 	 * Abbreviated zero-bias version of encode().
 	 * see edu.iris.Fissures.codec.Steim1#encode(int[],int,int)
 	 */
-	public static SteimFrameBlock encode(int[] samples, int frames) {
-		return encode(samples,frames,0);   // zero-bias version of encode
+	public static SteimFrameBlock Encode(int[] samples, int frames) {
+		return Encode(samples,frames,0);   // zero-bias version of encode
 	}
 
 	/**
@@ -242,7 +242,7 @@ namespace CodecLib
 	 * @param swapBytes reverse the endian-ness of the compressed bytes being read
 	 * @return integer array of difference (and constant) values
 	 */
-	protected static int[] extractSamples(sbyte[] bytes,
+	protected static int[] ExtractSamples(sbyte[] bytes,
 			int offset, 
 			bool swapBytes) {
 		/* get nibbles */
@@ -359,7 +359,7 @@ namespace CodecLib
 		b[21] = 1;
 		b[22] = 0;
 		b[23] = 0;
-		temp = Steim1.decode(b, 17, false);
+		temp = Steim1.Decode(b, 17, false);
 	}
 }
 }

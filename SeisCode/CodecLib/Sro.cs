@@ -6,7 +6,7 @@ using System.Text;
 namespace CodecLib
 {
     public class Sro {
-	public static int[] decode(sbyte[] b, int numSamples, bool swapBytes)  {
+	public static int[] Decode(sbyte[] b, int numSamples, bool swapBytes)  {
 		if (b.Length < numSamples * 2) {
 			throw new CodecException("Not enough bytes for " + numSamples
 					+ " samples, need " + (2 * numSamples) + " but only have "

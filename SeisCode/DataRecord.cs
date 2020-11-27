@@ -159,7 +159,7 @@ namespace SeisCode
 				throw new MissingBlockette1000(Header);
 			}
 			Codec codec = new Codec();
-			return codec.decompress(b1000.EncodingFormat, ConvertByteToSbyte.ByteToSbyte(Data), Header.NumSamples, b1000.LittleEndian);
+			return codec.Decompress(b1000.EncodingFormat, ConvertByteToSbyte.ByteToSbyte(Data), Header.NumSamples, b1000.LittleEndian);
 		}
 
 

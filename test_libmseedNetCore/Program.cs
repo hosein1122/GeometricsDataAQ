@@ -1,7 +1,7 @@
 ﻿using libmseedNetCore;
 using StationAnalysisToolsNetCore;
 using System;
-
+using SeisCode;
 namespace test_libmseedNetCore
 {
     class Program
@@ -57,7 +57,9 @@ namespace test_libmseedNetCore
             //unpackdata.Test_Steim1_decode();
             // unpackdata.Test_Steim2_decode();
             //unpack.test_check_environment();
+            MiniSeedRead.ReadMiniSeed("d:/Temp/IR.ANAR..SHZ.D.2016.005");
 
+            
         }
 
 

@@ -14,21 +14,18 @@ namespace SeisCode
     public class MultiFileMSeedRead : MiniSeedRead
     {
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public MultiFileMSeedRead(java.io.File[] files) throws java.io.IOException
-        public MultiFileMSeedRead(FileInfo[] files)
+         public MultiFileMSeedRead(FileInfo[] files)
         {
             this.files = files;
             InitNextFile();
         }
 
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public void close() throws java.io.IOException
-        public override void close()
+       
+        public override void Close()
         {
             if (current != null)
             {
-                current.close();
+                current.Close();
             }
             currentIndex = files.Length; // make sure no read after close
         }
@@ -39,8 +36,7 @@ namespace SeisCode
         /// volume as "continued" records will be concatinated to avoid
         /// partial blockettes. 
         /// </summary>
-        //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-        //ORIGINAL LINE: public SeedRecord getNextRecord() throws SeedFormatException, java.io.IOException
+      
         public override SeedRecord NextRecord
         {
             get
@@ -80,7 +76,7 @@ namespace SeisCode
             {
                 if (current != null)
                 {
-                    current.close();
+                    current.Close();
                     current = null;
                 }
                 current = new MiniSeedRead(new BinaryReader(new FileStream(files[currentIndex].FullName, FileMode.Open, FileAccess.Read)));
