@@ -143,8 +143,7 @@ namespace SeisCode
 		/// <exception cref="SeedFormatException"> if no blockette 1000 present </exception>
 		/// <exception cref="UnsupportedCompressionType"> </exception>
 		/// <exception cref="CodecException"> </exception>
-		//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
-		//ORIGINAL LINE: public edu.iris.dmc.seedcodec.DecompressedData decompress() throws SeedFormatException, edu.iris.dmc.seedcodec.UnsupportedCompressionType, edu.iris.dmc.seedcodec.CodecException
+		
 		public virtual DecompressedData Decompress()
 		{
 			// in case of record with only blockettes, ex detection blockette, which often have compression type
@@ -385,7 +384,7 @@ namespace SeisCode
 		/// 
 		/// <param name="out"> </param>
 		[Obsolete("Confusing method name, use printData(PrintWriter) for textual")]
-		public virtual void writeData(TextWriter @out)
+		public virtual void WriteData(TextWriter @out)
 		{
 			PrintData(@out);
 		}

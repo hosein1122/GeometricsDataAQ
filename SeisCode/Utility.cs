@@ -329,7 +329,7 @@ namespace SeisCode
 		{
 			//drFromFileList.Sort(new DataRecordBeginComparator());
 			var comparator = new DataRecordBeginComparator();
-            drFromFileList.Sort((x, y) => comparator.compare(x, y));
+            drFromFileList.Sort((x, y) => comparator.Compare(x, y));
 
 			DataRecord prev = null;
 			IEnumerator<DataRecord> itFromFileList = drFromFileList.GetEnumerator();
