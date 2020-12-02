@@ -2,6 +2,7 @@
 using StationAnalysisToolsNetCore;
 using System;
 using SeisCode;
+using RingServer;
 namespace test_libmseedNetCore
 {
     class Program
@@ -57,8 +58,9 @@ namespace test_libmseedNetCore
             //unpackdata.Test_Steim1_decode();
             // unpackdata.Test_Steim2_decode();
             //unpack.test_check_environment();
-            MiniSeedRead.ReadMiniSeed("d:/Temp/IR.ANAR..SHZ.D.2016.005");
-
+            // MiniSeedRead.ReadMiniSeed("d:/Temp/IR.ANAR..SHZ.D.2016.005");
+            var rr = Environment.SystemPageSize;
+            var ee = sizeof(RingPacket);
             
         }
 
